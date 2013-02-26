@@ -38,6 +38,7 @@ public:
 
     I_FileObject *createFileObject(const char *name);
     I_FileObject *getFileObject(FILE *file);
+    I_FileObject *getFileObject(int filedes);
 };   // Config
 
 }   // namespace AIO

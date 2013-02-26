@@ -11,8 +11,11 @@ namespace AIO
 class StandardFileObject : public BaseFileObject
 {
 protected:
-    /** The original stream pointer. */
+    /** The original stream pointer in case of stream objects. */
     FILE *m_file;
+
+    /** The original file descriptor. */
+    int  m_filedes;
 
 public:
 
@@ -58,11 +61,6 @@ public:
         return OS::fgets(s, size, m_file);
     }   // fgets
     // ------------------------------------------------------------------------
-    virtual off_t lseek(int fildes, off_t offset, int whence)
-    {
-        return OS::lseek(fildes, offset, whence);
-    }   // lseek
-    // ------------------------------------------------------------------------
     virtual int fclose()
     {
         int error = OS::fclose(m_file);
@@ -70,6 +68,40 @@ public:
             m_file = NULL;
         return error;
     }   // fclose
+
+    // ------------------------------------------------------------------------
+    virtual int open(int flags, mode_t mode)
+    {
+        m_filedes = OS::open(getFilename().c_str(), flags, mode);
+        return getIndex()+1024;
+    }   // open
+    // ------------------------------------------------------------------------
+    virtual int __fxstat(int ver, struct stat *buf)
+    {
+        return OS::__fxstat(ver, m_filedes, buf);
+    }   // fstat
+    // ------------------------------------------------------------------------
+    virtual off_t lseek(off_t offset, int whence)
+    {
+        return OS::lseek(m_filedes, offset, whence);
+    }   // lseek
+    // ------------------------------------------------------------------------
+    virtual ssize_t write(const void *buf, size_t nbyte)
+    {
+        return OS::write(m_filedes, buf, nbyte);
+    }   // write
+    // ------------------------------------------------------------------------
+    virtual ssize_t read(void *buf, size_t count)
+    {
+        return OS::read(m_filedes, buf, count);
+    }   // read
+    // ------------------------------------------------------------------------
+    virtual int close()
+    {
+        return OS::close(m_filedes);
+    }   // close
+    // ------------------------------------------------------------------------
+
 
 };   // StandardFileObject
 

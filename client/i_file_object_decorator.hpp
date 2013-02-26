@@ -36,6 +36,12 @@ public:
         return m_parent->getFilename();
     }
     // ------------------------------------------------------------------------
+    /** Sets the index of this object in config's m_file_object array. */
+    void setIndex(int index) { m_parent->setIndex(index); }
+    // ------------------------------------------------------------------------
+    /** Returns the index of this object in config's m_file_object array. */
+    int getIndex() const { return m_parent->getIndex(); }
+    // ------------------------------------------------------------------------
     virtual FILE*  fopen(const char *mode) { return m_parent->fopen(mode); }
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
@@ -52,12 +58,35 @@ public:
     // ------------------------------------------------------------------------
     virtual char *fgets(char *s, int size) { return m_parent->fgets(s, size); }
     // ------------------------------------------------------------------------
-    virtual int    fclose() { return m_parent->fclose(); }
+    virtual int fclose() { return m_parent->fclose(); }
     // ------------------------------------------------------------------------
-    virtual off_t  lseek(int fildes, off_t offset, int whence)
+    virtual int open(int flags, mode_t mode)
     {
-        return m_parent->lseek(fildes, offset, whence); 
+        return m_parent->open(flags, mode); 
     }
+    // ------------------------------------------------------------------------
+    virtual int __fxstat(int ver, struct stat *buf) 
+    {
+        return m_parent->__fxstat(ver, buf); 
+    } 
+    // ------------------------------------------------------------------------
+    virtual off_t lseek(off_t offset, int whence)
+    {
+        return m_parent->lseek(offset, whence); 
+    }
+    // ------------------------------------------------------------------------
+    virtual ssize_t write(const void *buf, size_t nbyte)
+    {
+        return m_parent->write(buf, nbyte);
+    }
+    // ------------------------------------------------------------------------
+    virtual ssize_t read(void *buf, size_t count)
+    {
+        return m_parent->read(buf, count);
+    }
+    // ------------------------------------------------------------------------
+    virtual int close() { return m_parent->close(); }
+
 };   // IFileObject
 
 }   // namespace AIO

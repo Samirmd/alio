@@ -17,9 +17,12 @@ public:
     // ------------------------------------------------------------------------
     virtual ~NullFileObject() {};
     // ------------------------------------------------------------------------
-    virtual FILE*  fopen(const char *mode) { return NULL; }
+    virtual FILE*  fopen(const char *mode) { return (FILE*)this; }
     // ------------------------------------------------------------------------
-    virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb) { return 0;}
+    virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb) 
+    {
+        return nmemb;
+    }
     // ------------------------------------------------------------------------
     virtual size_t fread(void *ptr,size_t size, size_t nmemb) { return 0;}
     // ------------------------------------------------------------------------
@@ -29,7 +32,17 @@ public:
     // ------------------------------------------------------------------------
     virtual int fclose() {return 0;}
     // ------------------------------------------------------------------------
-    virtual off_t lseek(int fildes, off_t offset, int whence) {return 0;}
+    virtual int open(int flags, mode_t mode) { return 1; }
+    // ------------------------------------------------------------------------
+    virtual int __fxstat(int ver, struct stat *buf) {return 0; }
+    // ------------------------------------------------------------------------
+    virtual off_t lseek(off_t offset, int whence) { return 0; }
+    // ------------------------------------------------------------------------
+    virtual ssize_t write(const void *buf, size_t nbyte) { return nbyte; }
+    // ------------------------------------------------------------------------
+    virtual ssize_t read(void *buf, size_t count) { return 0; }
+    // ------------------------------------------------------------------------
+    virtual int close() { return 0; }
 };   // NullFileObject
 
 };   // namespace AIO

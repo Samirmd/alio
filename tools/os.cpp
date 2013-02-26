@@ -10,7 +10,10 @@
 namespace AIO {
 namespace OS  {
     t_open    open    = NULL;
+    t___fxstat __fxstat = NULL;
+    t_lseek   lseek   = NULL;
     t_write   write   = NULL;
+    t_read    read    = NULL;
     t_close   close   = NULL;
 
     t_fopen   fopen   = NULL;
@@ -20,7 +23,6 @@ namespace OS  {
     t_feof    feof    = NULL;
     t_fgets   fgets   = NULL;
     t_fprintf fprintf = NULL;
-    t_lseek   lseek   = NULL;
     t_fclose  fclose  = NULL;
 } }  // namespace AIO::OS
 
@@ -37,10 +39,12 @@ int AIO::OS::init()
 #  define GET(type,name) \
     (AIO::OS::type)dlsym(RTLD_NEXT, name)
     AIO::OS::open    = GET(t_open,    "open"   );
-    AIO::OS::write   = GET(t_write,   "write"  );
+    AIO::OS::__fxstat = GET(t___fxstat, "__fxstat"  );
     AIO::OS::lseek   = GET(t_lseek,   "lseek"  );
+    AIO::OS::write   = GET(t_write,   "write"  );
+    AIO::OS::read    = GET(t_read,    "read"   );
+    AIO::OS::close   = GET(t_close,   "close"  );
 #endif
-
     AIO::OS::fopen   = GET(t_fopen,   "fopen"  );
     AIO::OS::fseek   = GET(t_fseek,   "fseek"  );
     AIO::OS::fwrite  = GET(t_fwrite,  "fwrite" );

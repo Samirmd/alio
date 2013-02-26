@@ -12,6 +12,12 @@ protected:
     /** Store the filename.*/
     std::string m_filename;
 
+    /** This stores the index of this object in config's m_file_object
+     *  array. This allows us for a quick lookup of this item in config,
+     *  and to distringuish it from non-AIO managed file objects.
+     */
+    int m_index;
+
 public:
     BaseFileObject() 
     {
@@ -26,8 +32,14 @@ public:
 
     // ------------------------------------------------------------------------
     virtual const std::string &getFilename() const { return m_filename; }
+
     // ------------------------------------------------------------------------
-    virtual int getIndex() const { return m_index; }
+    /** Sets the index of this object in config's m_file_object array. */
+    void setIndex(int index) { m_index = index; }
+    // ------------------------------------------------------------------------
+    /** Returns the index of this object in config's m_file_object array. */
+    int getIndex() const { return m_index; }
+    // ------------------------------------------------------------------------
 };   // BaseFileObject
 
 }   // namespace AIO

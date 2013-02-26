@@ -116,10 +116,37 @@ char *Remote::fgets(char *s, int size)
 }   // fgets
 
 // ----------------------------------------------------------------------------
-off_t Remote::lseek(int fildes, off_t offset, int whence)
+int Remote::open(int flags, mode_t mode)
 {
-    return 0;
+
+}   // open
+
+// ----------------------------------------------------------------------------
+    int Remote::__fxstat(int ver, struct stat *buf)
+{
+}   // fstat
+
+// ----------------------------------------------------------------------------
+off_t Remote::lseek(off_t offset, int whence)
+{
 }   // lseek
+
+// ----------------------------------------------------------------------------
+ssize_t Remote::write(const void *buf, size_t nbyte)
+{
+}   // write
+
+// ----------------------------------------------------------------------------
+ssize_t Remote::read(void *buf, size_t count)
+{
+}   // read
+
+// ----------------------------------------------------------------------------
+int Remote::close()
+{
+}   // close
+
+// ----------------------------------------------------------------------------
 
 
 }   // namespace AIO

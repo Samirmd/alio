@@ -24,74 +24,129 @@ public:
     // ------------------------------------------------------------------------
     virtual FILE* fopen(const char *mode)
     {
-        printf("[%s] fopen.\n", I_FileObjectDecorator::getFilename().c_str());
+        printf("[%s] fopen(%s)", I_FileObjectDecorator::getFilename().c_str(), 
+               mode);
         FILE *file = I_FileObjectDecorator::fopen(mode);
         if(!file)
-            printf("[%s] fopen error, error code %d.\n", 
+            printf(" = errno(%d).\n", 
                    I_FileObjectDecorator::getFilename().c_str(), errno);
         else
-            printf("[%s] fopen ok.\n", 
-                  I_FileObjectDecorator::getFilename().c_str());
+            printf(" = %lx\n", file);
         return (FILE*)this;
     }
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
-        printf("[%s] fwrite(%lx, %ld, %ld)\n", 
+        printf("[%s] fwrite(%lx, %ld, %ld)", 
                I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb);
+        fflush(stdout);
         size_t n = I_FileObjectDecorator::fwrite(ptr, size, nmemb);
-        printf("[%s] fwrite(%lx, %ld, %ld) = %ld.\n", 
-               I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb,
-               n);
+        printf(" = %ld.\n", n);
         return n;
     }
     // ------------------------------------------------------------------------
     virtual size_t fread(void *ptr,size_t size, size_t nmemb) 
     { 
-        printf("[%s] fread(%lx, %ld, %ld)\n", 
+        printf("[%s] fread(%lx, %ld, %ld)", 
                I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb);
+        fflush(stdout);
         size_t n = I_FileObjectDecorator::fread(ptr, size, nmemb);
-        printf("[%s] fread(%lx, %ld, %ld) = %ld\n", 
-               I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb,
-               n);
+        printf(" = %ld\n", n);
         return n;
     }
     // ------------------------------------------------------------------------
     virtual int feof() 
     { 
-        printf("[%s] feof()\n", 
+        printf("[%s] feof()", 
                I_FileObjectDecorator::getFilename().c_str());
+        fflush(stdout);
         int n = I_FileObjectDecorator::feof();
-        printf("[%s] feof() = %d\n", 
-               I_FileObjectDecorator::getFilename().c_str(), n);
+        printf(" = %d\n", n);
         return n;
     }   // feof
     // ------------------------------------------------------------------------
     virtual char * fgets(char *s, int size) 
     { 
-        printf("[%s] fgets(%lx, %d)\n", 
+        printf("[%s] fgets(%lx, %d)", 
                I_FileObjectDecorator::getFilename().c_str(), s, size);
+        fflush(stdout);
         char *result = I_FileObjectDecorator::fgets(s, size);
-        printf("[%s] fgets(%lx, %d) = %lx\n", 
-               I_FileObjectDecorator::getFilename().c_str(), s, size,
-               result);
+        printf(" = %lx\n", result);
         return result;
     }   // fgets
     // ------------------------------------------------------------------------
     virtual int fclose() 
     {
-        printf("[%s] fclose()\n", 
+        printf("[%s] fclose()", 
                I_FileObjectDecorator::getFilename().c_str());
+        fflush(stdout);
         int error = I_FileObjectDecorator::fclose(); 
-        printf("[%s] fclose() = %d\n", 
-               I_FileObjectDecorator::getFilename().c_str(), error);
+        printf(" = %d\n", error);
         return error;
     }   // fclose
+
     // ------------------------------------------------------------------------
-    virtual off_t  lseek(int fildes, off_t offset, int whence)
+    virtual int open(int flags, mode_t mode)
     {
-        return I_FileObjectDecorator::lseek(fildes, offset, whence); 
-    }
+        printf("[%s] open(%d, %d)", 
+               I_FileObjectDecorator::getFilename().c_str(), flags, mode);
+        fflush(stdout);
+        int filedes = I_FileObjectDecorator::open(flags, mode);
+        printf(" = %d\n", filedes);
+        return filedes;
+    }   // open
+    // ------------------------------------------------------------------------
+    virtual int __fxstat(int ver, struct stat *buf)
+    {
+        printf("[%s] fstat(%lx)", 
+               I_FileObjectDecorator::getFilename().c_str(), buf);
+        fflush(stdout);
+        int error = I_FileObjectDecorator::__fxstat(ver, buf);
+        printf(" = %d\n", error);
+        return error;
+    }   // fstat
+    // ------------------------------------------------------------------------
+    virtual off_t lseek(off_t offset, int whence)
+    {
+        printf("[%s] lseek(%ld, %d)", 
+               I_FileObjectDecorator::getFilename().c_str(), offset, whence);
+        fflush(stdout);
+        int error = I_FileObjectDecorator::lseek(offset, whence);
+        printf(" = %d\n", error);
+        return error;
+    }   // lseek
+    // ------------------------------------------------------------------------
+    virtual ssize_t write(const void *buf, size_t nbyte)
+    {
+        printf("[%s] write(%lx, %ld)", 
+               I_FileObjectDecorator::getFilename().c_str(), buf, nbyte);
+        fflush(stdout);
+        ssize_t result = I_FileObjectDecorator::write(buf, nbyte);
+        printf(" = %ld\n", result);
+        return result;
+    }   // write
+    // ------------------------------------------------------------------------
+    virtual ssize_t read(void *buf, size_t count)
+    {
+        printf("[%s] read(%lx, %ld)", 
+               I_FileObjectDecorator::getFilename().c_str(), buf, count);
+        fflush(stdout);
+        ssize_t result = I_FileObjectDecorator::read(buf, count);
+        printf(" = %ld\n", result);
+        return result;
+    }   // read
+    // ------------------------------------------------------------------------
+    virtual int close()
+    {
+        printf("[%s] close()", 
+               I_FileObjectDecorator::getFilename().c_str());
+        fflush(stdout);
+        int result = I_FileObjectDecorator::close();
+        printf(" = %d\n", result);
+        return result;
+    }   // close
+    // ------------------------------------------------------------------------
+
 };   // IFileObject
 
 }   // namespace AIO

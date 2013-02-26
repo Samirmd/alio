@@ -100,12 +100,7 @@ AIO::I_FileObject *Config::createFileObject(const char *name)
         }
     }
     return NULL;
-    // Otherwise fallback to default, i.e. unix behaviour
-    I_FileObject *fo = new StandardFileObject();
-    fo->setFilename(name);
-    fo->setIndex(m_file_objects.size());
-    m_file_objects.push_back(fo);
-    return fo;
+
 }   // createFileObject
 
 // ----------------------------------------------------------------------------
@@ -124,14 +119,33 @@ AIO::I_FileObject *Config::createFileObject(const char *name)
 I_FileObject *Config::getFileObject(FILE *file)
 {
     I_FileObject *fo = (I_FileObject*)(file);
+    for(unsigned int i=0; i<m_file_objects.size(); i++)
+    {
+        if(m_file_objects[i]==fo)
+            return fo;
+    }
+
+    return NULL;
+
     int index = fo->getIndex();
     if(index>=0 && index <m_file_objects.size() &&
        fo==m_file_objects[index])
         return m_file_objects[index];
 
     return NULL;
-}   // getFileObject
+}   // getFileObject(FILE*)
 
 // ----------------------------------------------------------------------------
+I_FileObject *Config::getFileObject(int filedes)
+{
+    if(filedes<1024)
+        return NULL;
+    int indx = filedes -1024;
+    if(indx<m_file_objects.size())
+        return m_file_objects[indx];
+    return NULL;
 
+}   // getFileObject(int)
+
+// ----------------------------------------------------------------------------
 }   // namespace AIO
