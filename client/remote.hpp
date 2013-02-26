@@ -28,7 +28,9 @@ public:
     virtual int     fclose();
 
     virtual int     open(int flags, mode_t mode);
+    virtual int     __xstat(int ver, struct stat *buf);
     virtual int     __fxstat(int ver, struct stat *buf);
+    virtual int     __lxstat(int ver, struct stat *buf);
     virtual off_t   lseek(off_t offset, int whence);
     virtual ssize_t write(const void *buf, size_t nbyte);
     virtual ssize_t read(void *buf, size_t count);

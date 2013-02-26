@@ -15,7 +15,9 @@ namespace OS {
 #else
         typedef int    (*t_open)(const char *pathname, int flags, mode_t mode);
 #endif
+        typedef int    (*t___xstat)(int ver, const char *, struct stat *buf);
         typedef int    (*t___fxstat)(int ver, int filedes, struct stat *buf);
+        typedef int    (*t___lxstat)(int ver, const char *, struct stat *buf);
         typedef off_t  (*t_lseek  )(int fildes, off_t offset, int whence);
         typedef ssize_t(*t_write  )(int fildes, const void *buf, size_t nbyte);
         typedef ssize_t(*t_read   )(int fd, void *buf, size_t count);
@@ -33,7 +35,9 @@ namespace OS {
     }   // extern "C"
 
     extern t_open    open;
+    extern t___xstat __xstat;
     extern t___fxstat __fxstat;
+    extern t___lxstat __lxstat;
     extern t_lseek   lseek;
     extern t_write   write;
     extern t_read    read;

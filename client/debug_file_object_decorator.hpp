@@ -95,12 +95,32 @@ public:
         return filedes;
     }   // open
     // ------------------------------------------------------------------------
+    virtual int __xstat(int ver, struct stat *buf)
+    {
+        printf("[%s] stat(%lx)", 
+               I_FileObjectDecorator::getFilename().c_str(), buf);
+        fflush(stdout);
+        int error = I_FileObjectDecorator::__xstat(ver, buf);
+        printf(" = %d\n", error);
+        return error;
+    }   // fstat
+    // ------------------------------------------------------------------------
     virtual int __fxstat(int ver, struct stat *buf)
     {
         printf("[%s] fstat(%lx)", 
                I_FileObjectDecorator::getFilename().c_str(), buf);
         fflush(stdout);
         int error = I_FileObjectDecorator::__fxstat(ver, buf);
+        printf(" = %d\n", error);
+        return error;
+    }   // fstat
+    // ------------------------------------------------------------------------
+    virtual int __lxstat(int ver, struct stat *buf)
+    {
+        printf("[%s] lstat(%lx)", 
+               I_FileObjectDecorator::getFilename().c_str(), buf);
+        fflush(stdout);
+        int error = I_FileObjectDecorator::__lxstat(ver, buf);
         printf(" = %d\n", error);
         return error;
     }   // fstat

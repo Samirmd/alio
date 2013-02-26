@@ -65,9 +65,19 @@ public:
         return m_parent->open(flags, mode); 
     }
     // ------------------------------------------------------------------------
+    virtual int __xstat(int ver, struct stat *buf) 
+    {
+        return m_parent->__xstat(ver, buf); 
+    } 
+    // ------------------------------------------------------------------------
     virtual int __fxstat(int ver, struct stat *buf) 
     {
         return m_parent->__fxstat(ver, buf); 
+    } 
+    // ------------------------------------------------------------------------
+    virtual int __lxstat(int ver, struct stat *buf) 
+    {
+        return m_parent->__lxstat(ver, buf); 
     } 
     // ------------------------------------------------------------------------
     virtual off_t lseek(off_t offset, int whence)

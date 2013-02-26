@@ -133,9 +133,49 @@ int Remote::open(int flags, mode_t mode)
 }   // open
 
 // ----------------------------------------------------------------------------
+int Remote::__xstat(int ver, struct stat *buf)
+{
+    Message m(Message::MSG_STAT);
+    m.allocate(0);
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+
+    MPI_Status status;
+    char *msg = new char[sizeof(struct stat) + 2*sizeof(int)];
+    MPI_Recv(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, 
+             m_intercomm, &status);
+    int *p    = (int *)msg;
+    memcpy(buf, p+2, sizeof(struct stat));
+    delete msg;
+    int result = p[0];
+    if(result)
+        errno = p[1];
+    return result;
+}   // fstat
+
+// ----------------------------------------------------------------------------
 int Remote::__fxstat(int ver, struct stat *buf)
 {
     Message m(Message::MSG_FSTAT);
+    m.allocate(0);
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+
+    MPI_Status status;
+    char *msg = new char[sizeof(struct stat) + 2*sizeof(int)];
+    MPI_Recv(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, 
+             m_intercomm, &status);
+    int *p    = (int *)msg;
+    memcpy(buf, p+2, sizeof(struct stat));
+    delete msg;
+    int result = p[0];
+    if(result)
+        errno = p[1];
+    return result;
+}   // fstat
+
+// ----------------------------------------------------------------------------
+int Remote::__lxstat(int ver, struct stat *buf)
+{
+    Message m(Message::MSG_LSTAT);
     m.allocate(0);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
 

@@ -76,9 +76,19 @@ public:
         return getIndex()+1024;
     }   // open
     // ------------------------------------------------------------------------
+    virtual int __xstat(int ver, struct stat *buf)
+    {
+        return OS::__xstat(ver, getFilename().c_str(), buf);
+    }   // fstat
+    // ------------------------------------------------------------------------
     virtual int __fxstat(int ver, struct stat *buf)
     {
         return OS::__fxstat(ver, m_filedes, buf);
+    }   // fstat
+    // ------------------------------------------------------------------------
+    virtual int __lxstat(int ver, struct stat *buf)
+    {
+        return OS::__lxstat(ver, getFilename().c_str(), buf);
     }   // fstat
     // ------------------------------------------------------------------------
     virtual off_t lseek(off_t offset, int whence)

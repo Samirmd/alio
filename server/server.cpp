@@ -13,6 +13,8 @@ bool handleRequests(MPI_Comm intercomm);
 FILE *m_file = NULL;
 int  m_filedes = 0;
 
+std::string m_filename("");
+
 int main(int argc, char **argv)
 {
     AIO::OS::init();
@@ -55,16 +57,17 @@ bool handleRequests(MPI_Comm intercomm)
 
     MPI_Recv(buffer, len, MPI_CHAR, 0, 1, intercomm, &status);
     Message m(buffer, len);
-
+    printf("Server received %d\n", m.getType());
+    fflush(stdout);
     switch(m.getType())
     {
     case Message::MSG_FOPEN:
         {
-            std::string name, mode;
-            m.get(name);
+            std::string mode;
+            m.get(m_filename);
             m.get(mode);
-            name = "/tmp/aio_"+name;
-            m_file = fopen(name.c_str(), mode.c_str());
+            //m_filename = "/tmp/aio_"+m_filename;
+            m_file = fopen(m_filename.c_str(), mode.c_str());
             return false;
         }
     case Message::MSG_FWRITE:
@@ -84,22 +87,45 @@ bool handleRequests(MPI_Comm intercomm)
         }
     case Message::MSG_OPEN:
         {
-            std::string name;
-            m.get(name);
+            m.get(m_filename);
             int flags;
             m.get(flags);
             mode_t mode;
             m.get(mode);
-            name = "/tmp/aio_"+name;
-            m_filedes = open(name.c_str(), flags, mode);
+            //m_filename = "/tmp/aio_"+m_filename;
+            m_filedes = open(m_filename.c_str(), flags, mode);
             return false;
         }
+    case Message::MSG_STAT:
+        {
+            int send_len = sizeof(struct stat) + 2*sizeof(int);
+            char *msg    = new char[send_len];
+            int *p       = (int *)msg;
+            p[0]         = stat(m_filename.c_str(), (struct stat*)(p+2) );
+            p[1]         = errno;
+            MPI_Send(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            delete msg;
+            return false;
+        }
+        
     case Message::MSG_FSTAT:
         {
             int send_len = sizeof(struct stat) + 2*sizeof(int);
             char *msg    = new char[send_len];
             int *p       = (int *)msg;
             p[0]         = fstat(m_filedes, (struct stat*)(p+2) );
+            p[1]         = errno;
+            MPI_Send(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            delete msg;
+            return false;
+        }
+        
+    case Message::MSG_LSTAT:
+        {
+            int send_len = sizeof(struct stat) + 2*sizeof(int);
+            char *msg    = new char[send_len];
+            int *p       = (int *)msg;
+            p[0]         = lstat(m_filename.c_str(), (struct stat*)(p+2) );
             p[1]         = errno;
             MPI_Send(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
             delete msg;
@@ -151,7 +177,7 @@ bool handleRequests(MPI_Comm intercomm)
             msg[0] = close(m_filedes);
             msg[1] = errno;
             MPI_Send(msg, 2, MPI_INT, 0, 9, intercomm);
-            return false;
+            return true;
         }
     case Message::MSG_QUIT:
         return true;
