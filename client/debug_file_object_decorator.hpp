@@ -11,9 +11,6 @@ namespace AIO
 
 class DebugFileObjectDecorator : public I_FileObjectDecorator
 {
-private:
-    /** Counter so that operations on various files can be grouped. */
-    static int m_count;
 public:
     DebugFileObjectDecorator(I_FileObject *parent)
         : I_FileObjectDecorator(parent)

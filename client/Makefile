@@ -21,5 +21,7 @@ $(LIB_SO): $(ALL_OBJ)
 clean:
 	rm -f $(ALL_OBJ) $(LIB_SO)
 
+file_object_info.o:	file_object_info.hpp mirror.hpp
+
 %.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

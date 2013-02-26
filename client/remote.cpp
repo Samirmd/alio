@@ -236,13 +236,13 @@ ssize_t Remote::read(void *buf, size_t count)
     ssize_t result;
     MPI_Status status;
     int recv_len = m.getSize(errno)+m.getSize(result)+count;
-    char *msg = new char[recv_len];
-    off_t *p = (off_t*)msg;
+    char *msg    = new char[recv_len];
+    ssize_t *p   = (ssize_t*)msg;
     MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);
     result = p[0];
     if(result ==-1)
-        errno = p[1];
-    memcpy(buf, p+2, result);
+        memcpy(p+1, &errno, sizeof(errno));
+    memcpy(buf, msg+m.getSize(errno)+m.getSize(result), result);
     delete msg;
     return result;
 }   // read

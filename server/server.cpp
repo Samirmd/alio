@@ -92,7 +92,6 @@ bool handleRequests(MPI_Comm intercomm)
             m.get(flags);
             mode_t mode;
             m.get(mode);
-            //m_filename = "/tmp/aio_"+m_filename;
             m_filedes = open(m_filename.c_str(), flags, mode);
             return false;
         }
@@ -165,8 +164,9 @@ bool handleRequests(MPI_Comm intercomm)
             int send_len = m.getSize(result) + m.getSize(errno) + count;
             char *msg = new char[send_len];
             ssize_t *p = (ssize_t*)msg;
-            p[0] = read(m_filedes, p+2, count);
-            p[1] = errno;
+            p[0] = read(m_filedes, msg+ m.getSize(result) + m.getSize(errno), count);
+            // We can't assign to p[1], since then 8 bytes would be written
+            memcpy(p+1, &errno, sizeof(errno));
             MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);
             delete msg;
             return false;
