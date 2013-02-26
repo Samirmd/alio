@@ -36,7 +36,7 @@ public:
         return m_parent->getFilename();
     }
     // ------------------------------------------------------------------------
-    virtual const int getIndex() const
+    virtual int getIndex() const
     {
         return m_parent->getIndex();
     }

@@ -26,7 +26,7 @@ public:
     // ------------------------------------------------------------------------
     virtual const std::string &getFilename() const = 0;
     // ------------------------------------------------------------------------
-    virtual const int getIndex() const = 0;
+    virtual int getIndex() const = 0;
     // ------------------------------------------------------------------------
 
     virtual FILE*  fopen(const char *mode) = 0;

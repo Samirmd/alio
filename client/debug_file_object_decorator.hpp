@@ -4,6 +4,7 @@
 #include "client/i_file_object_decorator.hpp"
 #include "tools/os.hpp"
 
+#include <errno.h>
 
 namespace AIO
 {
@@ -36,10 +37,10 @@ public:
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
-        printf("[%s] fwrite(%lx, %ld %d.\n", 
+        printf("[%s] fwrite(%lx, %ld, %ld)\n", 
                I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb);
         size_t n = I_FileObjectDecorator::fwrite(ptr, size, nmemb);
-        printf("[%s] fwrite(%lx, %ld %d)=%d.\n", 
+        printf("[%s] fwrite(%lx, %ld, %ld)=%ld.\n", 
                I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb,
                n);
         return n;

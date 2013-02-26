@@ -30,7 +30,7 @@ public:
     // ------------------------------------------------------------------------
     virtual const std::string &getFilename() const { return m_filename; }
     // ------------------------------------------------------------------------
-    virtual const int getIndex() const { return m_index; }
+    virtual int getIndex() const { return m_index; }
 };   // BaseFileObject
 
 }   // namespace AIO

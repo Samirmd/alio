@@ -1,7 +1,8 @@
 SRC        = main.cpp 
 TOOLS_SRC  = tools/os.cpp
-CLIENT_SRC = client/config.cpp  client/file_object.cpp \
-	         client/standard_file_object.cpp client/wrapper.cpp 
+CLIENT_SRC = client/config.cpp   \
+	         client/standard_file_object.cpp client/wrapper.cpp \
+			 client/file_object_info.cpp 
 
 ALL_SRC    = $(SRC) $(TOOLS_SRC) $(CLIENT_SRC)
 
