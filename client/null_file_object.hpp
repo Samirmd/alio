@@ -21,6 +21,12 @@ public:
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb) { return 0;}
     // ------------------------------------------------------------------------
+    virtual size_t fread(void *ptr,size_t size, size_t nmemb) { return 0;}
+    // ------------------------------------------------------------------------
+    virtual int feof() { return 1; }
+    // ------------------------------------------------------------------------
+    virtual char * fgets(char *s, int size) { return 0; }
+    // ------------------------------------------------------------------------
     virtual int fclose() {return 0;}
     // ------------------------------------------------------------------------
     virtual off_t lseek(int fildes, off_t offset, int whence) {return 0;}

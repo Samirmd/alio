@@ -49,6 +49,15 @@ public:
         return m_parent->fwrite(ptr, size, nmemb);
     }
     // ------------------------------------------------------------------------
+    virtual size_t fread(void *ptr,size_t size, size_t nmemb)
+    {
+        return m_parent->fread(ptr, size, nmemb);
+    }
+    // ------------------------------------------------------------------------
+    virtual int feof() { return m_parent->feof(); }
+    // ------------------------------------------------------------------------
+    virtual char *fgets(char *s, int size) { return m_parent->fgets(s, size); }
+    // ------------------------------------------------------------------------
     virtual int    fclose() { return m_parent->fclose(); }
     // ------------------------------------------------------------------------
     virtual off_t  lseek(int fildes, off_t offset, int whence)

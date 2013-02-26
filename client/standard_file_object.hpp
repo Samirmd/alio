@@ -42,6 +42,27 @@ public:
     }   // f_write
 
     // ------------------------------------------------------------------------
+    virtual size_t fread(void *ptr,size_t size, size_t nmemb)
+    {
+        return OS::fread(ptr, size, nmemb, m_file);
+    }   // f_read
+
+    // ------------------------------------------------------------------------
+    virtual int feof()
+    {
+        return OS::feof(m_file);
+    }   // feof
+    // ------------------------------------------------------------------------
+    virtual char *fgets(char *s, int size)
+    {
+        return OS::fgets(s, size, m_file);
+    }   // fgets
+    // ------------------------------------------------------------------------
+    virtual off_t lseek(int fildes, off_t offset, int whence)
+    {
+        return OS::lseek(fildes, offset, whence);
+    }   // lseek
+    // ------------------------------------------------------------------------
     virtual int fclose()
     {
         int error = OS::fclose(m_file);
@@ -50,11 +71,6 @@ public:
         return error;
     }   // fclose
 
-    // ------------------------------------------------------------------------
-    virtual off_t lseek(int fildes, off_t offset, int whence)
-    {
-        return OS::lseek(fildes, offset, whence);
-    }   // lseek
 };   // StandardFileObject
 
 };   // namespace AIO

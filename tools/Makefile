@@ -1,4 +1,4 @@
-SRC = os.cpp
+SRC = os.cpp message.cpp
 
 ALL_SRC = $(SRC)
 ALL_OBJ = $(ALL_SRC:cpp=o)

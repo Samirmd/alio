@@ -61,9 +61,9 @@ void Config::readConfig(const std::string &name)
         exit(-1);
     }
 
-    while(!feof(file))
+    while(!OS::feof(file))
     {
-        if(!fgets(buffer, size+1, file)) 
+        if(!OS::fgets(buffer, size+1, file)) 
             break;
 
         std::string s(buffer);

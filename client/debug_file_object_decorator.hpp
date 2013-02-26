@@ -40,13 +40,53 @@ public:
         printf("[%s] fwrite(%lx, %ld, %ld)\n", 
                I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb);
         size_t n = I_FileObjectDecorator::fwrite(ptr, size, nmemb);
-        printf("[%s] fwrite(%lx, %ld, %ld)=%ld.\n", 
+        printf("[%s] fwrite(%lx, %ld, %ld) = %ld.\n", 
                I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb,
                n);
         return n;
     }
     // ------------------------------------------------------------------------
-    virtual int    fclose() { return I_FileObjectDecorator::fclose(); }
+    virtual size_t fread(void *ptr,size_t size, size_t nmemb) 
+    { 
+        printf("[%s] fread(%lx, %ld, %ld)\n", 
+               I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb);
+        size_t n = I_FileObjectDecorator::fread(ptr, size, nmemb);
+        printf("[%s] fread(%lx, %ld, %ld) = %ld\n", 
+               I_FileObjectDecorator::getFilename().c_str(), ptr, size, nmemb,
+               n);
+        return n;
+    }
+    // ------------------------------------------------------------------------
+    virtual int feof() 
+    { 
+        printf("[%s] feof()\n", 
+               I_FileObjectDecorator::getFilename().c_str());
+        int n = I_FileObjectDecorator::feof();
+        printf("[%s] feof() = %d\n", 
+               I_FileObjectDecorator::getFilename().c_str(), n);
+        return n;
+    }   // feof
+    // ------------------------------------------------------------------------
+    virtual char * fgets(char *s, int size) 
+    { 
+        printf("[%s] fgets(%lx, %d)\n", 
+               I_FileObjectDecorator::getFilename().c_str(), s, size);
+        char *result = I_FileObjectDecorator::fgets(s, size);
+        printf("[%s] fgets(%lx, %d) = %lx\n", 
+               I_FileObjectDecorator::getFilename().c_str(), s, size,
+               result);
+        return result;
+    }   // fgets
+    // ------------------------------------------------------------------------
+    virtual int fclose() 
+    {
+        printf("[%s] fclose()\n", 
+               I_FileObjectDecorator::getFilename().c_str());
+        int error = I_FileObjectDecorator::fclose(); 
+        printf("[%s] fclose() = %d\n", 
+               I_FileObjectDecorator::getFilename().c_str(), error);
+        return error;
+    }   // fclose
     // ------------------------------------------------------------------------
     virtual off_t  lseek(int fildes, off_t offset, int whence)
     {

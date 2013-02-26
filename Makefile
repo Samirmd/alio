@@ -3,18 +3,18 @@ CXXFLAGS = -g -I .
 LIBS 	 = client/libclient.so tools/libtools.a
 
 
-.phoney: tools server client clean
+.phoney: tools_lib server_lib client_lib clean
 
-default: tools client server main.o
+default: tools_lib client_lib server_lib main.o
 	$(CXX) main.o $(LIBS) -o main
 
-tools:
+tools_lib:
 	$(MAKE) -C tools libtools.a
 
-client:
+client_lib:
 	$(MAKE) -C client
 
-server:
+server_lib:
 	$(MAKE) -C server
 
 

@@ -16,6 +16,9 @@ namespace OS  {
     t_fopen   fopen   = NULL;
     t_fseek   fseek   = NULL;
     t_fwrite  fwrite  = NULL;
+    t_fread   fread   = NULL;
+    t_feof    feof    = NULL;
+    t_fgets   fgets   = NULL;
     t_fprintf fprintf = NULL;
     t_lseek   lseek   = NULL;
     t_fclose  fclose  = NULL;
@@ -41,6 +44,9 @@ int AIO::OS::init()
     AIO::OS::fopen   = GET(t_fopen,   "fopen"  );
     AIO::OS::fseek   = GET(t_fseek,   "fseek"  );
     AIO::OS::fwrite  = GET(t_fwrite,  "fwrite" );
+    AIO::OS::fread   = GET(t_fread,   "fread"  );
+    AIO::OS::feof    = GET(t_feof,    "feof"   );
+    AIO::OS::fgets   = GET(t_fgets,   "fgets"  );
     AIO::OS::fprintf = GET(t_fprintf, "fprintf");
     AIO::OS::fclose  = GET(t_fclose,  "fclose" );
 

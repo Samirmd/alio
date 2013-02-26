@@ -123,7 +123,10 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename,
     {
     case IO_TYPE_STANDARD : fo = new StandardFileObject(); break;
     case IO_TYPE_NULL     : fo = new NullFileObject();     break;
-    case IO_TYPE_REMOTE   : fo = new Remote();             break;
+    case IO_TYPE_REMOTE   : 
+        Remote::init();
+        fo = new Remote();
+        break;
     default:
         printf("No final first type found - shouldn't happen.\n");
         exit(-1);
