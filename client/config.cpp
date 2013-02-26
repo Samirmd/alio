@@ -33,6 +33,11 @@ void Config::destroy()
 Config::Config()
 {
     const std::string name("aio.cfg");
+    readConfig(name);
+}   // Config
+// ----------------------------------------------------------------------------
+void Config::readConfig(const std::string &name)
+{
     FILE *file = OS::fopen(name.c_str(), "r");
     if(!file)
     {
@@ -58,16 +63,17 @@ Config::Config()
 
     while(!feof(file))
     {
-        if(!fgets(buffer, size+1, file))
-        {
-            fprintf(stderr, "Problems reading file '%s' - aborting.\n",
-                    name.c_str());
-            exit(-1);
-        }
+        if(!fgets(buffer, size+1, file)) 
+            break;
+
         std::string s(buffer);
-        if(s[s.size()-1]=='\n')
+        if(s.size()>0 && s[s.size()-1]=='\n')
             s.erase(s.end()-1);
-        printf("Read '%s'.\n", s.c_str());
+        if(s.size()>0)
+        {
+            FileObjectInfo *foi = new FileObjectInfo(s);
+            m_all_file_object_info.push_back(foi);
+        }
     }
     fclose(file);
 
@@ -80,10 +86,36 @@ Config::~Config()
 {
 }   // ~Config
 // ----------------------------------------------------------------------------
-I_FileObject *Config::getFileObjectFor(const char *name)
+AIO::I_FileObject *Config::createFileObject(const char *name)
 {
-    return new StandardFileObject(name);
+    std::string s_name(name);
+    for(unsigned int i=0; i<m_all_file_object_info.size(); i++)
+    {
+        const FileObjectInfo *foi = m_all_file_object_info[i];
+        if(foi->isApplicable(s_name))
+        {
+            I_FileObject *fo = foi->createFileObject(name, 
+                                                     m_file_objects.size());
+            m_file_objects.push_back(fo);
+            return fo;
+        }
+    }
+    // Otherwise fallback to default, i.e. unix behaviour
+    I_FileObject *fo = new StandardFileObject();
+    fo->setData(name, m_file_objects.size());
+    return fo;
 }   // check
+
+// ----------------------------------------------------------------------------
+I_FileObject *Config::getFileObject(FILE *file)
+{
+    I_FileObject *fo = (I_FileObject*)(file);
+    int index = fo->getIndex();
+    if(index >=0 && index <(int)m_file_objects.size() &&
+        (void*)fo==(void*)(m_file_objects[index]) )
+        return m_file_objects[index];
+    return NULL;
+}   // getFileObject
 
 // ----------------------------------------------------------------------------
 

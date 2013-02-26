@@ -20,5 +20,8 @@ int main(int argc, char **argv)
     FILE *f = xfopen("a", "w");
     xfwrite(message, 1, strlen(message), f);
     xfclose(f);
+    f = xfopen("b", "w");
+    xfwrite(message, 1, strlen(message), f);
+    xfclose(f);
     return 0;
 }   // main
