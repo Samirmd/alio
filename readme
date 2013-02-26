@@ -3,7 +3,7 @@
 module load intel/12.1.8.273  openmpi/1.4.3
 module load nco
 LD_PRELOAD=./client/libclient.so ncks -v eta_t,x_T,y_T -c ncrcat_ocean_mean_test.nc eta_mean_test.nc
-export LD_LIBRARY_PATH=/g/sc/home/joergh/projects/aio/tools:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/g/sc/home/joergh/projects/alio/tools:$LD_LIBRARY_PATH
 
 #Short
 ncks -d Time,0,0 -v eta_t -c ncrcat_ocean_mean_test.nc eta_mean_test.nc

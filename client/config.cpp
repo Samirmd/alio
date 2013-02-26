@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string>
 
-namespace AIO
+namespace ALIO
 {
 
 Config *Config::m_config = NULL;
@@ -35,17 +35,17 @@ void Config::destroy()
 
 Config::Config(bool is_slave) : m_is_slave(is_slave)
 {
-    const std::string name("aio.xml");
-    const XMLNode *root = new AIO::XMLNode(name);
+    const std::string name("alio.xml");
+    const XMLNode *root = new ALIO::XMLNode(name);
     readConfig(root);
 }   // Config
 
 // ----------------------------------------------------------------------------
 void Config::readConfig(const XMLNode *root)
 {
-    if(!root || root->getName()!="aio")
+    if(!root || root->getName()!="alio")
     {
-        fprintf(stderr, "Can't open file '%s' - no aio node '%s' %d.\n", 
+        fprintf(stderr, "Can't open file '%s' - no alio node '%s' %d.\n", 
                 root->getFilename().c_str(), root->getName().c_str(),
                 root->getNumNodes()
                 );
@@ -69,7 +69,7 @@ Config::~Config()
 {
 }   // ~Config
 // ----------------------------------------------------------------------------
-AIO::I_FileObject *Config::createFileObject(const char *name)
+ALIO::I_FileObject *Config::createFileObject(const char *name)
 {
     std::string s_name(name);
     for(unsigned int i=0; i<m_all_file_object_info.size(); i++)
@@ -89,7 +89,7 @@ AIO::I_FileObject *Config::createFileObject(const char *name)
 
 // ----------------------------------------------------------------------------
 /** Find the I_FileObject for a given FILE structure. While generally the FILE 
- *  structure returned by AIO to the application is a pointer to the 
+ *  structure returned by ALIO to the application is a pointer to the 
  *  I_FileObject we have to handle the case that e.g. a previously opened FILE
  *  structure is passed in (so we can't simply cast all FILE structures to 
  *  I_FileObject).
@@ -132,4 +132,4 @@ I_FileObject *Config::getFileObject(int filedes)
 }   // getFileObject(int)
 
 // ----------------------------------------------------------------------------
-}   // namespace AIO
+}   // namespace ALIO

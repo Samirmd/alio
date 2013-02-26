@@ -13,11 +13,11 @@ extern "C"
 
 FILE * fopen(const char *filename, const char *mode)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
     if(!config || !(fo = config->createFileObject(filename)))
     {
-        return AIO::OS::fopen(filename, mode);
+        return ALIO::OS::fopen(filename, mode);
     }
 
     return fo->fopen(mode);
@@ -26,19 +26,19 @@ FILE * fopen(const char *filename, const char *mode)
 // ----------------------------------------------------------------------------
 FILE * fopen64(const char *filename, const char *mode)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
     if(!config || !(fo = config->createFileObject(filename)))
     {
         // It can happen that this wrapper is loaded and fopen64 is called
-        // but AIO::OS is not initialised.
-        if(!AIO::OS::fopen64)
+        // but ALIO::OS is not initialised.
+        if(!ALIO::OS::fopen64)
         {
-            AIO::OS::t_fopen fc = (AIO::OS::t_fopen)dlsym(RTLD_NEXT, "fopen64");
+            ALIO::OS::t_fopen fc = (ALIO::OS::t_fopen)dlsym(RTLD_NEXT, "fopen64");
             return fc(filename, mode);
             
         }
-        return AIO::OS::fopen64(filename, mode);
+        return ALIO::OS::fopen64(filename, mode);
     }
 
     return fo->fopen64(mode);
@@ -47,11 +47,11 @@ FILE * fopen64(const char *filename, const char *mode)
 // ------------------------------------------------------------------------
 int setvbuf(FILE *stream, char *buf, int mode, size_t size) __THROW
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::setvbuf(stream, buf, mode, size);
+        return ALIO::OS::setvbuf(stream, buf, mode, size);
 
     return fo->setvbuf(buf, mode, size);
 }   // setvbuf
@@ -59,11 +59,11 @@ int setvbuf(FILE *stream, char *buf, int mode, size_t size) __THROW
 // ------------------------------------------------------------------------
 int fseek(FILE *stream, long offset, int whence)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::fseek(stream, offset, whence);
+        return ALIO::OS::fseek(stream, offset, whence);
 
     return fo->fseek(offset, whence);
 }   // fseek
@@ -71,11 +71,11 @@ int fseek(FILE *stream, long offset, int whence)
 // ------------------------------------------------------------------------
 int fseeko(FILE *stream, off_t offset, int whence)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::fseeko(stream, offset, whence);
+        return ALIO::OS::fseeko(stream, offset, whence);
 
     return fo->fseeko(offset, whence);
 }   // fseeko
@@ -83,11 +83,11 @@ int fseeko(FILE *stream, off_t offset, int whence)
 // ------------------------------------------------------------------------
 int fseeko64(FILE *stream, off64_t offset, int whence)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::fseeko64(stream, offset, whence);
+        return ALIO::OS::fseeko64(stream, offset, whence);
 
     return fo->fseeko64(offset, whence);
 }   // fseeko64
@@ -95,11 +95,11 @@ int fseeko64(FILE *stream, off64_t offset, int whence)
 // ------------------------------------------------------------------------
 long ftell(FILE *stream)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::ftell(stream);
+        return ALIO::OS::ftell(stream);
 
     return fo->ftell();
 }   // ftell
@@ -107,11 +107,11 @@ long ftell(FILE *stream)
 // ------------------------------------------------------------------------
 off_t ftello(FILE *stream)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::ftello(stream);
+        return ALIO::OS::ftello(stream);
 
     return fo->ftello();
 }   // ftello
@@ -119,11 +119,11 @@ off_t ftello(FILE *stream)
 // ------------------------------------------------------------------------
 off64_t ftello64(FILE *stream)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::ftello64(stream);
+        return ALIO::OS::ftello64(stream);
 
     return fo->ftello64();
 }   // ftello64
@@ -131,11 +131,11 @@ off64_t ftello64(FILE *stream)
 // ------------------------------------------------------------------------
 int fflush(FILE *stream)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::fflush(stream);
+        return ALIO::OS::fflush(stream);
 
     return fo->fflush();
 }   // fflush
@@ -143,11 +143,11 @@ int fflush(FILE *stream)
 // ------------------------------------------------------------------------
 int ferror(FILE *stream) __THROW
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::ferror(stream);
+        return ALIO::OS::ferror(stream);
 
     return fo->ferror();
 }   // ferror
@@ -155,10 +155,10 @@ int ferror(FILE *stream) __THROW
 // ----------------------------------------------------------------------------
 size_t fwrite(const void *ptr,size_t size, size_t nmemb, FILE *stream)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
     if(!config || !(fo = config->getFileObject(stream)))
-        return AIO::OS::fwrite(ptr, size, nmemb, stream);
+        return ALIO::OS::fwrite(ptr, size, nmemb, stream);
 
     return fo->fwrite(ptr, size, nmemb);
 }   // fwrite
@@ -166,11 +166,11 @@ size_t fwrite(const void *ptr,size_t size, size_t nmemb, FILE *stream)
 // ----------------------------------------------------------------------------
 size_t fread(void *ptr,size_t size, size_t nmemb, FILE *stream)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo = config->getFileObject(stream)))
-        return AIO::OS::fread(ptr, size, nmemb, stream);
+        return ALIO::OS::fread(ptr, size, nmemb, stream);
 
     return fo->fread(ptr, size, nmemb);
 }   // fwrite
@@ -178,11 +178,11 @@ size_t fread(void *ptr,size_t size, size_t nmemb, FILE *stream)
 // ----------------------------------------------------------------------------
 int feof(FILE *stream) __THROW __wur
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo = config->getFileObject(stream)))
-        return AIO::OS::feof(stream);
+        return ALIO::OS::feof(stream);
 
     return fo->feof();
 }   // feof
@@ -190,11 +190,11 @@ int feof(FILE *stream) __THROW __wur
 // ----------------------------------------------------------------------------
 char *fgets(char *s, int size, FILE *stream)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(stream)))
-        return AIO::OS::fgets(s, size, stream);
+        return ALIO::OS::fgets(s, size, stream);
 
     return fo->fgets(s, size);
 }   // fgets
@@ -202,21 +202,21 @@ char *fgets(char *s, int size, FILE *stream)
 // ----------------------------------------------------------------------------
 int fclose(FILE *fp)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo = config->getFileObject(fp)))
     {
         // It can happen that this wrapper is loaded and fclose is called
-        // but AIO::OS is not initialised (I'd guess when closing this 
+        // but ALIO::OS is not initialised (I'd guess when closing this 
         // .so ?). So in this case we have to lookup fclose :(
-        if(!AIO::OS::fclose)
+        if(!ALIO::OS::fclose)
         {
-            AIO::OS::t_fclose fc = (AIO::OS::t_fclose)dlsym(RTLD_NEXT, "fclose");
+            ALIO::OS::t_fclose fc = (ALIO::OS::t_fclose)dlsym(RTLD_NEXT, "fclose");
             return fc(fp);
             
         }
-        return AIO::OS::fclose(fp);
+        return ALIO::OS::fclose(fp);
     }
 
     return fo->fclose();
@@ -226,8 +226,8 @@ int fclose(FILE *fp)
 // ----------------------------------------------------------------------------
 int open(const char *pathname, int flags, ...)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
 	if (flags & O_CREAT) 
     {
@@ -235,13 +235,13 @@ int open(const char *pathname, int flags, ...)
 		va_start(arguments, flags);
 		mode_t mode = va_arg(arguments, mode_t);
         if(!config || !(fo=config->createFileObject(pathname)))
-            return AIO::OS::open(pathname, flags, mode);
+            return ALIO::OS::open(pathname, flags, mode);
         return fo->open(flags, mode);
     }
 
     int mode=0;
     if(!config || !(fo=config->createFileObject(pathname)))
-        return AIO::OS::open(pathname, flags, mode);
+        return ALIO::OS::open(pathname, flags, mode);
 
     return fo->open(flags, mode);
 
@@ -250,8 +250,8 @@ int open(const char *pathname, int flags, ...)
 // ----------------------------------------------------------------------------
 int open64(const char *pathname, int flags, ...)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
 	if (flags & O_CREAT) 
     {
@@ -259,13 +259,13 @@ int open64(const char *pathname, int flags, ...)
 		va_start(arguments, flags);
 		mode_t mode = va_arg(arguments, mode_t);
         if(!config || !(fo=config->createFileObject(pathname)))
-            return AIO::OS::open64(pathname, flags, mode);
+            return ALIO::OS::open64(pathname, flags, mode);
         return fo->open64(flags, mode);
     }
 
     int mode=0;
     if(!config || !(fo=config->createFileObject(pathname)))
-        return AIO::OS::open64(pathname, flags, mode);
+        return ALIO::OS::open64(pathname, flags, mode);
 
     return fo->open64(flags, mode);
 
@@ -274,20 +274,20 @@ int open64(const char *pathname, int flags, ...)
 // ----------------------------------------------------------------------------
 int __fxstat(int ver, int filedes, struct stat *buf) __THROW
 {   
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
     if(!config || !(fo =  config->getFileObject(filedes)))
     {
         // It can happen that this wrapper is loaded and fstat is called
-        // but AIO::OS is not initialised. So in this case we have to
+        // but ALIO::OS is not initialised. So in this case we have to
         // lookup fxstat :(
-        if(!AIO::OS::__fxstat)
+        if(!ALIO::OS::__fxstat)
         {
-            AIO::OS::t___fxstat fc = (AIO::OS::t___fxstat)dlsym(RTLD_NEXT, "__fxstat");
+            ALIO::OS::t___fxstat fc = (ALIO::OS::t___fxstat)dlsym(RTLD_NEXT, "__fxstat");
             return fc(ver, filedes, buf);
             
         }
-        return AIO::OS::__fxstat(ver, filedes, buf);
+        return ALIO::OS::__fxstat(ver, filedes, buf);
     }
     return fo->__fxstat(ver, buf);
     
@@ -295,20 +295,20 @@ int __fxstat(int ver, int filedes, struct stat *buf) __THROW
 // ----------------------------------------------------------------------------
 int __fxstat64(int ver, int filedes, struct stat64 *buf) __THROW
 {   
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
     if(!config || !(fo =  config->getFileObject(filedes)))
     {
         // It can happen that this wrapper is loaded and fstat is called
-        // but AIO::OS is not initialised. So in this case we have to
+        // but ALIO::OS is not initialised. So in this case we have to
         // lookup fxstat :(
-        if(!AIO::OS::__fxstat64)
+        if(!ALIO::OS::__fxstat64)
         {
-            AIO::OS::t___fxstat64 fc = (AIO::OS::t___fxstat64)dlsym(RTLD_NEXT, "__fxstat64");
+            ALIO::OS::t___fxstat64 fc = (ALIO::OS::t___fxstat64)dlsym(RTLD_NEXT, "__fxstat64");
             return fc(ver, filedes, buf);
             
         }
-        return AIO::OS::__fxstat64(ver, filedes, buf);
+        return ALIO::OS::__fxstat64(ver, filedes, buf);
     }
     return fo->__fxstat64(ver, buf);
     
@@ -317,33 +317,33 @@ int __fxstat64(int ver, int filedes, struct stat64 *buf) __THROW
 // ----------------------------------------------------------------------------
 off_t lseek(int filedes, off_t offset, int whence) __THROW
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo =  config->getFileObject(filedes)))
-        return AIO::OS::lseek(filedes, offset, whence);
+        return ALIO::OS::lseek(filedes, offset, whence);
 
     return fo->lseek(offset, whence);
 }   // lseek
 // ----------------------------------------------------------------------------
 off64_t lseek64(int filedes, off64_t offset, int whence) __THROW
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo =  config->getFileObject(filedes)))
-        return AIO::OS::lseek64(filedes, offset, whence);
+        return ALIO::OS::lseek64(filedes, offset, whence);
 
     return fo->lseek64(offset, whence);
 }   // lseek
 // ----------------------------------------------------------------------------
 ssize_t write(int filedes, const void *buf, size_t nbyte)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(filedes)))
-        return AIO::OS::write(filedes, buf, nbyte);
+        return ALIO::OS::write(filedes, buf, nbyte);
 
     return fo->write(buf, nbyte);
 
@@ -351,33 +351,33 @@ ssize_t write(int filedes, const void *buf, size_t nbyte)
 // ----------------------------------------------------------------------------
 ssize_t read(int filedes, void *buf, size_t count)
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(filedes)))
-        return AIO::OS::read(filedes, buf, count);
+        return ALIO::OS::read(filedes, buf, count);
 
     return fo->read(buf, count);
 }   // read
 // ----------------------------------------------------------------------------
 int close(int filedes)
 {   
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->getFileObject(filedes)))
-        return AIO::OS::close(filedes);
+        return ALIO::OS::close(filedes);
 
     return fo->close();
 }   // close
 // ----------------------------------------------------------------------------
 int rename(const char *oldpath, const char *newpath) __THROW
 {
-    AIO::Config *config   = AIO::Config::get();
-    AIO::I_FileObject *fo = NULL;
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
 
     if(!config || !(fo=config->createFileObject(oldpath)))
-        return AIO::OS::rename(oldpath, newpath);
+        return ALIO::OS::rename(oldpath, newpath);
 
     return fo->rename(newpath);
 

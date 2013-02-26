@@ -12,7 +12,7 @@
 #  include <unistd.h>
 #endif
 
-namespace AIO
+namespace ALIO
 {
 
 class XMLNode;
@@ -69,5 +69,5 @@ public:
     virtual int     rename(const char *newpath) = 0;
 };   // IFileObject
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

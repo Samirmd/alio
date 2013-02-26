@@ -12,7 +12,7 @@
 #endif
 
 
-namespace AIO
+namespace ALIO
 {
 
 class XMLNode;
@@ -154,5 +154,5 @@ public:
 
 };   // IFileObject
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

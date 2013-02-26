@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-namespace AIO {
+namespace ALIO {
 namespace OS {
     extern "C"
     {
@@ -81,7 +81,7 @@ namespace OS {
     // ---------------------------------------------------------------------
     int init();
 }
-}   // namespace AIO
+}   // namespace ALIO
 
 
 #endif

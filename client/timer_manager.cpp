@@ -4,10 +4,10 @@
 
 #include <sstream>
 
-namespace AIO
+namespace ALIO
 {
 
-AIO::TimerManager::AllTimerDataType  *AIO::TimerManager::m_all_timer_data=NULL;
+ALIO::TimerManager::AllTimerDataType  *ALIO::TimerManager::m_all_timer_data=NULL;
 
 TimerData* TimerManager::getTimer(unsigned int count, 
                                   const std::string &filename,
@@ -56,11 +56,11 @@ void TimerManager::writeXML(FILE *out)
 
 
     fprintf(out, "<?xml version=\"1.0\"?>\n");
-    fprintf(out, "<aio-timer-data>\n");
+    fprintf(out, "<alio-timer-data>\n");
     for(unsigned int i=0; i<m_all_timer_data->size(); i++)
     {
         const TimerData &t=*((*m_all_timer_data)[i]);
-        fprintf(out,"  <aio name=\"%s\" open-time=\"%f\" open-count=\"%ld\"\n",
+        fprintf(out,"  <alio name=\"%s\" open-time=\"%f\" open-count=\"%ld\"\n",
                 t.getName().c_str(), t.getTime(TIMER_OPEN),
                 t.getCount(TIMER_OPEN));
         fprintf(out,"       close-time=\"%f\" close-count=\"%ld\"\n",
@@ -86,7 +86,7 @@ void TimerManager::writeXML(FILE *out)
                 t.getTime(TIMER_MISC), t.getCount(TIMER_MISC));
 
     }   // for i <m_all_timer_data->size()
-    fprintf(out, "</aio-timer-data>\n");
+    fprintf(out, "</alio-timer-data>\n");
 }   // writeXML
     
 // ----------------------------------------------------------------------------
@@ -177,4 +177,4 @@ void TimerManager::writeAsciiTable(FILE *out)
     
 }   // writeAsciiTable
 
-}   // namespace AIO
+}   // namespace ALIO

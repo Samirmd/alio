@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-namespace AIO {
+namespace ALIO {
 namespace StringUtils {
 
 // ----------------------------------------------------------------------------
@@ -53,4 +53,4 @@ std::vector<std::string> split(const std::string& s, char c)
 }   // split
 
 }   // namspace StringUtils
-}   // namespace AIO
+}   // namespace ALIO

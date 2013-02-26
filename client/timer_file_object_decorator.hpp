@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace AIO
+namespace ALIO
 {
     /** The various events that will be timed. */
     enum TimerType { TIMER_OPEN, 
@@ -285,5 +285,5 @@ public:
 
 };   // TimeFileObjectDecorator
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

@@ -8,7 +8,7 @@
 
 #include <string>
 
-namespace AIO
+namespace ALIO
 {
 class XMLNode;
 
@@ -54,5 +54,5 @@ public:
 
 };   // Remote
 
-};   // namespace AIO
+};   // namespace ALIO
 #endif

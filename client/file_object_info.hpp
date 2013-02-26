@@ -10,7 +10,7 @@
 /** Stores information for one file name prefix, i.e. which file object
  *  to use.
  */
-namespace AIO
+namespace ALIO
 {
 
 class XMLNode;
@@ -44,5 +44,5 @@ public:
     I_FileObject *createFileObject(const std::string &filename) const;
 };   // FileObjectInfo
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

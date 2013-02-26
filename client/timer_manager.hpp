@@ -5,14 +5,14 @@
 
 #include <vector>
 
-namespace AIO
+namespace ALIO
 {
 
 /** That's the class that's actually be used as timer for each 
  *  file object. */
 class TimerManager
 {
-    typedef std::vector<AIO::TimerData*> AllTimerDataType;
+    typedef std::vector<ALIO::TimerData*> AllTimerDataType;
 
     /** This static object must be a pointer to the class, not a class. If it
      *  would be the class, the destructor would be called before the destructor
@@ -34,5 +34,5 @@ public:
 
 };   // class Timermanager
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

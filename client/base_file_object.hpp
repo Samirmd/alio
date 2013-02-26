@@ -3,7 +3,7 @@
 
 #include "client/i_file_object.hpp"
 
-namespace AIO
+namespace ALIO
 {
 
 class BaseFileObject : public I_FileObject
@@ -14,7 +14,7 @@ protected:
 
     /** This stores the index of this object in config's m_file_object
      *  array. This allows us for a quick lookup of this item in config,
-     *  and to distringuish it from non-AIO managed file objects.
+     *  and to distringuish it from non-ALIO managed file objects.
      */
     int m_index;
 
@@ -42,5 +42,5 @@ public:
     // ------------------------------------------------------------------------
 };   // BaseFileObject
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

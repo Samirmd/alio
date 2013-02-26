@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace AIO
+namespace ALIO
 {
 
 /** That's the class that's actually be used as timer for each 
@@ -110,5 +110,5 @@ public:
     bool writeTable() const { return m_do_table; }
 };
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

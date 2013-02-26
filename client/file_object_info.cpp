@@ -11,7 +11,7 @@
 
 #include <assert.h>
 
-namespace AIO
+namespace ALIO
 {
 FileObjectInfo::FileObjectInfo(const XMLNode *node)
 {
@@ -118,4 +118,4 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
     return fo;
 }   // createFileObject
 
-}   // namespace AIO
+}   // namespace ALIO

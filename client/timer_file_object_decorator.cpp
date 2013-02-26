@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-namespace AIO
+namespace ALIO
 {
 
 // ----------------------------------------------------------------------------
@@ -22,4 +22,4 @@ TimerFileObjectDecorator::TimerFileObjectDecorator(I_FileObject *parent,
     printf("%d %d\n", m_write_xml, m_write_table);
 };   // TimerFileObjectDecorator
 
-}   // namespace AIO
+}   // namespace ALIO

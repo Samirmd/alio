@@ -5,7 +5,7 @@
 #include <sstream>
 #include <vector>
 
-namespace AIO {
+namespace ALIO {
 namespace StringUtils {
 
     std::vector<std::string> split(const std::string& s, char c);
@@ -33,5 +33,5 @@ namespace StringUtils {
 
     // ------------------------------------------------------------------------
 }   // namespace StringUtils
-}   // namespace AIO
+}   // namespace ALIO
 #endif

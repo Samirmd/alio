@@ -41,7 +41,7 @@ using namespace irr;
 class InterpolationArray;
 class Vec3;
 
-namespace AIO {
+namespace ALIO {
 class XMLNode
 {
 private:
@@ -83,5 +83,5 @@ public:
 
 };   // XMLNode
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

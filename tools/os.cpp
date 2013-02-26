@@ -7,7 +7,7 @@
 #include <dlfcn.h>
 #endif
 
-namespace AIO {
+namespace ALIO {
 namespace OS  {
     t_open       open       = NULL;
     t_open       open64     = NULL;
@@ -41,51 +41,51 @@ namespace OS  {
     t_fclose   fclose   = NULL;
 
     t_rename  rename    = NULL;
-} }  // namespace AIO::OS
+} }  // namespace ALIO::OS
 
 
-int AIO::OS::init()
+int ALIO::OS::init()
 {
 #ifdef WIN32
 #  define GET(type,name) \
-    (AIO::OS::type)GetProcAddress(GetModuleHandle(TEXT("MSVCR90D.DLL")), name);
-    AIO::OS::open    = GET(t_open,    "_open"  );
-    AIO::OS::write   = GET(t_write,   "_write" );
-    AIO::OS::lseek   = GET(t_lseek,   "_lseek" );
+    (ALIO::OS::type)GetProcAddress(GetModuleHandle(TEXT("MSVCR90D.DLL")), name);
+    ALIO::OS::open    = GET(t_open,    "_open"  );
+    ALIO::OS::write   = GET(t_write,   "_write" );
+    ALIO::OS::lseek   = GET(t_lseek,   "_lseek" );
 #else
 #  define GET(type,name) \
-    (AIO::OS::type)dlsym(RTLD_NEXT, name)
-    AIO::OS::open       = GET(t_open,       "open"      );
-    AIO::OS::open64     = GET(t_open,       "open64"    );
-    AIO::OS::__xstat    = GET(t___xstat,    "__xstat"   );
-    AIO::OS::__xstat64  = GET(t___xstat64,  "__xstat64" );
-    AIO::OS::__fxstat   = GET(t___fxstat,   "__fxstat"  );
-    AIO::OS::__fxstat64 = GET(t___fxstat64, "__fxstat64");
-    AIO::OS::__lxstat   = GET(t___lxstat,   "__lxstat"  );
-    AIO::OS::__lxstat64 = GET(t___lxstat64, "__lxstat64");
-    AIO::OS::lseek      = GET(t_lseek,      "lseek"     );
-    AIO::OS::lseek64    = GET(t_lseek64,    "lseek64"   );
-    AIO::OS::write      = GET(t_write,      "write"     );
-    AIO::OS::read       = GET(t_read,       "read"      );
-    AIO::OS::close      = GET(t_close,      "close"     );
+    (ALIO::OS::type)dlsym(RTLD_NEXT, name)
+    ALIO::OS::open       = GET(t_open,       "open"      );
+    ALIO::OS::open64     = GET(t_open,       "open64"    );
+    ALIO::OS::__xstat    = GET(t___xstat,    "__xstat"   );
+    ALIO::OS::__xstat64  = GET(t___xstat64,  "__xstat64" );
+    ALIO::OS::__fxstat   = GET(t___fxstat,   "__fxstat"  );
+    ALIO::OS::__fxstat64 = GET(t___fxstat64, "__fxstat64");
+    ALIO::OS::__lxstat   = GET(t___lxstat,   "__lxstat"  );
+    ALIO::OS::__lxstat64 = GET(t___lxstat64, "__lxstat64");
+    ALIO::OS::lseek      = GET(t_lseek,      "lseek"     );
+    ALIO::OS::lseek64    = GET(t_lseek64,    "lseek64"   );
+    ALIO::OS::write      = GET(t_write,      "write"     );
+    ALIO::OS::read       = GET(t_read,       "read"      );
+    ALIO::OS::close      = GET(t_close,      "close"     );
 #endif
-    AIO::OS::fopen    = GET(t_fopen,    "fopen"   );
-    AIO::OS::fopen64  = GET(t_fopen,    "fopen64" );
-    AIO::OS::setvbuf  = GET(t_setvbuf,  "setvbuf" );
-    AIO::OS::fseek    = GET(t_fseek,    "fseek"   );
-    AIO::OS::fseeko   = GET(t_fseeko,   "fseeko"  );
-    AIO::OS::fseeko64 = GET(t_fseeko64, "fseeko64");
-    AIO::OS::ftell    = GET(t_ftell,    "ftell"   );
-    AIO::OS::ftello   = GET(t_ftello,   "ftello"  );
-    AIO::OS::ftello64 = GET(t_ftello64, "ftello64");
-    AIO::OS::fflush   = GET(t_fflush,   "fflush"  );
-    AIO::OS::ferror   = GET(t_ferror,   "ferror"  );
-    AIO::OS::fwrite   = GET(t_fwrite,   "fwrite"  );
-    AIO::OS::fread    = GET(t_fread,    "fread"   );
-    AIO::OS::fgets    = GET(t_fgets,    "fgets"   );
-    AIO::OS::feof     = GET(t_feof,     "feof"    );
-    AIO::OS::fclose   = GET(t_fclose,   "fclose"  );
-    AIO::OS::rename   = GET(t_rename,   "rename"  );
+    ALIO::OS::fopen    = GET(t_fopen,    "fopen"   );
+    ALIO::OS::fopen64  = GET(t_fopen,    "fopen64" );
+    ALIO::OS::setvbuf  = GET(t_setvbuf,  "setvbuf" );
+    ALIO::OS::fseek    = GET(t_fseek,    "fseek"   );
+    ALIO::OS::fseeko   = GET(t_fseeko,   "fseeko"  );
+    ALIO::OS::fseeko64 = GET(t_fseeko64, "fseeko64");
+    ALIO::OS::ftell    = GET(t_ftell,    "ftell"   );
+    ALIO::OS::ftello   = GET(t_ftello,   "ftello"  );
+    ALIO::OS::ftello64 = GET(t_ftello64, "ftello64");
+    ALIO::OS::fflush   = GET(t_fflush,   "fflush"  );
+    ALIO::OS::ferror   = GET(t_ferror,   "ferror"  );
+    ALIO::OS::fwrite   = GET(t_fwrite,   "fwrite"  );
+    ALIO::OS::fread    = GET(t_fread,    "fread"   );
+    ALIO::OS::fgets    = GET(t_fgets,    "fgets"   );
+    ALIO::OS::feof     = GET(t_feof,     "feof"    );
+    ALIO::OS::fclose   = GET(t_fclose,   "fclose"  );
+    ALIO::OS::rename   = GET(t_rename,   "rename"  );
     return 0;
 }   // init
 

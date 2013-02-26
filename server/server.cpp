@@ -17,7 +17,7 @@ std::string m_filename("");
 
 int main(int argc, char **argv)
 {
-    AIO::OS::init();
+    ALIO::OS::init();
 
     MPI_Init(&argc, &argv);
 
@@ -26,9 +26,9 @@ int main(int argc, char **argv)
     MPI_Open_port(MPI_INFO_NULL, port_name); 
     printf("Server: open port '%s'.\n", port_name);
 
-    FILE *port_file = AIO::OS::fopen("aio_config.dat", "w");
-    AIO::OS::fwrite(port_name, 1, strlen(port_name), port_file);
-    AIO::OS::fclose(port_file);
+    FILE *port_file = ALIO::OS::fopen("alio_config.dat", "w");
+    ALIO::OS::fwrite(port_name, 1, strlen(port_name), port_file);
+    ALIO::OS::fclose(port_file);
 
     MPI_Comm intercomm;
     printf("Server: accepting.\n");

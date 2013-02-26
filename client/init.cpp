@@ -3,7 +3,7 @@
 #include "client/timer_manager.hpp"
 #include "tools/os.hpp"
 
-namespace AIO
+namespace ALIO
 {
     static FILE *stdout_capture;
 
@@ -17,12 +17,12 @@ namespace AIO
  */ 
 extern "C" void __attribute__((constructor)) my_init(void)
 {
-    AIO::OS::init();
-    AIO::Config::create(/* is_slave*/ true);
+    ALIO::OS::init();
+    ALIO::Config::create(/* is_slave*/ true);
     // We need to capture stdout, since the desctructor will be
     // called after stdout is closed, so we could not write
     // anything otherwise
-    AIO::stdout_capture = fopen("/dev/stdout", "w");
+    ALIO::stdout_capture = fopen("/dev/stdout", "w");
 }
 
 // ============================================================================
@@ -33,7 +33,7 @@ extern "C" void __attribute__((constructor)) my_init(void)
 
 extern "C" void __attribute__((destructor)) my_exit(void)
 {
-    AIO::TimerManager::atExit(AIO::stdout_capture);
+    ALIO::TimerManager::atExit(ALIO::stdout_capture);
 }
 
 

@@ -21,7 +21,7 @@
 
 #include <stdexcept>
 
-namespace AIO
+namespace ALIO
 {
 
 XMLNode::XMLNode(io::IrrXMLReader *xml)
@@ -339,4 +339,4 @@ int XMLNode::get(const std::string &attribute, std::vector<int> *value) const
     return value->size();
 }   // get(vector<int>)
 
-}   // namespace AIO
+}   // namespace ALIO

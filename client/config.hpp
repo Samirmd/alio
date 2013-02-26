@@ -11,7 +11,7 @@
 /** Stores the configuration of a client. It reads the configuration
  *  from a file/
  */
-namespace AIO
+namespace ALIO
 {
 
 class XMLNode;
@@ -48,5 +48,5 @@ public:
     I_FileObject *getFileObject(int filedes);
 };   // Config
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

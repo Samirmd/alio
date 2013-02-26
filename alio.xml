@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<aio> 
+<alio> 
 
   <client>
     <file pattern="a">
@@ -25,4 +25,4 @@
   <master>
   </master>
 
-</aio>
+</alio>

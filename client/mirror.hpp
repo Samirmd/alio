@@ -6,7 +6,7 @@
 
 #include <errno.h>
 
-namespace AIO
+namespace ALIO
 {
 
 /** This class mirrors all operations on a second file object
@@ -256,5 +256,5 @@ public:
 
 };   // IFileObject
 
-}   // namespace AIO
+}   // namespace ALIO
 #endif

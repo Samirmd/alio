@@ -7,7 +7,7 @@
 
 #include <errno.h>
 
-namespace AIO
+namespace ALIO
 {
 
 bool     Remote::m_was_init = false;
@@ -26,11 +26,11 @@ int Remote::init()
     argv[1]=NULL;
     MPI_Init(&argc, &argv);
 
-    FILE *port_file = AIO::OS::fopen("aio_config.dat", "r");
+    FILE *port_file = ALIO::OS::fopen("alio_config.dat", "r");
     char port_name[MPI_MAX_PORT_NAME];
     bzero(port_name, MPI_MAX_PORT_NAME);
-    AIO::OS::fread(port_name, 1, MPI_MAX_PORT_NAME, port_file);
-    AIO::OS::fclose(port_file);
+    ALIO::OS::fread(port_name, 1, MPI_MAX_PORT_NAME, port_file);
+    ALIO::OS::fclose(port_file);
 
     printf("Got portname '%s'.\n", port_name);
 
@@ -436,4 +436,4 @@ int Remote::rename(const char *newpath)
 }   // rename
 
 
-}   // namespace AIO
+}   // namespace ALIO

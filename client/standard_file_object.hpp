@@ -6,7 +6,7 @@
 
 #include <string>
 
-namespace AIO
+namespace ALIO
 {
 class StandardFileObject : public BaseFileObject
 {
@@ -190,5 +190,5 @@ public:
 
 };   // StandardFileObject
 
-};   // namespace AIO
+};   // namespace ALIO
 #endif
