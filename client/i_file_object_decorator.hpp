@@ -86,6 +86,11 @@ public:
     }
     // ------------------------------------------------------------------------
     virtual int close() { return m_parent->close(); }
+    // ------------------------------------------------------------------------
+    virtual int rename(const char *newpath)
+    {
+        return m_parent->rename(newpath);
+    }
 
 };   // IFileObject
 

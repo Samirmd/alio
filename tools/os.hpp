@@ -29,6 +29,7 @@ namespace OS {
         typedef int    (*t_feof   )(FILE *stream);
         typedef char * (*t_fgets  )(char *s, int size, FILE *stream);
         typedef int    (*t_fclose )(FILE *fp);
+        typedef int    (*t_rename )(const char *old, const char *newn);
     }   // extern "C"
 
     extern t_open    open;
@@ -46,6 +47,8 @@ namespace OS {
     extern t_fgets   fgets;
     extern t_fread   fread;
     extern t_fclose  fclose;
+
+    extern t_rename  rename;
     // ---------------------------------------------------------------------
     int init();
 }

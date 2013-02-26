@@ -101,6 +101,11 @@ public:
         return OS::close(m_filedes);
     }   // close
     // ------------------------------------------------------------------------
+    virtual int rename(const char *newpath)
+    {
+        return OS::rename(getFilename().c_str(), newpath);
+    }
+    // ------------------------------------------------------------------------
 
 
 };   // StandardFileObject

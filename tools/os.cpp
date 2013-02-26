@@ -9,21 +9,23 @@
 
 namespace AIO {
 namespace OS  {
-    t_open    open    = NULL;
+    t_open     open     = NULL;
     t___fxstat __fxstat = NULL;
-    t_lseek   lseek   = NULL;
-    t_write   write   = NULL;
-    t_read    read    = NULL;
-    t_close   close   = NULL;
+    t_lseek    lseek    = NULL;
+    t_write    write    = NULL;
+    t_read     read     = NULL;
+    t_close    close    = NULL;
 
-    t_fopen   fopen   = NULL;
-    t_fseek   fseek   = NULL;
-    t_fwrite  fwrite  = NULL;
-    t_fread   fread   = NULL;
-    t_feof    feof    = NULL;
-    t_fgets   fgets   = NULL;
-    t_fprintf fprintf = NULL;
-    t_fclose  fclose  = NULL;
+    t_fopen    fopen    = NULL;
+    t_fseek    fseek    = NULL;
+    t_fwrite   fwrite   = NULL;
+    t_fread    fread    = NULL;
+    t_feof     feof     = NULL;
+    t_fgets    fgets    = NULL;
+    t_fprintf  fprintf  = NULL;
+    t_fclose   fclose   = NULL;
+
+    t_rename  rename    = NULL;
 } }  // namespace AIO::OS
 
 
@@ -53,7 +55,7 @@ int AIO::OS::init()
     AIO::OS::fgets   = GET(t_fgets,   "fgets"  );
     AIO::OS::fprintf = GET(t_fprintf, "fprintf");
     AIO::OS::fclose  = GET(t_fclose,  "fclose" );
-
+    AIO::OS::rename  = GET(t_rename,  "rename" );
     return 0;
 }   // init
 

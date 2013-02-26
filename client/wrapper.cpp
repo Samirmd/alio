@@ -175,5 +175,18 @@ int close(int filedes)
     return fo->close();
 }   // close
 // ----------------------------------------------------------------------------
+int rename(const char *oldpath, const char *newpath) __THROW
+{
+    printf("Rename %s -> %s called.\n", oldpath, newpath);
+    AIO::Config *config   = AIO::Config::get();
+    AIO::I_FileObject *fo = NULL;
+
+    if(!config || !(fo=config->createFileObject(oldpath)))
+        return AIO::OS::rename(oldpath, newpath);
+
+    return fo->rename(oldpath);
+
+}   // rename
+// ----------------------------------------------------------------------------
 
 }

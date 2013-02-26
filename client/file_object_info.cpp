@@ -116,16 +116,13 @@ bool FileObjectInfo::isApplicable(const std::string &filename) const
 // ----------------------------------------------------------------------------
 I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) const
 {
-
     I_FileObject *fo = NULL;
     switch(m_io_types[0])
     {
     case IO_TYPE_STANDARD : fo = new StandardFileObject(); break;
     case IO_TYPE_NULL     : fo = new NullFileObject();     break;
-    case IO_TYPE_REMOTE   : 
-        Remote::init();
-        fo = new Remote();
-        break;
+    case IO_TYPE_REMOTE   : Remote::init();
+                            fo = new Remote();             break;
     default:
         printf("No final first type found - shouldn't happen.\n");
         exit(-1);

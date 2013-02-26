@@ -1,14 +1,16 @@
 #ifndef HEADER_I_FILE_OBJECT_HPP
 #define HEADER_I_FILE_OBJECT_HPP
 
+
 #include <stdio.h>
 #include <string>
 #include <sys/types.h>
+#include <sys/stat.h>
+
 
 #ifndef WIN32
 #  include <unistd.h>
 #endif
-
 
 namespace AIO
 {
@@ -21,7 +23,7 @@ public:
     {
     };
     // ------------------------------------------------------------------------
-    virtual ~I_FileObject() {};
+    virtual ~I_FileObject() {}
     // ------------------------------------------------------------------------
     virtual void setFilename(const std::string &filename) = 0;
     // ------------------------------------------------------------------------
@@ -47,6 +49,7 @@ public:
     virtual ssize_t write(const void *buf, size_t nbyte) = 0;
     virtual ssize_t read(void *buf, size_t count) = 0;
     virtual int     close() = 0;
+    virtual int     rename(const char *newpath) = 0;
 };   // IFileObject
 
 }   // namespace AIO

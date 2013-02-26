@@ -33,6 +33,7 @@ public:
     virtual ssize_t write(const void *buf, size_t nbyte);
     virtual ssize_t read(void *buf, size_t count);
     virtual int     close();
+    virtual int     rename(const char *newpath);
 
 };   // Remote
 

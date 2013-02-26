@@ -24,12 +24,11 @@ public:
     // ------------------------------------------------------------------------
     virtual FILE* fopen(const char *mode)
     {
-        printf("[%s] fopen(%s)", I_FileObjectDecorator::getFilename().c_str(), 
+        printf("[%s] fopen(\"%s\")", I_FileObjectDecorator::getFilename().c_str(), 
                mode);
         FILE *file = I_FileObjectDecorator::fopen(mode);
         if(!file)
-            printf(" = errno(%d).\n", 
-                   I_FileObjectDecorator::getFilename().c_str(), errno);
+            printf(" = errno(%d).\n", errno);
         else
             printf(" = %lx\n", file);
         return (FILE*)this;
@@ -145,6 +144,15 @@ public:
         printf(" = %d\n", result);
         return result;
     }   // close
+    // ------------------------------------------------------------------------
+    virtual int rename(const char *newpath)
+    {
+        printf("[%s] rename(%s)", 
+               I_FileObjectDecorator::getFilename().c_str(), newpath);
+        int result = I_FileObjectDecorator::rename(newpath);
+        printf(" = %d\n", result);
+        return result;
+    }
     // ------------------------------------------------------------------------
 
 };   // IFileObject

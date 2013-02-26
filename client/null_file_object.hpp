@@ -43,6 +43,8 @@ public:
     virtual ssize_t read(void *buf, size_t count) { return 0; }
     // ------------------------------------------------------------------------
     virtual int close() { return 0; }
+    // ------------------------------------------------------------------------
+    virtual int rename(const char* newpath) {return 0;}
 };   // NullFileObject
 
 };   // namespace AIO

@@ -18,6 +18,13 @@ public:
         MSG_FEOF,
         MSG_FGETS,
         MSG_FCLOSE,
+        MSG_OPEN,
+        MSG_FSTAT,
+        MSG_LSEEK,
+        MSG_WRITE,
+        MSG_READ,
+        MSG_CLOSE,
+        MSG_RENAME,
         MSG_QUIT
     } MessageType ;
 
@@ -29,42 +36,86 @@ private:
     bool         m_needs_destroy;  // only received messages need to be destroyed
 
 public:
-    void         addInt(int data);
-    void         addShort(short data);
-    void         addString(const std::string &data); 
-    void         addUInt(unsigned int data)      { addInt(*(int*)&data);  }
-    void         addFloat(const float data);    
-    void         addBool(bool data)              { addChar(data?1:0);     }
-    void         addChar(char data)              { addCharArray((char*)&data,1);}
-    void         addCharArray(const char *c, unsigned int n) 
-                                                 { assert((int)(m_pos+n)<=m_data_size);
-                                                   memcpy(m_data+m_pos,c,n);
-                                                   m_pos+=n;              }
-#ifndef WIN32          // on windows size_t is unsigned int
-    void         add(size_t data)                { addInt((int)data);     }
-#endif
-    void         addIntArray(int *d, unsigned int n) 
-                                                 { for(unsigned int i=0; 
-                                                       i<n; i++)
-                                                       addInt(d[i]);      }
-    int          getInt(); 
-    short        getShort();
-    float        getFloat();
-    std::string  getString();
-    char*        getCurrentBuffer()             {return m_data+m_pos; }
-    void         getCharArray(char *c, int n=1) {memcpy(c,m_data+m_pos,n);
-                                                  m_pos+=n;
-                                                  return;                 }
-    static int   getIntLength()             { return sizeof(int);     }
-    static int   getUIntLength()            { return sizeof(int);     }
-    static int   getShortLength()           { return sizeof(short);   }
-    static int   getCharLength()            { return sizeof(char);    }
-    static int   getBoolLength()            { return sizeof(char);    }
-    static int   getFloatLength()           { return sizeof(float);   }
-    static int   getStringLength(const std::string& s) { return s.size()+1;}
-#ifndef WIN32
-    static int   getSizeTLength()           { return sizeof(int);     }
-#endif
+
+    /** Template add function, that adds one element of the given type 
+     * to the message. */
+    template <typename TYPE>
+    void add(TYPE data)
+    {  
+        assert((int)(m_pos + sizeof(TYPE)) <= m_data_size);
+        memcpy(m_data+m_pos, &data, sizeof(TYPE)); 
+        m_pos += sizeof(TYPE);
+    };
+    // ------------------------------------------------------------------------
+    /** Specialisation for null-terminated character arrays. */
+    void add(const char *c) 
+    {
+        int n=strlen(c);
+        assert((int)(m_pos+n)<=m_data_size);
+        memcpy(m_data+m_pos, c, n);
+        m_pos+=n;
+    }
+    // ------------------------------------------------------------------------
+    /** Specialisation for arbitrary binary data of a given length. */
+    void add(const void *p, off_t n)
+    {
+        assert((int)(m_pos+n)<=m_data_size);
+        memcpy(m_data+m_pos, p, n);
+        m_pos+=n;
+    }
+
+    // ------------------------------------------------------------------------
+    /** Specialisation for std::strings. */
+    void add(const std::string &data)
+    { 
+        int len = data.size()+1;  // copy 0 end byte
+        assert((int)(m_pos+len) <=m_data_size);
+        memcpy (m_data+m_pos, data.c_str(), len);
+        m_pos += len;
+    }
+
+    // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    /** Template class to extract an arbitrary data type from a message. */
+    template <class TYPE>
+    void get(TYPE &data)
+    {
+        memcpy(&data, m_data+m_pos, sizeof(TYPE));
+        m_pos += sizeof(TYPE);
+    }
+    // ------------------------------------------------------------------------
+    /** Specialisation for std::strings. */
+    void get(std::string &name)
+    {
+        char *str = m_data + m_pos;
+        int len   = strlen(str)+1;
+        name = m_data+m_pos;
+        m_pos += len;
+    }
+    // ------------------------------------------------------------------------
+    /** Just returns a char pointer to the current position in the buffer. */
+    char* get()
+    {
+        return m_data+m_pos;
+    }
+    // ------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    template <class TYPE>
+    size_t getSize(const TYPE &data)
+    {
+        return sizeof(data);
+    }
+    // ------------------------------------------------------------------------
+    size_t getSize(const std::string &data)
+    {
+        // add 1 since it is stored as a zero terminated character array
+        return data.size()+1;
+    }
+    // ------------------------------------------------------------------------
+    size_t getSize(const char* data)
+    {
+        return strlen(data)+1;  // 0 byte at end.
+    }
 
 public:
                  Message(MessageType m);
