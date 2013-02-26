@@ -41,7 +41,7 @@ void Config::readConfig(const std::string &name)
     FILE *file = OS::fopen(name.c_str(), "r");
     if(!file)
     {
-        OS::fprintf(stderr, "Can't open file '%s' - aborting.\n", name.c_str());
+        fprintf(stderr, "Can't open file '%s' - aborting.\n", name.c_str());
         exit(-1);
     }
     // We want to avoid using fstreams here, since they call internally
@@ -87,12 +87,14 @@ Config::~Config()
 // ----------------------------------------------------------------------------
 AIO::I_FileObject *Config::createFileObject(const char *name)
 {
+    //printf("AIO: searching for '%s'.\n", name);
     std::string s_name(name);
     for(unsigned int i=0; i<m_all_file_object_info.size(); i++)
     {
         const FileObjectInfo *foi = m_all_file_object_info[i];
         if(foi->isApplicable(s_name))
         {
+            //            printf("[AIO] File %s --> index %d\n", name, i);
             I_FileObject *fo = foi->createFileObject(name);
             fo->setIndex(m_file_objects.size());
             m_file_objects.push_back(fo);

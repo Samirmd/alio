@@ -63,7 +63,111 @@ FILE* Remote:: fopen(const char *mode)
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return (FILE*)this;
 }   // fopen
+// ----------------------------------------------------------------------------
+FILE* Remote:: fopen64(const char *mode)
+{
+    Message m(Message::MSG_FOPEN64);
+    int mode_len = strlen(mode);
+    m.allocate(m.getSize(getFilename()) + m.getSize(mode));
+    m.add(getFilename());
+    m.add(mode);
 
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+    return (FILE*)this;
+}   // fopen
+
+
+
+// ----------------------------------------------------------------------------
+int Remote::setvbuf(char *buf, int mode, size_t size)
+{
+    // for now ignore this, it has no real impact on functionality
+    return 0;
+}   // setvbuf
+
+// ----------------------------------------------------------------------------
+
+#define SEEK(NAME, TYPE, TAG)                                         \
+int Remote::NAME(TYPE offset, int whence)                             \
+{                                                                     \
+    Message m(Message::TAG);                                          \
+    m.allocate(m.getSize(offset)+m.getSize(whence));                  \
+    m.add(offset);                                                    \
+    m.add(whence);                                                    \
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);   \
+    MPI_Status status;                                                \
+                                                                      \
+    int result;                                                       \
+                                                                      \
+    int recv_len = m.getSize(result)+m.getSize(errno);                \
+    char *msg    = new char[recv_len];                                \
+    int *p       = (int *)msg;                                        \
+    MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);    \
+                                                                      \
+    result = p[0];                                                    \
+    if(result==-1)                                                    \
+        errno = (int)(p[1]);                                          \
+    delete msg;                                                       \
+    return result;                                                    \
+}   
+
+SEEK(fseek,    long,    MSG_FSEEK   )
+SEEK(fseeko,   off_t,   MSG_FSEEKO  )
+SEEK(fseeko64, off64_t, MSG_FSEEKO64)
+// ----------------------------------------------------------------------------
+#define TELL(NAME, TYPE, TAG)                                        \
+TYPE Remote::NAME()                                                  \
+{                                                                    \
+    Message m(Message::TAG);                                         \
+    m.allocate(0);                                                   \
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);  \
+                                                                     \
+    MPI_Status status;                                               \
+    TYPE result;                                                     \
+                                                                     \
+    int recv_len = m.getSize(result)+m.getSize(errno);               \
+    char *msg = new char[recv_len];                                  \
+    TYPE *p = (TYPE*)msg;                                            \
+    MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);   \
+                                                                     \
+    result = p[0];                                                   \
+    if(result==-1)                                                   \
+        errno = (int)(p[1]);                                         \
+    delete msg;                                                      \
+    return result;                                                   \
+}   
+
+TELL(ftell,    long,    MSG_FTELL   )
+TELL(ftello,   off_t,   MSG_FTELLO  )
+TELL(ftello64, off64_t, MSG_FTELLO64)
+
+// ----------------------------------------------------------------------------
+int Remote::fflush()
+{
+    // Ignored for now.
+    return 0;
+}   // fflush
+// ----------------------------------------------------------------------------
+int Remote::ferror()
+{
+    Message m(Message::MSG_FERROR);
+    m.allocate(0);
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+
+    MPI_Status status;
+    int result;
+
+    int recv_len = m.getSize(result)+m.getSize(errno);
+    char *msg = new char[recv_len];
+    long *p = (off_t*)msg;
+    MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);
+    
+    result = p[0];
+    if(result==-1)
+        errno = (int)(p[1]);
+    delete msg;
+    return result;
+}   // ferror
 // ----------------------------------------------------------------------------
 size_t Remote::fwrite(const void *ptr,size_t size, size_t nmemb)
 {
@@ -131,6 +235,18 @@ int Remote::open(int flags, mode_t mode)
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return getIndex()+1024;
 }   // open
+// ----------------------------------------------------------------------------
+int Remote::open64(int flags, mode_t mode)
+{
+    Message m(Message::MSG_OPEN64);
+    m.allocate(m.getSize(getFilename()) + m.getSize(flags)+m.getSize(mode));
+    m.add(getFilename());
+    m.add(flags);
+    m.add((int)mode);
+
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+    return getIndex()+1024;
+}   // open
 
 // ----------------------------------------------------------------------------
 int Remote::__xstat(int ver, struct stat *buf)
@@ -145,10 +261,10 @@ int Remote::__xstat(int ver, struct stat *buf)
              m_intercomm, &status);
     int *p    = (int *)msg;
     memcpy(buf, p+2, sizeof(struct stat));
-    delete msg;
     int result = p[0];
     if(result)
         errno = p[1];
+    delete msg;
     return result;
 }   // fstat
 
@@ -165,10 +281,10 @@ int Remote::__fxstat(int ver, struct stat *buf)
              m_intercomm, &status);
     int *p    = (int *)msg;
     memcpy(buf, p+2, sizeof(struct stat));
-    delete msg;
     int result = p[0];
     if(result)
         errno = p[1];
+    delete msg;
     return result;
 }   // fstat
 
@@ -185,10 +301,10 @@ int Remote::__lxstat(int ver, struct stat *buf)
              m_intercomm, &status);
     int *p    = (int *)msg;
     memcpy(buf, p+2, sizeof(struct stat));
-    delete msg;
     int result = p[0];
     if(result)
         errno = p[1];
+    delete msg;
     return result;
 }   // fstat
 
@@ -203,7 +319,7 @@ off_t Remote::lseek(off_t offset, int whence)
     MPI_Status status;
     off_t result;
 
-    int recv_len = m.getSize(result)+m.getSize(whence);
+    int recv_len = m.getSize(result)+m.getSize(errno);
     char *msg = new char[recv_len];
     off_t *p = (off_t*)msg;
     MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);
@@ -211,6 +327,7 @@ off_t Remote::lseek(off_t offset, int whence)
     result = p[0];
     if(result==(off_t)-1)
         errno = (int)(p[1]);
+    delete msg;
     return result;
 }   // lseek
 

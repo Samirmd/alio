@@ -39,6 +39,60 @@ public:
     }   // fopen
 
     // ------------------------------------------------------------------------
+    virtual FILE*  fopen64(const char *mode)
+    {
+        m_file=OS::fopen64(getFilename().c_str(), mode);
+        if(!m_file)
+            return NULL;
+        return (FILE*)this;
+    }   // fopen
+
+    // ------------------------------------------------------------------------
+    virtual int setvbuf(char *buf, int mode, size_t size)
+    {
+        return OS::setvbuf(m_file, buf, mode, size);
+    }   // setvbuf
+    // ------------------------------------------------------------------------
+    virtual int fseek(long offset, int whence)
+    {
+        return OS::fseek(m_file, offset, whence);
+    }   // fseeko
+    // ------------------------------------------------------------------------
+    virtual int fseeko(off_t offset, int whence)
+    {
+        return OS::fseeko(m_file, offset, whence);
+    }   // fseek
+    // ------------------------------------------------------------------------
+    virtual int fseeko64(off64_t offset, int whence)
+    {
+        return OS::fseeko64(m_file, offset, whence);
+    }   // fseeko64
+    // ------------------------------------------------------------------------
+    virtual long ftell()
+    {
+        return OS::ftell(m_file);
+    }   // ftell
+    // ------------------------------------------------------------------------
+    virtual off_t ftello()
+    {
+        return OS::ftello(m_file);
+    }   // ftello
+    // ------------------------------------------------------------------------
+    virtual off64_t ftello64()
+    {
+        return OS::ftello64(m_file);
+    }   // ftello64
+    // ------------------------------------------------------------------------
+    virtual int fflush()
+    {
+        return OS::fflush(m_file);
+    }   // fflush
+    // ------------------------------------------------------------------------
+    virtual int ferror()
+    {
+        return OS::ferror(m_file);
+    }   // ferror
+    // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
         return OS::fwrite(ptr, size, nmemb, m_file);
@@ -73,6 +127,12 @@ public:
     virtual int open(int flags, mode_t mode)
     {
         m_filedes = OS::open(getFilename().c_str(), flags, mode);
+        return getIndex()+1024;
+    }   // open
+    // ------------------------------------------------------------------------
+    virtual int open64(int flags, mode_t mode)
+    {
+        m_filedes = OS::open64(getFilename().c_str(), flags, mode);
         return getIndex()+1024;
     }   // open
     // ------------------------------------------------------------------------

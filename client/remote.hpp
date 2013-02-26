@@ -21,6 +21,16 @@ public:
                     Remote();
     virtual        ~Remote();
     virtual FILE   *fopen(const char *mode);
+    virtual FILE   *fopen64(const char *mode);
+    virtual int     setvbuf(char *buf, int mode, size_t size);
+    virtual int     fseek(long offset, int whence);
+    virtual int     fseeko(off_t offset, int whence);
+    virtual int     fseeko64(off64_t offset, int whence);
+    virtual long    ftell();
+    virtual off_t   ftello();
+    virtual off64_t ftello64();
+    virtual int     fflush();
+    virtual int     ferror();
     virtual size_t  fwrite(const void *ptr,size_t size, size_t nmemb);
     virtual size_t  fread(void *ptr,size_t size, size_t nmemb);
     virtual int     feof();
@@ -28,6 +38,7 @@ public:
     virtual int     fclose();
 
     virtual int     open(int flags, mode_t mode);
+    virtual int     open64(int flags, mode_t mode);
     virtual int     __xstat(int ver, struct stat *buf);
     virtual int     __fxstat(int ver, struct stat *buf);
     virtual int     __lxstat(int ver, struct stat *buf);

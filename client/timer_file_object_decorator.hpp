@@ -122,6 +122,95 @@ public:
         return (FILE*)this;
     }
     // ------------------------------------------------------------------------
+    virtual FILE* fopen64(const char *mode)
+    {
+        m_timers->start(TIMER_OPEN);
+        FILE *file = I_FileObjectDecorator::fopen64(mode);
+        m_timers->stop(TIMER_OPEN);
+        return (FILE*)this;
+    }
+    // ------------------------------------------------------------------------
+    virtual int setvbuf(char *buf, int mode, size_t size)
+    {
+        m_timers->start(TIMER_MISC);
+        int result = I_FileObjectDecorator::setvbuf(buf, mode, size);
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // setvbuf
+
+    // ------------------------------------------------------------------------
+    virtual int fseek(long offset, int whence)
+    {
+        m_timers->start(TIMER_SEEK);
+        int result = I_FileObjectDecorator::fseek(offset, whence);
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // fseek
+
+    // ------------------------------------------------------------------------
+    virtual int fseeko(off_t offset, int whence)
+    {
+        m_timers->start(TIMER_SEEK);
+        int result = I_FileObjectDecorator::fseeko(offset, whence);
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // fseeko
+
+    // ------------------------------------------------------------------------
+    virtual int fseeko64(off64_t offset, int whence)
+    {
+        m_timers->start(TIMER_SEEK);
+        int result = I_FileObjectDecorator::fseeko64(offset, whence);
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // fseeko64
+
+    // ------------------------------------------------------------------------
+    virtual long ftell()
+    {
+        m_timers->start(TIMER_MISC);
+        long result = I_FileObjectDecorator::ftell();
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // ftell
+
+    // ------------------------------------------------------------------------
+    virtual off_t ftello()
+    {
+        m_timers->start(TIMER_MISC);
+        off_t result = I_FileObjectDecorator::ftello();
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // ftello
+
+    // ------------------------------------------------------------------------
+    virtual off64_t ftello64()
+    {
+        m_timers->start(TIMER_MISC);
+        off64_t result = I_FileObjectDecorator::ftello64();
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // ftello64
+
+    // ------------------------------------------------------------------------
+    virtual int fflush()
+    {
+        m_timers->start(TIMER_MISC);
+        int result = I_FileObjectDecorator::fflush();
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // fflush
+
+    // ------------------------------------------------------------------------
+    virtual int ferror()
+    {
+        m_timers->start(TIMER_MISC);
+        int result = I_FileObjectDecorator::ferror();
+        m_timers->stop(TIMER_MISC);
+        return result;
+    }   // ferror
+
+    // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
         m_timers->start(TIMER_WRITE);
@@ -167,6 +256,14 @@ public:
     {
         m_timers->start(TIMER_OPEN);
         int filedes = I_FileObjectDecorator::open(flags, mode);
+        m_timers->stop(TIMER_OPEN);
+        return filedes;
+    }   // open
+    // ------------------------------------------------------------------------
+    virtual int open64(int flags, mode_t mode)
+    {
+        m_timers->start(TIMER_OPEN);
+        int filedes = I_FileObjectDecorator::open64(flags, mode);
         m_timers->stop(TIMER_OPEN);
         return filedes;
     }   // open

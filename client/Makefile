@@ -1,4 +1,4 @@
-SRC = config.cpp standard_file_object.cpp wrapper.cpp \
+SRC = config.cpp wrapper.cpp \
       file_object_info.cpp  remote.cpp init.cpp       \
       timer_file_object_decorator.cpp
 

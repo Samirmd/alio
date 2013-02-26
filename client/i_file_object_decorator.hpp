@@ -44,6 +44,38 @@ public:
     // ------------------------------------------------------------------------
     virtual FILE*  fopen(const char *mode) { return m_parent->fopen(mode); }
     // ------------------------------------------------------------------------
+    virtual FILE*  fopen64(const char *mode) { return m_parent->fopen64(mode);}
+    // ------------------------------------------------------------------------
+    virtual int setvbuf(char *buf, int mode, size_t size)
+    {
+        return m_parent->setvbuf(buf, mode, size);
+    }
+    // ------------------------------------------------------------------------
+    virtual int fseek(long offset, int whence)
+    {
+        return m_parent->fseek(offset, whence);
+    }
+    // ------------------------------------------------------------------------
+    virtual int fseeko(off_t offset, int whence)
+    {
+        return m_parent->fseeko(offset, whence);
+    }
+    // ------------------------------------------------------------------------
+    virtual int fseeko64(off64_t offset, int whence)
+    {
+        return m_parent->fseeko64(offset, whence);
+    }
+    // ------------------------------------------------------------------------
+    virtual long ftell() { return m_parent->ftell(); }
+    // ------------------------------------------------------------------------
+    virtual off_t ftello() { return m_parent->ftello(); }
+    // ------------------------------------------------------------------------
+    virtual off64_t ftello64() { return m_parent->ftello64(); }
+    // ------------------------------------------------------------------------
+    virtual int fflush() { return m_parent->fflush(); }
+    // ------------------------------------------------------------------------
+    virtual int ferror() { return m_parent->ferror(); }
+    // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
         return m_parent->fwrite(ptr, size, nmemb);
@@ -63,6 +95,11 @@ public:
     virtual int open(int flags, mode_t mode)
     {
         return m_parent->open(flags, mode); 
+    }
+    // ------------------------------------------------------------------------
+    virtual int open64(int flags, mode_t mode)
+    {
+        return m_parent->open64(flags, mode); 
     }
     // ------------------------------------------------------------------------
     virtual int __xstat(int ver, struct stat *buf) 

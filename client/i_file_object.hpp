@@ -37,6 +37,16 @@ public:
     // ------------------------------------------------------------------------
 
     virtual FILE*   fopen(const char *mode) = 0;
+    virtual FILE*   fopen64(const char *mode) = 0;
+    virtual int     setvbuf(char *buf, int mode, size_t size) = 0;
+    virtual int     fseek(long offset, int whence) = 0;
+    virtual int     fseeko(off_t offset, int whence) = 0;
+    virtual int     fseeko64(off64_t offset, int whence) = 0;
+    virtual long    ftell() = 0;
+    virtual off_t   ftello() = 0;
+    virtual off64_t ftello64() = 0;
+    virtual int     fflush() = 0;
+    virtual int     ferror() = 0;
     virtual size_t  fwrite(const void *ptr, size_t size, size_t nmemb) = 0;
     virtual size_t  fread(void *ptr,size_t size, size_t nmemb) = 0;
     virtual int     feof() = 0;
@@ -44,6 +54,7 @@ public:
     virtual int     fclose() = 0;
 
     virtual int     open(int flags, mode_t mode) = 0;
+    virtual int     open64(int flags, mode_t mode) = 0;
     virtual int     __xstat(int ver, struct stat *buf) = 0;
     virtual int     __fxstat(int ver, struct stat *buf) = 0;
     virtual int     __lxstat(int ver, struct stat *buf) = 0;

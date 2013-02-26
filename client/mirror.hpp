@@ -42,6 +42,67 @@ public:
         return I_FileObjectDecorator::fopen(mode);
     }
     // ------------------------------------------------------------------------
+    virtual FILE* fopen64(const char *mode)
+    {
+        m_mirror->fopen64(mode);
+        return I_FileObjectDecorator::fopen64(mode);
+    }
+
+    // ------------------------------------------------------------------------
+    virtual int setvbuf(char *buf, int mode, size_t size)
+    {
+        m_mirror->setvbuf(buf, mode, size);
+        return I_FileObjectDecorator::setvbuf(buf, mode, size);
+    }   // setvbuf
+    // ------------------------------------------------------------------------
+    virtual int fseek(long offset, int whence)
+    {
+        m_mirror->fseek(offset, whence);
+        return I_FileObjectDecorator::fseek(offset, whence);
+    }   // fseek
+    // ------------------------------------------------------------------------
+    virtual int fseeko(off_t offset, int whence)
+    {
+        m_mirror->fseeko(offset, whence);
+        return I_FileObjectDecorator::fseeko(offset, whence);
+    }   // fseeko
+    // ------------------------------------------------------------------------
+    virtual int fseeko64(off64_t offset, int whence)
+    {
+        m_mirror->fseeko64(offset, whence);
+        return I_FileObjectDecorator::fseeko64(offset, whence);
+    }   // fseeko64
+    // ------------------------------------------------------------------------
+    virtual long ftell()
+    {
+        m_mirror->ftell();
+        return I_FileObjectDecorator::ftell();
+    }   // ftell
+    // ------------------------------------------------------------------------
+    virtual off_t ftello()
+    {
+        m_mirror->ftello();
+        return I_FileObjectDecorator::ftello();
+    }   // ftello
+    // ------------------------------------------------------------------------
+    virtual off64_t ftello64()
+    {
+        m_mirror->ftello64();
+        return I_FileObjectDecorator::ftello64();
+    }   // ftello
+    // ------------------------------------------------------------------------
+    virtual int fflush()
+    {
+        m_mirror->fflush();
+        return I_FileObjectDecorator::fflush();
+    }   // fflush
+    // ------------------------------------------------------------------------
+    virtual int ferror()
+    {
+        m_mirror->ferror();
+        return I_FileObjectDecorator::ferror();
+    }   // ferror
+    // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
         m_mirror->fwrite(ptr, size, nmemb);
@@ -96,6 +157,13 @@ public:
         int filedes = I_FileObjectDecorator::open(flags, mode);
         return filedes;
     }   // open
+    // ------------------------------------------------------------------------
+    virtual int open64(int flags, mode_t mode)
+    {
+        m_mirror->open64(flags, mode);
+        int filedes = I_FileObjectDecorator::open64(flags, mode);
+        return filedes;
+    }   // open64
     // ------------------------------------------------------------------------
     virtual int __xstat(int ver, struct stat *buf)
     {

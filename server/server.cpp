@@ -62,14 +62,86 @@ bool handleRequests(MPI_Comm intercomm)
     switch(m.getType())
     {
     case Message::MSG_FOPEN:
+    case Message::MSG_FOPEN64:
         {
             std::string mode;
             m.get(m_filename);
             m.get(mode);
-            //m_filename = "/tmp/aio_"+m_filename;
-            m_file = fopen(m_filename.c_str(), mode.c_str());
+            if(m.getType()==Message::MSG_FOPEN)
+                m_file = fopen(m_filename.c_str(), mode.c_str());
+            else
+                m_file = fopen64(m_filename.c_str(), mode.c_str());
             return false;
         }
+    case Message::MSG_FSEEK:
+        {
+#define SEEK(NAME, TYPE)                                         \
+            TYPE offset;                                         \
+            m.get(offset);                                       \
+            int whence;                                          \
+            m.get(whence);                                       \
+            int send_len = m.getSize(whence)+m.getSize(errno);   \
+            char *msg    = new char[send_len];                   \
+            int *p       = (int*)msg;                            \
+            p[0]         = NAME(m_file, offset, whence);         \
+            p[1]         = errno;                                \
+            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);  \
+            delete msg;                                          \
+            return false;
+
+            SEEK(fseek, long);
+        }   // switch
+
+    case Message::MSG_FSEEKO:
+        {
+            SEEK(fseeko, off_t);
+            return false;
+        }   // switch
+
+    case Message::MSG_FSEEKO64:
+        {
+            SEEK(fseeko64, off64_t);
+            return false;
+        }   // switch
+
+    case Message::MSG_FTELL:
+        {
+#define TELL(NAME, TYPE)                                       \
+            TYPE result;                                       \
+            int send_len = m.getSize(result)+m.getSize(errno); \
+            char *msg    = new char[send_len];                 \
+            TYPE *p      = (TYPE*)msg;                         \
+            p[0]         = NAME(m_file);                       \
+            memcpy(p+1, &errno, sizeof(errno));                \
+            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);\
+            delete msg;                                        \
+            return false;
+            TELL(ftell, long);
+        }   // switch
+
+    case Message::MSG_FTELLO:
+        {
+            TELL(ftello, off_t);
+        }   // switch
+
+    case Message::MSG_FTELLO64:
+        {
+            TELL(ftello64, off64_t);
+        }   // switch
+
+    case Message::MSG_FERROR:
+        {
+            int n;
+            int send_len = m.getSize(n)+m.getSize(errno);
+            char *msg    = new char[send_len];
+            int *p       = (int*)msg;
+            p[0]         = ferror(m_file);
+            p[1]         = errno;
+            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);
+            delete msg;
+            return false;
+        }   // switch
+
     case Message::MSG_FWRITE:
         {
             size_t size, nmemb;
@@ -86,13 +158,17 @@ bool handleRequests(MPI_Comm intercomm)
             return false;
         }
     case Message::MSG_OPEN:
+    case Message::MSG_OPEN64:
         {
             m.get(m_filename);
             int flags;
             m.get(flags);
             mode_t mode;
             m.get(mode);
-            m_filedes = open(m_filename.c_str(), flags, mode);
+            if(m.getType()==Message::MSG_OPEN)
+                m_filedes = open(m_filename.c_str(), flags, mode);
+            else
+                m_filedes = open64(m_filename.c_str(), flags, mode);
             return false;
         }
     case Message::MSG_STAT:

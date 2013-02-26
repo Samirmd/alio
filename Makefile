@@ -7,7 +7,7 @@ LIBS 	 =
 .phoney: tools_lib server_lib client_lib clean
 
 default: tools_lib client_lib server_lib main.o
-#$(CXX) main.o $(LIBS) -o main
+	$(CXX) main.o $(LIBS) -o main
 
 tools_lib:
 	$(MAKE) -C tools
