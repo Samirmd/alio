@@ -3,7 +3,9 @@
 
 #include <stdio.h>
 #include <sys/types.h>
-#include <unistd.h>
+#ifndef WIN32
+#  include <unistd.h>
+#endif
 
 
 namespace AIO

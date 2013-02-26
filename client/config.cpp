@@ -5,6 +5,7 @@
 #include "tools/os.hpp"
 
 #include <stdio.h>
+#include <string>
 
 namespace AIO
 {
@@ -35,20 +36,39 @@ Config::Config()
     FILE *file = OS::fopen(name.c_str(), "r");
     if(!file)
     {
-        OS::fprintf(stderr, "Can't open file '%s' - aborting.\n");
+        OS::fprintf(stderr, "Can't open file '%s' - aborting.\n", name.c_str());
+        exit(-1);
+    }
+    // We want to avoid using fstreams here, since they call internally
+    // open, read, write, close etc - which might get redirected. So
+    // only use standard C calls.
+
+    OS::fseek(file, 0L, SEEK_END);
+    unsigned long size = ftell(file);
+    OS::fseek(file, 0L, SEEK_SET);
+
+    char *buffer = new char[size+1];
+   
+    if(!buffer)
+    {
+        fprintf(stderr, "Can't allocate %ld bytes for config file '%s' - aborting.\n",
+                size, name.c_str());
         exit(-1);
     }
 
-    char *buffer=NULL;
     while(!feof(file))
     {
-        unsigned long len;
-        getline(&buffer, &len, file);
-        std::string line(buffer);
-        printf("Read: %s.\n", line.c_str());
-
+        if(!fgets(buffer, size+1, file))
+        {
+            fprintf(stderr, "Problems reading file '%s' - aborting.\n",
+                    name.c_str());
+            exit(-1);
+        }
+        std::string s(buffer);
+        if(s[s.size()-1]=='\n')
+            s.erase(s.end()-1);
+        printf("Read '%s'.\n", s.c_str());
     }
-    free(buffer);
     fclose(file);
 
 }   // Config

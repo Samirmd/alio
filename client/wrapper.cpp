@@ -1,11 +1,13 @@
 #include "client/config.hpp"
 #include "client/i_file_object.hpp"
 
-#include <unistd.h>
+#ifndef WIN32
+#  include <unistd.h>
+#endif
 
 FILE * xfopen(const char *filename, const char *mode)
 {
-    AIO::Config::Config *config = AIO::Config::get();
+    AIO::Config *config = AIO::Config::get();
     
     AIO::I_FileObject *fo =  config->getFileObjectFor(filename);
     return fo->fopen(mode);

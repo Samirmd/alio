@@ -19,6 +19,8 @@ namespace OS {
         typedef int    (*t_close  )(int fildes);
 
         typedef FILE * (*t_fopen  )(const char *FILE, const char *mode);
+        typedef int    (*t_fseek  )(FILE *FP, long OFFSET, int WHENCE);
+
         typedef int    (*t_fprintf)(FILE *stream, const char *format, ...);
         typedef size_t (*t_fwrite )(const void *ptr,size_t size, size_t nmemb, FILE *stream);
         typedef off_t  (*t_lseek  )(int fildes, off_t offset, int whence);
@@ -30,6 +32,7 @@ namespace OS {
     extern t_close   close;
 
     extern t_fopen   fopen;
+    extern t_fseek   fseek;
     extern t_fprintf fprintf;
     extern t_fwrite  fwrite;
     extern t_lseek   lseek;
