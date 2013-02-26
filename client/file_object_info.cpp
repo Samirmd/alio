@@ -4,6 +4,7 @@
 #include "client/null_file_object.hpp"
 #include "client/remote.hpp"
 #include "client/standard_file_object.hpp"
+#include "client/timer_file_object_decorator.hpp"
 
 #include <assert.h>
 
@@ -36,8 +37,8 @@ FileObjectInfo::FileObjectInfo(const std::string &config_line)
             m_io_types.push_back(IO_TYPE_NULL);
         else if(config[i]=="mirror")
             m_io_types.push_back(IO_TYPE_MIRROR);
-        else if(config[i]=="time")
-            m_io_types.push_back(IO_TYPE_TIME);
+        else if(config[i]=="timer")
+            m_io_types.push_back(IO_TYPE_TIMER);
         else if(config[i]=="debug")
             m_io_types.push_back(IO_TYPE_DEBUG);
         else
@@ -136,7 +137,7 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
     {
         switch(m_io_types[i])
         {
-        case IO_TYPE_TIME   : fo = new StandardFileObject(); break;
+        case IO_TYPE_TIMER  : fo = new TimerFileObjectDecorator(fo); break;
         case IO_TYPE_DEBUG  : fo = new DebugFileObjectDecorator(fo); break;
         case IO_TYPE_MIRROR : fo = new MirrorFileObjectDecorator(fo); break;
         default:
