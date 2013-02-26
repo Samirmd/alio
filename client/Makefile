@@ -6,9 +6,10 @@ ALL_SRC = $(SRC)
 ALL_OBJ = $(ALL_SRC:cpp=o)
 
 CXX      = mpic++
-CXXFLAGS = -g -I .. -fPIC
+CXXFLAGS = -g -I .. -fPIC -O0
 LIB_SO	 = libclient.so
-LIBS	 = ../tools/message.o ../tools/os.o  -ldl -lstdc++
+LIBS	 = ../tools/message.o ../tools/os.o ../tools/string_utils.o \
+           ../xml/xml_node.o  ../xml/irrXML.o  -ldl -lstdc++
 
 
 .phoney: client clean

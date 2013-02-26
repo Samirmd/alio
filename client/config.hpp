@@ -13,8 +13,12 @@
  */
 namespace AIO
 {
+
+class XMLNode;
+
 class Config
 {
+
 private:
     /** Pointer to the one instance of this class. */
     static Config *m_config;
@@ -27,7 +31,7 @@ private:
 
     Config();
    ~Config();
-   void readConfig(const std::string &name);
+   void readConfig(XMLNode *root);
 public:
    static void create();
    static void destroy();

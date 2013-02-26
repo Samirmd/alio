@@ -12,6 +12,9 @@
  */
 namespace AIO
 {
+
+class XMLNode;
+
 class FileObjectInfo
 {
 private:
@@ -25,16 +28,14 @@ private:
             IO_TYPE_TIMER       /** Decorator: Collect timing information. */
     } IOType; 
 
-    /** To which file prefix this entry applies. */
-    std::string m_prefix;
+    /** To which pattern this entry applies. */
+    std::string m_pattern;
 
     /** Which IO objects to instantiate. */
     std::vector<IOType> m_io_types;
 
-    std::vector<std::string> splitString(const std::string& s, char c);
-
 public:
-         FileObjectInfo(const std::string &config_line);
+         FileObjectInfo(const XMLNode *node);
     bool isApplicable(const std::string &filename) const;
     I_FileObject *createFileObject(const std::string &filename) const;
 };   // FileObjectInfo

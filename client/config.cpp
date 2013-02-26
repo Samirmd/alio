@@ -3,6 +3,7 @@
 #include "client/standard_file_object.hpp"
 
 #include "tools/os.hpp"
+#include "xml/xml_node.hpp"
 
 #include <stdio.h>
 #include <string>
@@ -32,49 +33,29 @@ void Config::destroy()
 
 Config::Config()
 {
-    const std::string name("aio.cfg");
-    readConfig(name);
+    const std::string name("aio.xml");
+    XMLNode *root = new AIO::XMLNode(name);
+    readConfig(root);
 }   // Config
+
 // ----------------------------------------------------------------------------
-void Config::readConfig(const std::string &name)
+void Config::readConfig(XMLNode *root)
 {
-    FILE *file = OS::fopen(name.c_str(), "r");
-    if(!file)
+    if(!root || root->getName()!="aio")
     {
-        fprintf(stderr, "Can't open file '%s' - aborting.\n", name.c_str());
-        exit(-1);
+        fprintf(stderr, "Can't open file '%s' - no aio node '%s' %d.\n", 
+                root->getFilename().c_str(), root->getName().c_str(),
+                root->getNumNodes()
+                );
+        //   if(root) delete root;
+        //exit(-1);
     }
-    // We want to avoid using fstreams here, since they call internally
-    // open, read, write, close etc - which might get redirected. So
-    // only use standard C calls.
 
-    OS::fseek(file, 0L, SEEK_END);
-    unsigned long size = ftell(file);
-    OS::fseek(file, 0L, SEEK_SET);
-
-    char *buffer = new char[size+1];
-   
-    if(!buffer)
+    for(unsigned int i=0; i<root->getNumNodes(); i++)
     {
-        fprintf(stderr, "Can't allocate %ld bytes for config file '%s' - aborting.\n",
-                size, name.c_str());
-        exit(-1);
+        FileObjectInfo *foi = new FileObjectInfo(root->getNode(i));
+        m_all_file_object_info.push_back(foi);
     }
-    while(!OS::feof(file))
-    {
-        if(!OS::fgets(buffer, size+1, file)) 
-            break;
-
-        std::string s(buffer);
-        if(s.size()>0 && s[s.size()-1]=='\n')
-            s.erase(s.end()-1);
-        if(s.size()>0)
-        {
-            FileObjectInfo *foi = new FileObjectInfo(s);
-            m_all_file_object_info.push_back(foi);
-        }
-    }
-    fclose(file);
 
 }   // Config
 
