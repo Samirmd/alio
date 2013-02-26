@@ -215,7 +215,7 @@ public:
     {
         m_timers->start(TIMER_WRITE);
         size_t n = I_FileObjectDecorator::fwrite(ptr, size, nmemb);
-        m_timers->stop(TIMER_WRITE, n);
+        m_timers->stop(TIMER_WRITE, n*size);
         return n;
     }
     // ------------------------------------------------------------------------
@@ -223,7 +223,7 @@ public:
     { 
         m_timers->start(TIMER_READ);
         size_t n = I_FileObjectDecorator::fread(ptr, size, nmemb);
-        m_timers->stop(TIMER_READ, n);
+        m_timers->stop(TIMER_READ, n*size);
         return n;
     }
     // ------------------------------------------------------------------------
@@ -239,7 +239,7 @@ public:
     { 
         m_timers->start(TIMER_READ, size);
         char *result = I_FileObjectDecorator::fgets(s, size);
-        m_timers->stop(TIMER_READ);
+        m_timers->stop(TIMER_READ, result ? size-1 : 0);
         return result;
     }   // fgets
     // ------------------------------------------------------------------------
