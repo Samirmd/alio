@@ -1,23 +1,29 @@
-SRC        = main.cpp 
-TOOLS_SRC  = tools/os.cpp
-CLIENT_SRC = client/config.cpp   \
-	         client/standard_file_object.cpp client/wrapper.cpp \
-			 client/file_object_info.cpp 
-
-ALL_SRC    = $(SRC) $(TOOLS_SRC) $(CLIENT_SRC)
-
-ALL_OBJ = $(ALL_SRC:cpp=o)
-
-CXX	= icpc
+CXX		 = icpc
 CXXFLAGS = -g -I .
+LIBS 	 = client/libclient.so tools/libtools.a
 
-.phoney: all clean
 
-all:$(ALL_OBJ)
-	$(CXX) $(ALL_OBJ) -o main
+.phoney: tools server client clean
+
+default: tools client server main.o
+	$(CXX) main.o $(LIBS) -o main
+
+tools:
+	$(MAKE) -C tools libtools.a
+
+client:
+	$(MAKE) -C client
+
+server:
+	$(MAKE) -C server
+
+
 
 clean:
-	rm -f $(ALL_OBJ)
+	rm -f main.o
+	$(MAKE) -C tools  clean
+	$(MAKE) -C client clean
+	$(MAKE) -C server clean
 
 %.o:	%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

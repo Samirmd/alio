@@ -1,6 +1,7 @@
 #include "client/debug_file_object_decorator.hpp"
 #include "client/file_object_info.hpp"
 #include "client/null_file_object.hpp"
+#include "client/remote.hpp"
 #include "client/standard_file_object.hpp"
 
 #include <assert.h>
@@ -22,9 +23,14 @@ FileObjectInfo::FileObjectInfo(const std::string &config_line)
     for(unsigned int i=0; i<config.size(); i++)
     {
         if(config[i]=="standard")
+        {
             m_io_types.push_back(IO_TYPE_STANDARD);
-        else if(config[i]=="server")
-            m_io_types.push_back(IO_TYPE_SERVER);
+        }
+        else if(config[i]=="remote")
+        {
+            m_io_types.push_back(IO_TYPE_REMOTE);
+            
+        }
         else if(config[i]=="null")
             m_io_types.push_back(IO_TYPE_NULL);
         else if(config[i]=="time")
@@ -45,7 +51,7 @@ FileObjectInfo::FileObjectInfo(const std::string &config_line)
     else
     {
         if( m_io_types[0]!=IO_TYPE_STANDARD &&
-            m_io_types[0]!=IO_TYPE_SERVER   &&
+            m_io_types[0]!=IO_TYPE_REMOTE   &&
             m_io_types[0]!=IO_TYPE_NULL       )
         {
             fprintf(stderr, "Incorrect first IO type: '%s' - aborting.\n",
@@ -117,7 +123,7 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename,
     {
     case IO_TYPE_STANDARD : fo = new StandardFileObject(); break;
     case IO_TYPE_NULL     : fo = new NullFileObject();     break;
-    case IO_TYPE_SERVER   : fo = new StandardFileObject(); break;
+    case IO_TYPE_REMOTE   : fo = new Remote();             break;
     default:
         printf("No final first type found - shouldn't happen.\n");
         exit(-1);

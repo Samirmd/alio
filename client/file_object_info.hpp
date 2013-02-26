@@ -19,7 +19,7 @@ private:
     {
             IO_TYPE_STANDARD,   /** Write to disk */
             IO_TYPE_NULL,       /** Write to /dev/null */
-            IO_TYPE_SERVER,     /** Connect to a server. */
+            IO_TYPE_REMOTE,     /** Connect to a server. */
             IO_TYPE_DEBUG,      /** Decorator: print debug info.*/
             IO_TYPE_TIME        /** Decorator: Collect timing information. */
     } IOType; 
