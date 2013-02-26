@@ -60,9 +60,13 @@ public:
     // ------------------------------------------------------------------------
     virtual int __fxstat(int ver, struct stat *buf) {return 0; }
     // ------------------------------------------------------------------------
+    virtual int __fxstat64(int ver, struct stat64 *buf) {return 0; }
+    // ------------------------------------------------------------------------
     virtual int __lxstat(int ver, struct stat *buf) {return 0; }
     // ------------------------------------------------------------------------
     virtual off_t lseek(off_t offset, int whence) { return 0; }
+    // ------------------------------------------------------------------------
+    virtual off64_t lseek64(off64_t offset, int whence) { return 0; }
     // ------------------------------------------------------------------------
     virtual ssize_t write(const void *buf, size_t nbyte) { return nbyte; }
     // ------------------------------------------------------------------------

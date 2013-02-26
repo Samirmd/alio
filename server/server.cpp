@@ -171,7 +171,7 @@ bool handleRequests(MPI_Comm intercomm)
                 m_filedes = open64(m_filename.c_str(), flags, mode);
             return false;
         }
-    case Message::MSG_STAT:
+    case Message::MSG___XSTAT:
         {
             int send_len = sizeof(struct stat) + 2*sizeof(int);
             char *msg    = new char[send_len];
@@ -183,7 +183,7 @@ bool handleRequests(MPI_Comm intercomm)
             return false;
         }
         
-    case Message::MSG_FSTAT:
+    case Message::MSG___FXSTAT:
         {
             int send_len = sizeof(struct stat) + 2*sizeof(int);
             char *msg    = new char[send_len];
@@ -194,8 +194,20 @@ bool handleRequests(MPI_Comm intercomm)
             delete msg;
             return false;
         }
+
+    case Message::MSG___FXSTAT64:
+        {
+            int send_len = sizeof(struct stat64) + 2*sizeof(int);
+            char *msg    = new char[send_len];
+            int *p       = (int *)msg;
+            p[0]         = fstat64(m_filedes, (struct stat64*)(p+2) );
+            p[1]         = errno;
+            MPI_Send(msg, sizeof(struct stat64)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            delete msg;
+            return false;
+        }
         
-    case Message::MSG_LSTAT:
+    case Message::MSG___LXSTAT:
         {
             int send_len = sizeof(struct stat) + 2*sizeof(int);
             char *msg    = new char[send_len];
@@ -210,6 +222,22 @@ bool handleRequests(MPI_Comm intercomm)
     case Message::MSG_LSEEK:
         {
             off_t offset;
+            m.get(offset);
+            int whence;
+            m.get(whence);
+            int send_len = m.getSize(offset)+m.getSize(errno);
+            char *msg    = new char[send_len];
+            off_t *p     = (off_t*)msg;
+            p[0]         = lseek(m_filedes, offset, whence);
+            p[1]         = errno;
+            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);
+            delete msg;
+            return false;
+        }   // switch
+
+    case Message::MSG_LSEEK64:
+        {
+            off64_t offset;
             m.get(offset);
             int whence;
             m.get(whence);

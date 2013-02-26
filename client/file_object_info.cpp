@@ -63,10 +63,6 @@ FileObjectInfo::FileObjectInfo(const std::string &config_line)
             exit(-1);
         }
     }
-    printf("%s: ", m_prefix.c_str());
-    for(unsigned int i=0; i<m_io_types.size(); i++)
-        printf(" %d ", m_io_types[i]);
-    printf("\n");
 }   // FileObjectInfo
 
 // ----------------------------------------------------------------------------

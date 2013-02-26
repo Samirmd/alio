@@ -94,32 +94,42 @@ public:
     // ------------------------------------------------------------------------
     virtual int open(int flags, mode_t mode)
     {
-        return m_parent->open(flags, mode); 
+        return m_parent->open(flags, mode);
     }
     // ------------------------------------------------------------------------
     virtual int open64(int flags, mode_t mode)
     {
-        return m_parent->open64(flags, mode); 
+        return m_parent->open64(flags, mode);
     }
     // ------------------------------------------------------------------------
     virtual int __xstat(int ver, struct stat *buf) 
     {
-        return m_parent->__xstat(ver, buf); 
-    } 
+        return m_parent->__xstat(ver, buf);
+    }
     // ------------------------------------------------------------------------
     virtual int __fxstat(int ver, struct stat *buf) 
     {
-        return m_parent->__fxstat(ver, buf); 
-    } 
+        return m_parent->__fxstat(ver, buf);
+    }
+    // ------------------------------------------------------------------------
+    virtual int __fxstat64(int ver, struct stat64 *buf) 
+    {
+        return m_parent->__fxstat64(ver, buf);
+    }
     // ------------------------------------------------------------------------
     virtual int __lxstat(int ver, struct stat *buf) 
     {
         return m_parent->__lxstat(ver, buf); 
-    } 
+    }
     // ------------------------------------------------------------------------
     virtual off_t lseek(off_t offset, int whence)
     {
         return m_parent->lseek(offset, whence); 
+    }
+    // ------------------------------------------------------------------------
+    virtual off64_t lseek64(off64_t offset, int whence)
+    {
+        return m_parent->lseek64(offset, whence); 
     }
     // ------------------------------------------------------------------------
     virtual ssize_t write(const void *buf, size_t nbyte)

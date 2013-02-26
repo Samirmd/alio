@@ -170,23 +170,28 @@ public:
         m_mirror->__xstat(ver, buf);
         int error = I_FileObjectDecorator::__xstat(ver, buf);
         return error;
-    }   // fstat
+    }   // _xstat
     // ------------------------------------------------------------------------
     virtual int __fxstat(int ver, struct stat *buf)
     {
         m_mirror->__fxstat(ver, buf);
         int error = I_FileObjectDecorator::__fxstat(ver, buf);
-        printf(" = %d\n", error);
         return error;
-    }   // fstat
+    }   // __fxstat
+    // ------------------------------------------------------------------------
+    virtual int __fxstat64(int ver, struct stat64 *buf)
+    {
+        m_mirror->__fxstat64(ver, buf);
+        int error = I_FileObjectDecorator::__fxstat64(ver, buf);
+        return error;
+    }   // __fxstat64
     // ------------------------------------------------------------------------
     virtual int __lxstat(int ver, struct stat *buf)
     {
         m_mirror->__lxstat(ver, buf);
         int error = I_FileObjectDecorator::__lxstat(ver, buf);
-        printf(" = %d\n", error);
         return error;
-    }   // fstat
+    }   // _lxstat
     // ------------------------------------------------------------------------
     virtual off_t lseek(off_t offset, int whence)
     {
@@ -194,6 +199,13 @@ public:
         int error = I_FileObjectDecorator::lseek(offset, whence);
         return error;
     }   // lseek
+    // ------------------------------------------------------------------------
+    virtual off64_t lseek64(off64_t offset, int whence)
+    {
+        m_mirror->lseek64(offset, whence);
+        int error = I_FileObjectDecorator::lseek64(offset, whence);
+        return error;
+    }   // lseek64
     // ------------------------------------------------------------------------
     virtual ssize_t write(const void *buf, size_t nbyte)
     {

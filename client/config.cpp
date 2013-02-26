@@ -87,14 +87,12 @@ Config::~Config()
 // ----------------------------------------------------------------------------
 AIO::I_FileObject *Config::createFileObject(const char *name)
 {
-    //printf("AIO: searching for '%s'.\n", name);
     std::string s_name(name);
     for(unsigned int i=0; i<m_all_file_object_info.size(); i++)
     {
         const FileObjectInfo *foi = m_all_file_object_info[i];
         if(foi->isApplicable(s_name))
         {
-            //            printf("[AIO] File %s --> index %d\n", name, i);
             I_FileObject *fo = foi->createFileObject(name);
             fo->setIndex(m_file_objects.size());
             m_file_objects.push_back(fo);

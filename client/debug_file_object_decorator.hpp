@@ -232,6 +232,17 @@ public:
     }   // __fxstat
 
     // ------------------------------------------------------------------------
+    virtual int __fxstat64(int ver, struct stat64 *buf)
+    {
+        printf("[%s] fstat64(%lx)", 
+               I_FileObjectDecorator::getFilename().c_str(), buf);
+        std::fflush(stdout);
+        int error = I_FileObjectDecorator::__fxstat64(ver, buf);
+        printf(" = %d\n", error);
+        return error;
+    }   // __fxstat64
+
+    // ------------------------------------------------------------------------
     virtual int __lxstat(int ver, struct stat *buf)
     {
         printf("[%s] lstat(%lx)", 
@@ -252,6 +263,17 @@ public:
         printf(" = %d\n", error);
         return error;
     }   // lseek
+
+    // ------------------------------------------------------------------------
+    virtual off64_t lseek64(off64_t offset, int whence)
+    {
+        printf("[%s] lseek64(%ld, %d)", 
+               I_FileObjectDecorator::getFilename().c_str(), offset, whence);
+        std::fflush(stdout);
+        int error = I_FileObjectDecorator::lseek64(offset, whence);
+        printf(" = %d\n", error);
+        return error;
+    }   // lseek64
 
     // ------------------------------------------------------------------------
     virtual ssize_t write(const void *buf, size_t nbyte)

@@ -251,7 +251,7 @@ int Remote::open64(int flags, mode_t mode)
 // ----------------------------------------------------------------------------
 int Remote::__xstat(int ver, struct stat *buf)
 {
-    Message m(Message::MSG_STAT);
+    Message m(Message::MSG___XSTAT);
     m.allocate(0);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
 
@@ -271,7 +271,7 @@ int Remote::__xstat(int ver, struct stat *buf)
 // ----------------------------------------------------------------------------
 int Remote::__fxstat(int ver, struct stat *buf)
 {
-    Message m(Message::MSG_FSTAT);
+    Message m(Message::MSG___FXSTAT);
     m.allocate(0);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
 
@@ -286,12 +286,32 @@ int Remote::__fxstat(int ver, struct stat *buf)
         errno = p[1];
     delete msg;
     return result;
-}   // fstat
+}   // __fxstat
+
+// ----------------------------------------------------------------------------
+int Remote::__fxstat64(int ver, struct stat64 *buf)
+{
+    Message m(Message::MSG___FXSTAT64);
+    m.allocate(0);
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+
+    MPI_Status status;
+    char *msg = new char[sizeof(struct stat) + 2*sizeof(int)];
+    MPI_Recv(msg, sizeof(struct stat64)+2*sizeof(int), MPI_CHAR, 0, 9, 
+             m_intercomm, &status);
+    int *p    = (int *)msg;
+    memcpy(buf, p+2, sizeof(struct stat64));
+    int result = p[0];
+    if(result)
+        errno = p[1];
+    delete msg;
+    return result;
+}   // __fxstat64
 
 // ----------------------------------------------------------------------------
 int Remote::__lxstat(int ver, struct stat *buf)
 {
-    Message m(Message::MSG_LSTAT);
+    Message m(Message::MSG___LXSTAT);
     m.allocate(0);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
 
@@ -330,6 +350,28 @@ off_t Remote::lseek(off_t offset, int whence)
     delete msg;
     return result;
 }   // lseek
+// ----------------------------------------------------------------------------
+off64_t Remote::lseek64(off64_t offset, int whence)
+{
+    Message m(Message::MSG_LSEEK64);
+    m.allocate(m.getSize(offset)+m.getSize(whence));
+    m.add(offset);
+    m.add(whence);
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+    MPI_Status status;
+    off_t result;
+
+    int recv_len = m.getSize(result)+m.getSize(errno);
+    char *msg = new char[recv_len];
+    off_t *p = (off_t*)msg;
+    MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);
+    
+    result = p[0];
+    if(result==(off_t)-1)
+        errno = (int)(p[1]);
+    delete msg;
+    return result;
+}   // lseek64
 
 // ----------------------------------------------------------------------------
 ssize_t Remote::write(const void *buf, size_t nbyte)

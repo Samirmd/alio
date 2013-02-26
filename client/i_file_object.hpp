@@ -57,8 +57,10 @@ public:
     virtual int     open64(int flags, mode_t mode) = 0;
     virtual int     __xstat(int ver, struct stat *buf) = 0;
     virtual int     __fxstat(int ver, struct stat *buf) = 0;
+    virtual int     __fxstat64(int ver, struct stat64 *buf) = 0;
     virtual int     __lxstat(int ver, struct stat *buf) = 0;
     virtual off_t   lseek(off_t offset, int whence) = 0;
+    virtual off64_t lseek64(off64_t offset, int whence) = 0;
     virtual ssize_t write(const void *buf, size_t nbyte) = 0;
     virtual ssize_t read(void *buf, size_t count) = 0;
     virtual int     close() = 0;

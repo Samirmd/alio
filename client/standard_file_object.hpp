@@ -146,6 +146,11 @@ public:
         return OS::__fxstat(ver, m_filedes, buf);
     }   // fstat
     // ------------------------------------------------------------------------
+    virtual int __fxstat64(int ver, struct stat64 *buf)
+    {
+        return OS::__fxstat64(ver, m_filedes, buf);
+    }   // fstat
+    // ------------------------------------------------------------------------
     virtual int __lxstat(int ver, struct stat *buf)
     {
         return OS::__lxstat(ver, getFilename().c_str(), buf);
@@ -155,6 +160,11 @@ public:
     {
         return OS::lseek(m_filedes, offset, whence);
     }   // lseek
+    // ------------------------------------------------------------------------
+    virtual off64_t lseek64(off64_t offset, int whence)
+    {
+        return OS::lseek64(m_filedes, offset, whence);
+    }   // lseek64
     // ------------------------------------------------------------------------
     virtual ssize_t write(const void *buf, size_t nbyte)
     {

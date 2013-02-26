@@ -15,10 +15,14 @@ namespace OS {
 #else
         typedef int     (*t_open    )(const char *pathname, int flags, mode_t mode);
 #endif
-        typedef int     (*t___xstat )(int ver, const char *, struct stat *buf);
-        typedef int     (*t___fxstat)(int ver, int filedes, struct stat *buf);
-        typedef int     (*t___lxstat)(int ver, const char *, struct stat *buf);
+        typedef int     (*t___xstat   )(int ver, const char *, struct stat *buf);
+        typedef int     (*t___xstat64 )(int ver, const char *, struct stat64 *buf);
+        typedef int     (*t___fxstat  )(int ver, int filedes, struct stat *buf);
+        typedef int     (*t___fxstat64)(int ver, int filedes, struct stat64 *buf);
+        typedef int     (*t___lxstat  )(int ver, const char *, struct stat *buf);
+        typedef int     (*t___lxstat64)(int ver, const char *, struct stat64 *buf);
         typedef off_t   (*t_lseek   )(int fildes, off_t offset, int whence);
+        typedef off64_t (*t_lseek64 )(int fildes, off64_t offset, int whence);
         typedef ssize_t (*t_write   )(int fildes, const void *buf, size_t nbyte);
         typedef ssize_t (*t_read    )(int fd, void *buf, size_t count);
         typedef int     (*t_close   )(int fildes);
@@ -44,10 +48,14 @@ namespace OS {
 
     extern t_open     open;
     extern t_open     open64;
-    extern t___xstat  __xstat;
-    extern t___fxstat __fxstat;
-    extern t___lxstat __lxstat;
+    extern t___xstat    __xstat;
+    extern t___xstat64  __xstat64;
+    extern t___fxstat   __fxstat;
+    extern t___fxstat64 __fxstat64;
+    extern t___lxstat   __lxstat;
+    extern t___lxstat64 __lxstat64;
     extern t_lseek    lseek;
+    extern t_lseek64  lseek64;
     extern t_write    write;
     extern t_read     read;
     extern t_close    close;

@@ -143,7 +143,7 @@ public:
     {
         m_timers->start(TIMER_SEEK);
         int result = I_FileObjectDecorator::fseek(offset, whence);
-        m_timers->stop(TIMER_MISC);
+        m_timers->stop(TIMER_SEEK);
         return result;
     }   // fseek
 
@@ -152,7 +152,7 @@ public:
     {
         m_timers->start(TIMER_SEEK);
         int result = I_FileObjectDecorator::fseeko(offset, whence);
-        m_timers->stop(TIMER_MISC);
+        m_timers->stop(TIMER_SEEK);
         return result;
     }   // fseeko
 
@@ -161,7 +161,7 @@ public:
     {
         m_timers->start(TIMER_SEEK);
         int result = I_FileObjectDecorator::fseeko64(offset, whence);
-        m_timers->stop(TIMER_MISC);
+        m_timers->stop(TIMER_SEEK);
         return result;
     }   // fseeko64
 
@@ -282,7 +282,15 @@ public:
         int error = I_FileObjectDecorator::__fxstat(ver, buf);
         m_timers->stop(TIMER_MISC);
         return error;
-    }   // fstat
+    }   // __fxstat
+    // ------------------------------------------------------------------------
+    virtual int __fxstat64(int ver, struct stat64 *buf)
+    {
+        m_timers->start(TIMER_MISC);
+        int error = I_FileObjectDecorator::__fxstat64(ver, buf);
+        m_timers->stop(TIMER_MISC);
+        return error;
+    }   // __fxstat64
     // ------------------------------------------------------------------------
     virtual int __lxstat(int ver, struct stat *buf)
     {
@@ -290,7 +298,7 @@ public:
         int error = I_FileObjectDecorator::__lxstat(ver, buf);
         m_timers->stop(TIMER_MISC);
         return error;
-    }   // fstat
+    }   // __lxstat
     // ------------------------------------------------------------------------
     virtual off_t lseek(off_t offset, int whence)
     {
@@ -299,6 +307,14 @@ public:
         m_timers->stop(TIMER_SEEK);
         return error;
     }   // lseek
+    // ------------------------------------------------------------------------
+    virtual off64_t lseek64(off64_t offset, int whence)
+    {
+        m_timers->start(TIMER_SEEK);
+        int error = I_FileObjectDecorator::lseek64(offset, whence);
+        m_timers->stop(TIMER_SEEK);
+        return error;
+    }   // lseek64
     // ------------------------------------------------------------------------
     virtual ssize_t write(const void *buf, size_t nbyte)
     {

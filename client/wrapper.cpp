@@ -293,6 +293,28 @@ int __fxstat(int ver, int filedes, struct stat *buf) __THROW
     
 }   // __fxstat
 // ----------------------------------------------------------------------------
+int __fxstat64(int ver, int filedes, struct stat64 *buf) __THROW
+{   
+    AIO::Config *config   = AIO::Config::get();
+    AIO::I_FileObject *fo = NULL;
+    if(!config || !(fo =  config->getFileObject(filedes)))
+    {
+        // It can happen that this wrapper is loaded and fstat is called
+        // but AIO::OS is not initialised. So in this case we have to
+        // lookup fxstat :(
+        if(!AIO::OS::__fxstat64)
+        {
+            AIO::OS::t___fxstat64 fc = (AIO::OS::t___fxstat64)dlsym(RTLD_NEXT, "__fxstat64");
+            return fc(ver, filedes, buf);
+            
+        }
+        return AIO::OS::__fxstat64(ver, filedes, buf);
+    }
+    return fo->__fxstat64(ver, buf);
+    
+}   // __fxstat64
+
+// ----------------------------------------------------------------------------
 off_t lseek(int filedes, off_t offset, int whence) __THROW
 {
     AIO::Config *config   = AIO::Config::get();
@@ -302,6 +324,17 @@ off_t lseek(int filedes, off_t offset, int whence) __THROW
         return AIO::OS::lseek(filedes, offset, whence);
 
     return fo->lseek(offset, whence);
+}   // lseek
+// ----------------------------------------------------------------------------
+off64_t lseek64(int filedes, off64_t offset, int whence) __THROW
+{
+    AIO::Config *config   = AIO::Config::get();
+    AIO::I_FileObject *fo = NULL;
+
+    if(!config || !(fo =  config->getFileObject(filedes)))
+        return AIO::OS::lseek64(filedes, offset, whence);
+
+    return fo->lseek64(offset, whence);
 }   // lseek
 // ----------------------------------------------------------------------------
 ssize_t write(int filedes, const void *buf, size_t nbyte)

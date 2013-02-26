@@ -9,15 +9,19 @@
 
 namespace AIO {
 namespace OS  {
-    t_open     open     = NULL;
-    t_open     open64   = NULL;
-    t___xstat  __xstat  = NULL;
-    t___fxstat __fxstat = NULL;
-    t___lxstat __lxstat = NULL;
-    t_lseek    lseek    = NULL;
-    t_write    write    = NULL;
-    t_read     read     = NULL;
-    t_close    close    = NULL;
+    t_open       open       = NULL;
+    t_open       open64     = NULL;
+    t___xstat    __xstat    = NULL;
+    t___xstat64  __xstat64  = NULL;
+    t___fxstat   __fxstat   = NULL;
+    t___fxstat64 __fxstat64 = NULL;
+    t___lxstat   __lxstat   = NULL;
+    t___lxstat64 __lxstat64 = NULL;
+    t_lseek    lseek        = NULL;
+    t_lseek64  lseek64      = NULL;
+    t_write    write        = NULL;
+    t_read     read         = NULL;
+    t_close    close        = NULL;
 
     t_fopen    fopen    = NULL;
     t_fopen    fopen64  = NULL;
@@ -51,15 +55,19 @@ int AIO::OS::init()
 #else
 #  define GET(type,name) \
     (AIO::OS::type)dlsym(RTLD_NEXT, name)
-    AIO::OS::open     = GET(t_open,     "open"    );
-    AIO::OS::open64   = GET(t_open,     "open64"  );
-    AIO::OS::__xstat  = GET(t___xstat,  "__xstat" );
-    AIO::OS::__fxstat = GET(t___fxstat, "__fxstat");
-    AIO::OS::__lxstat = GET(t___lxstat, "__lxstat");
-    AIO::OS::lseek    = GET(t_lseek,    "lseek"   );
-    AIO::OS::write    = GET(t_write,    "write"   );
-    AIO::OS::read     = GET(t_read,     "read"    );
-    AIO::OS::close    = GET(t_close,    "close"   );
+    AIO::OS::open       = GET(t_open,       "open"      );
+    AIO::OS::open64     = GET(t_open,       "open64"    );
+    AIO::OS::__xstat    = GET(t___xstat,    "__xstat"   );
+    AIO::OS::__xstat64  = GET(t___xstat64,  "__xstat64" );
+    AIO::OS::__fxstat   = GET(t___fxstat,   "__fxstat"  );
+    AIO::OS::__fxstat64 = GET(t___fxstat64, "__fxstat64");
+    AIO::OS::__lxstat   = GET(t___lxstat,   "__lxstat"  );
+    AIO::OS::__lxstat64 = GET(t___lxstat64, "__lxstat64");
+    AIO::OS::lseek      = GET(t_lseek,      "lseek"     );
+    AIO::OS::lseek64    = GET(t_lseek64,    "lseek64"   );
+    AIO::OS::write      = GET(t_write,      "write"     );
+    AIO::OS::read       = GET(t_read,       "read"      );
+    AIO::OS::close      = GET(t_close,      "close"     );
 #endif
     AIO::OS::fopen    = GET(t_fopen,    "fopen"   );
     AIO::OS::fopen64  = GET(t_fopen,    "fopen64" );
