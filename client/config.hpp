@@ -33,7 +33,6 @@ public:
    static void destroy();
    static Config *get()
    {
-       assert(m_config);
        return m_config;
    }   // get
 

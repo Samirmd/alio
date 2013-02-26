@@ -3,9 +3,9 @@ SRC = os.cpp message.cpp
 ALL_SRC = $(SRC)
 ALL_OBJ = $(ALL_SRC:cpp=o)
 
-CXX      = icpc
-CXXFLAGS = -g -I ..
-LIBNAME	 = libtools.a
+CXX      = mpic++
+CXXFLAGS = -g -I .. -fPIC
+LIBNAME	 = libtools.so
 LIBS	 = -L/lib -L/usr/lib64 -Bdynamic -lstdc++
 
 
@@ -14,7 +14,7 @@ LIBS	 = -L/lib -L/usr/lib64 -Bdynamic -lstdc++
 tools:	 $(LIBNAME)
 
 $(LIBNAME): $(ALL_OBJ)
-	ar r $(LIBNAME) $(ALL_OBJ)
+	 $(CXX) -G $(ALL_OBJ) -o $(LIBNAME) -ldl -lstdc++
 
 
 clean:

@@ -35,8 +35,7 @@ private:
 public:
          FileObjectInfo(const std::string &config_line);
     bool isApplicable(const std::string &filename) const;
-    I_FileObject *createFileObject(const std::string &filename, 
-                                   int index) const;
+    I_FileObject *createFileObject(const std::string &filename) const;
 };   // FileObjectInfo
 
 }   // namespace AIO

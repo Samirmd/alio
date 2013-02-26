@@ -16,12 +16,14 @@ int main(int argc, char **argv)
     char port_name[MPI_MAX_PORT_NAME];
     bzero(port_name, MPI_MAX_PORT_NAME);
     MPI_Open_port(MPI_INFO_NULL, port_name); 
-    
+    printf("Server: open port '%s'.\n", port_name);
+
     FILE *port_file = AIO::OS::fopen("aio_config.dat", "w");
     AIO::OS::fwrite(port_name, 1, strlen(port_name), port_file);
     AIO::OS::fclose(port_file);
 
     MPI_Comm intercomm;
+    printf("Server: accepting.\n");
     MPI_Comm_accept(port_name, MPI_INFO_NULL, 0, MPI_COMM_SELF, &intercomm); 
     printf("Accepted.\n");
     

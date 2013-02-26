@@ -26,21 +26,15 @@ public:
 
     };
     virtual ~I_FileObjectDecorator() {};
-    virtual void setData(const std::string &filename, int index)
+    virtual void setFilename(const std::string &filename)
     {
-        m_parent->setData(filename, index);
+        m_parent->setFilename(filename);
     }
     // ------------------------------------------------------------------------
     virtual const std::string &getFilename() const
     {
         return m_parent->getFilename();
     }
-    // ------------------------------------------------------------------------
-    virtual int getIndex() const
-    {
-        return m_parent->getIndex();
-    }
-
     // ------------------------------------------------------------------------
     virtual FILE*  fopen(const char *mode) { return m_parent->fopen(mode); }
     // ------------------------------------------------------------------------

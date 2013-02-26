@@ -55,11 +55,7 @@ FILE* Remote:: fopen(const char *mode)
     m.allocate(m.getStringLength(getFilename()) + mode_len+1);
     m.addString(getFilename());
     m.addCharArray(mode, mode_len);
-    printf("Size %d\n", m.getLen());
-    for(unsigned int i=0; i<m.getLen(); i++)
-    {
-        printf("%d -> %d %c\n", i, m.getData()[i], m.getData()[i]);
-    }
+
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return (FILE*)this;
 }   // fopen

@@ -6,14 +6,12 @@
 namespace AIO
 {
 
-    class BaseFileObject : public I_FileObject
+class BaseFileObject : public I_FileObject
 {
 protected:
     /** Store the filename.*/
     std::string m_filename;
 
-    /** The index in the global config array. This is used to */
-    int m_index;
 public:
     BaseFileObject() 
     {
@@ -21,10 +19,9 @@ public:
     // ------------------------------------------------------------------------
     virtual ~BaseFileObject() {};
     // ------------------------------------------------------------------------
-    virtual void setData(const std::string &filename, int index)
+    virtual void setFilename(const std::string &filename)
     {
         m_filename = filename;
-        m_index    = index;
     }   // setData
 
     // ------------------------------------------------------------------------

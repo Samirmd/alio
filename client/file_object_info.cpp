@@ -114,8 +114,7 @@ bool FileObjectInfo::isApplicable(const std::string &filename) const
     return filename.substr(0, m_prefix.size())==m_prefix;
 }   // isApplicable
 // ----------------------------------------------------------------------------
-I_FileObject *FileObjectInfo::createFileObject(const std::string &filename, 
-                                               int index) const
+I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) const
 {
 
     I_FileObject *fo = NULL;
@@ -144,8 +143,8 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename,
         }
     }
 
-    fo->setData(filename, index);
+    fo->setFilename(filename);
     return fo;
-}   // create
+}   // createFileObject
 
 }   // namespace AIO

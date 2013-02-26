@@ -60,7 +60,6 @@ void Config::readConfig(const std::string &name)
                 size, name.c_str());
         exit(-1);
     }
-
     while(!OS::feof(file))
     {
         if(!OS::fgets(buffer, size+1, file)) 
@@ -94,26 +93,42 @@ AIO::I_FileObject *Config::createFileObject(const char *name)
         const FileObjectInfo *foi = m_all_file_object_info[i];
         if(foi->isApplicable(s_name))
         {
-            I_FileObject *fo = foi->createFileObject(name, 
-                                                     m_file_objects.size());
+            I_FileObject *fo = foi->createFileObject(name);
+            fo->setIndex(m_file_objects.size());
             m_file_objects.push_back(fo);
             return fo;
         }
     }
+    return NULL;
     // Otherwise fallback to default, i.e. unix behaviour
     I_FileObject *fo = new StandardFileObject();
-    fo->setData(name, m_file_objects.size());
+    fo->setFilename(name);
+    fo->setIndex(m_file_objects.size());
+    m_file_objects.push_back(fo);
     return fo;
-}   // check
+}   // createFileObject
 
 // ----------------------------------------------------------------------------
+/** Find the I_FileObject for a given FILE structure. While generally the FILE 
+ *  structure returned by AIO to the application is a pointer to the 
+ *  I_FileObject we have to handle the case that e.g. a previously opened FILE
+ *  structure is passed in (so we can't simply cast all FILE structures to 
+ *  I_FileObject).
+ *  We could either search in m_file_objects to find if the address of the
+ *  FILE structure is in there. But to avoid this overhead each I_FileObject
+ *  has an integer field as its first component, which stores the index of the
+ *  I_FileObject in m_file_objects. It is still possible that by accident a 
+ *  FILE structure containts a valid index number, so we still have to test
+ *  if the pointer at the specified index is indeed the right one.
+ */
 I_FileObject *Config::getFileObject(FILE *file)
 {
     I_FileObject *fo = (I_FileObject*)(file);
     int index = fo->getIndex();
-    if(index >=0 && index <(int)m_file_objects.size() &&
-        (void*)fo==(void*)(m_file_objects[index]) )
+    if(index>=0 && index <m_file_objects.size() &&
+       fo==m_file_objects[index])
         return m_file_objects[index];
+
     return NULL;
 }   // getFileObject
 

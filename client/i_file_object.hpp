@@ -16,17 +16,27 @@ namespace AIO
 class I_FileObject
 {
 public:
+    /** This stores the index of this object in config's m_file_object
+     *  array. This allows us for a quick lookup of this item in config,
+     *  and to distringuish it from non-AIO managed file objects.
+     */
+    int m_index;
+
     I_FileObject() 
     {
     };
     // ------------------------------------------------------------------------
     virtual ~I_FileObject() {};
     // ------------------------------------------------------------------------
-    virtual void setData(const std::string &filename, int index) = 0;
+    virtual void setFilename(const std::string &filename) = 0;
     // ------------------------------------------------------------------------
     virtual const std::string &getFilename() const = 0;
     // ------------------------------------------------------------------------
-    virtual int getIndex() const = 0;
+    /** Sets the index of this object in config's m_file_object array. */
+    void setIndex(int index) { m_index = index; }
+    // ------------------------------------------------------------------------
+    /** Returns the index of this object in config's m_file_object array. */
+    int getIndex() const {return m_index; }
     // ------------------------------------------------------------------------
 
     virtual FILE*  fopen(const char *mode) = 0;

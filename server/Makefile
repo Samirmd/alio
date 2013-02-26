@@ -10,7 +10,7 @@ CXXFLAGS = -g -I ..
 .phoney:  server clean
 
 server: $(ALL_OBJ)
-	$(CXX) $(ALL_OBJ) -o server ../tools/libtools.a 
+	$(CXX) $(ALL_OBJ) -o server -L ../tools -ltools
 
 clean:
 	rm -f $(ALL_OBJ) server
