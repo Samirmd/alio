@@ -19,7 +19,7 @@ protected:
     int m_index;
 
 public:
-    BaseFileObject() 
+    BaseFileObject(const XMLNode *info) : I_FileObject(info)
     {
     };
     // ------------------------------------------------------------------------

@@ -42,10 +42,14 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
                s.c_str(), m_pattern.c_str());
         m_io_types.push_back(IO_TYPE_STANDARD);
     }
+    // Store the XML object so that at instantiation time it is available.
+    m_io_xml_info.push_back(io);
 
     for(unsigned int i=0; i<node->getNumNodes(); i++)
     {
         const XMLNode *addons = node->getNode(i);
+        if(!addons)
+            continue;   // shouldn't happen - but just in case
         if(addons->getName()=="io")
             continue;
         else if(addons->getName()!="addon")
@@ -68,6 +72,7 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
                    decorator.c_str());
             exit(-1);
         }
+        m_io_xml_info.push_back(addons);
     }
 
 
@@ -84,12 +89,12 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
     I_FileObject *fo = NULL;
     switch(m_io_types[0])
     {
-    case IO_TYPE_STANDARD : fo = new StandardFileObject(); break;
-    case IO_TYPE_NULL     : fo = new NullFileObject();     break;
+    case IO_TYPE_STANDARD : fo = new StandardFileObject(m_io_xml_info[0]); break;
+    case IO_TYPE_NULL     : fo = new NullFileObject(m_io_xml_info[0]);     break;
     case IO_TYPE_REMOTE   : Remote::init();
-                            fo = new Remote();             break;
+                            fo = new Remote(m_io_xml_info[0]);             break;
     default:
-        printf("No final first type found - shouldn't happen.\n");
+        printf("No final first type found - this shouldn't happen.\n");
         exit(-1);
     }
 
@@ -98,9 +103,12 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
     {
         switch(m_io_types[i])
         {
-        case IO_TYPE_TIMER  : fo = new TimerFileObjectDecorator(fo); break;
-        case IO_TYPE_DEBUG  : fo = new DebugFileObjectDecorator(fo); break;
-        case IO_TYPE_MIRROR : fo = new MirrorFileObjectDecorator(fo); break;
+        case IO_TYPE_TIMER  : 
+            fo = new TimerFileObjectDecorator(fo, m_io_xml_info[i]); break;
+        case IO_TYPE_DEBUG  : 
+            fo = new DebugFileObjectDecorator(fo, m_io_xml_info[i]); break;
+        case IO_TYPE_MIRROR : 
+            fo = new MirrorFileObjectDecorator(fo, m_io_xml_info[i]); break;
         default:
             printf("Incorrect decorator found - ignored.\n");
         }

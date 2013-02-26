@@ -8,12 +8,13 @@
 
 namespace AIO
 {
+class XMLNode;
 
 class DebugFileObjectDecorator : public I_FileObjectDecorator
 {
 public:
-    DebugFileObjectDecorator(I_FileObject *parent)
-        : I_FileObjectDecorator(parent)
+    DebugFileObjectDecorator(I_FileObject *parent, const XMLNode *info)
+        : I_FileObjectDecorator(parent, info)
     {
     };
 

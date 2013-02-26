@@ -19,10 +19,10 @@ private:
     I_FileObject *m_mirror;
 
 public:
-    MirrorFileObjectDecorator(I_FileObject *parent)
-        : I_FileObjectDecorator(parent)
+    MirrorFileObjectDecorator(I_FileObject *parent, const XMLNode *info)
+        : I_FileObjectDecorator(parent, info)
     {
-        m_mirror = new StandardFileObject();
+        m_mirror = new StandardFileObject(info);
     };
     // ------------------------------------------------------------------------
     virtual ~MirrorFileObjectDecorator() 

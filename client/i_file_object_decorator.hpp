@@ -15,12 +15,15 @@
 namespace AIO
 {
 
+class XMLNode;
+
 class I_FileObjectDecorator : public I_FileObject
 {
 private:
     I_FileObject *m_parent;
 public:
-    I_FileObjectDecorator(I_FileObject *parent) 
+    I_FileObjectDecorator(I_FileObject *parent, const XMLNode *info) 
+        : I_FileObject(info)
     {
         m_parent = parent;
 

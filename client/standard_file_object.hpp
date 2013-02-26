@@ -19,7 +19,7 @@ protected:
 
 public:
 
-    StandardFileObject()
+    StandardFileObject(const XMLNode *info) : BaseFileObject(info)
     {
         m_file     = NULL; 
     };   // StandardFileObject

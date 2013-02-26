@@ -15,11 +15,13 @@
 namespace AIO
 {
 
+class XMLNode;
+
 class I_FileObject
 {
 public:
 
-    I_FileObject() 
+    I_FileObject(const XMLNode *info)
     {
     };
     // ------------------------------------------------------------------------

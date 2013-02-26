@@ -1,12 +1,12 @@
 SRC = config.cpp wrapper.cpp \
       file_object_info.cpp  remote.cpp init.cpp       \
-      timer_file_object_decorator.cpp
+      timer_file_object_decorator.cpp timer_manager.cpp 
 
 ALL_SRC = $(SRC)
 ALL_OBJ = $(ALL_SRC:cpp=o)
 
 CXX      = mpic++
-CXXFLAGS = -g -I .. -fPIC -O0
+CXXFLAGS = -g -I .. -fPIC -O0 -D__STDC_LIMIT_MACROS
 LIB_SO	 = libclient.so
 LIBS	 = ../tools/message.o ../tools/os.o ../tools/string_utils.o \
            ../xml/xml_node.o  ../xml/irrXML.o  -ldl -lstdc++

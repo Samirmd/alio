@@ -1,6 +1,6 @@
 #include "client/config.hpp"
 #include "client/standard_file_object.hpp"
-#include "client/timer_file_object_decorator.hpp"
+#include "client/timer_manager.hpp"
 #include "tools/os.hpp"
 
 namespace AIO
@@ -33,7 +33,7 @@ extern "C" void __attribute__((constructor)) my_init(void)
 
 extern "C" void __attribute__((destructor)) my_exit(void)
 {
-    AIO::TimerFileObjectDecorator::printTable(AIO::stdout_capture);
+    AIO::TimerManager::atExit(AIO::stdout_capture);
 }
 
 

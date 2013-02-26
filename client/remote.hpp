@@ -10,6 +10,8 @@
 
 namespace AIO
 {
+class XMLNode;
+
 class Remote : public BaseFileObject
 {
     static bool m_was_init;
@@ -18,7 +20,7 @@ class Remote : public BaseFileObject
 public:
     static int      init();
 
-                    Remote();
+                    Remote(const XMLNode *info);
     virtual        ~Remote();
     virtual FILE   *fopen(const char *mode);
     virtual FILE   *fopen64(const char *mode);

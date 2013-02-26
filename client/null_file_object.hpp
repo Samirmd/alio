@@ -10,7 +10,7 @@ class NullFileObject : public BaseFileObject
 {
 public:
 
-    NullFileObject()
+    NullFileObject(const XMLNode *info) : BaseFileObject(info)
     {
     };   // NullFileObject
 

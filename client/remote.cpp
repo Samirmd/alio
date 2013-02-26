@@ -42,7 +42,7 @@ int Remote::init()
 }   // init
 
 // ------------------------------------------------------------------------
-Remote::Remote()
+Remote::Remote(const XMLNode *info) : BaseFileObject(info)
 {
 };   // Remote
 

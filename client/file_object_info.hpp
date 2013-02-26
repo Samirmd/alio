@@ -34,6 +34,10 @@ private:
     /** Which IO objects to instantiate. */
     std::vector<IOType> m_io_types;
 
+    /** Stores the original XML node for that particular addon. */
+    std::vector<const XMLNode*> m_io_xml_info;
+
+
 public:
          FileObjectInfo(const XMLNode *node);
     bool isApplicable(const std::string &filename) const;

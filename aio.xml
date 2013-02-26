@@ -5,12 +5,20 @@
     <file pattern="a">
        <io type="standard"/>
        <addon type="debug" />
-       <addon type="timer" />
+       <addon type="timer" table="yes" xml="yes"/>
     </file>
     <file pattern="b">
       <io type="standard"/>
       <addon type="debug"/>
       <addon type="timer"/>
+    </file>
+    <file pattern="eta_mean">
+      <io type="standard"/>
+      <addon type="timer" xml="yes"/>
+    </file>
+    <file pattern="ncrcat">
+      <io type="standard"/>
+      <addon type="timer" xml="yes"/>
     </file>
   </clients>
 
