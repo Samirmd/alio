@@ -29,11 +29,14 @@ private:
     /** Stores pointer to the original file objects. */
     std::vector<I_FileObject*> m_file_objects;
 
-    Config();
+    /** True if this config object is for a slave. */
+    bool m_is_slave;
+
+    Config(bool is_slave);
    ~Config();
-   void readConfig(XMLNode *root);
+   void readConfig(const XMLNode *root);
 public:
-   static void create();
+   static void create(bool is_slave);
    static void destroy();
    static Config *get()
    {

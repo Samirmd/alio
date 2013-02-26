@@ -14,10 +14,12 @@ namespace AIO
 Config *Config::m_config = NULL;
 
 // ----------------------------------------------------------------------------
-void Config::create()
+/** Creates and initialises either a master or a slave configuration object.
+ */
+void Config::create(bool is_slave)
 {
     assert(!m_config);
-    m_config = new Config();
+    m_config = new Config(is_slave);
 }   // create;
 
 // ----------------------------------------------------------------------------
@@ -31,15 +33,15 @@ void Config::destroy()
 }   // destroy
 // ----------------------------------------------------------------------------
 
-Config::Config()
+Config::Config(bool is_slave) : m_is_slave(is_slave)
 {
     const std::string name("aio.xml");
-    XMLNode *root = new AIO::XMLNode(name);
+    const XMLNode *root = new AIO::XMLNode(name);
     readConfig(root);
 }   // Config
 
 // ----------------------------------------------------------------------------
-void Config::readConfig(XMLNode *root)
+void Config::readConfig(const XMLNode *root)
 {
     if(!root || root->getName()!="aio")
     {
@@ -50,10 +52,11 @@ void Config::readConfig(XMLNode *root)
         //   if(root) delete root;
         //exit(-1);
     }
+    const XMLNode *config = root->getNode(m_is_slave ? "client" : "master");
 
-    for(unsigned int i=0; i<root->getNumNodes(); i++)
+    for(unsigned int i=0; i<config->getNumNodes(); i++)
     {
-        FileObjectInfo *foi = new FileObjectInfo(root->getNode(i));
+        FileObjectInfo *foi = new FileObjectInfo(config->getNode(i));
         m_all_file_object_info.push_back(foi);
     }
 

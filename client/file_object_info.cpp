@@ -15,15 +15,16 @@ namespace AIO
 {
 FileObjectInfo::FileObjectInfo(const XMLNode *node)
 {
-
     if(!node->get("pattern", &m_pattern))
     {
         printf("No pattern found, aborting.\n");
         exit(-1);
     }
     
+    const XMLNode *io = node->getNode("io");
     std::string s;
-    node->get("master", &s);
+    io->get("type", &s);
+
     if(s=="standard")
     {
         m_io_types.push_back(IO_TYPE_STANDARD);
@@ -37,27 +38,38 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
         m_io_types.push_back(IO_TYPE_NULL);
     else
     {
-        printf("Invalid master '%s' using standard.\n", s.c_str());
+        printf("Invalid io '%s' for pattern '%s'- using standard.\n", 
+               s.c_str(), m_pattern.c_str());
         m_io_types.push_back(IO_TYPE_STANDARD);
     }
 
-    node->get("addons", &s);
-    std::vector<std::string> config = StringUtils::split(s, ' ');
-    for(unsigned int i=0; i<config.size(); i++)
+    for(unsigned int i=0; i<node->getNumNodes(); i++)
     {
-        if(config[i]=="mirror")
+        const XMLNode *addons = node->getNode(i);
+        if(addons->getName()=="io")
+            continue;
+        else if(addons->getName()!="addon")
+        {
+            printf("Invalid addons node '%s' found in pattern '%s', index %d.\n",
+                   addons->getName().c_str(), m_pattern.c_str(), i);
+            continue;
+        }
+        std::string decorator;
+        addons->get("type", &decorator);
+        if(decorator=="mirror")
             m_io_types.push_back(IO_TYPE_MIRROR);
-        else if(config[i]=="timer")
+        else if(decorator=="timer")
             m_io_types.push_back(IO_TYPE_TIMER);
-        else if(config[i]=="debug")
+        else if(decorator=="debug")
             m_io_types.push_back(IO_TYPE_DEBUG);
         else
         {
             printf("Invalid config entry '%s' found - aborting.\n",
-                   config[i].c_str());
+                   decorator.c_str());
             exit(-1);
         }
-    }   // for i < config.size
+    }
+
 
 }   // FileObjectInfo
 

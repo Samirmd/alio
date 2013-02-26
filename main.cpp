@@ -12,7 +12,7 @@ int main(int argc, char **argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
     //if(my_rank==0)
-    if(0==0)
+    if(my_rank==0)
     {
         const char *message="Hello from 0\n";
         

@@ -1,5 +1,20 @@
 <?xml version="1.0"?>
-<aio>
-  <file pattern="a" master="standard" addons="debug timer"/>
-  <file pattern="b" master="standard" addons="debug timer"/>
+<aio> 
+
+  <client>
+    <file pattern="a">
+       <io type="standard"/>
+       <addon type="debug" />
+       <addon type="timer" />
+    </file>
+    <file pattern="b">
+      <io type="standard"/>
+      <addon type="debug"/>
+      <addon type="timer"/>
+    </file>
+  </clients>
+
+  <master>
+  </master>
+
 </aio>

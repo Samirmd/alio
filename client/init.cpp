@@ -18,7 +18,7 @@ namespace AIO
 extern "C" void __attribute__((constructor)) my_init(void)
 {
     AIO::OS::init();
-    AIO::Config::create();
+    AIO::Config::create(/* is_slave*/ true);
     // We need to capture stdout, since the desctructor will be
     // called after stdout is closed, so we could not write
     // anything otherwise
