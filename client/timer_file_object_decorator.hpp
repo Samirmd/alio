@@ -26,7 +26,7 @@ public:
                      TIMER_COUNT };
 
 private:
-
+public:
     /** That's the class that's actually be used as timer for each 
      *  file object. */
     class TimerData
@@ -83,18 +83,23 @@ private:
         double getTime(int n) const { return m_timers[n].getSum(); }
     };   // TimerData
 
-    static std::vector<TimerData*> m_all_timers;
-    static TimerData *getTimer(const std::string &filename);
-    static int getNumDigits(unsigned long n) 
-    {
-        return n>0 ? int(log(n)/log(10)+1) : 1; 
-    }
+    typedef std::vector<TimerData*> AllTimerDataType;
 
-    void   printTable();
+    /** This static object must be a pointer to the class, not a class. If it
+     *  would be the class, the destructor would be called before the destructor
+     *  of the shared library, meaning we can't print the stats anymore.
+     */
+    static AllTimerDataType *m_all_timers;
+
+    static TimerData *getTimer(const std::string &filename);
+
     
     TimerData *m_timers;
 
 public:
+
+    static void printTable(FILE *out);
+
     TimerFileObjectDecorator(I_FileObject *parent)
         : I_FileObjectDecorator(parent)
     {
@@ -154,7 +159,6 @@ public:
         m_timers->start(TIMER_CLOSE);
         int error = I_FileObjectDecorator::fclose(); 
         m_timers->stop(TIMER_CLOSE);
-        printTable();
         return error;
     }   // fclose
 
@@ -220,7 +224,6 @@ public:
         m_timers->start(TIMER_CLOSE);
         int result = I_FileObjectDecorator::close();
         m_timers->stop(TIMER_CLOSE);
-        printTable();
         return result;
     }   // close
     // ------------------------------------------------------------------------
