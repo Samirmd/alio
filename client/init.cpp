@@ -1,12 +1,14 @@
 #include "client/config.hpp"
 #include "client/standard_file_object.hpp"
 #include "client/timer_manager.hpp"
+#include "client/debug_file_object_decorator.hpp"
 #include "tools/os.hpp"
 
 namespace ALIO
 {
     static FILE *stdout_capture;
 
+    double DebugFileObjectDecorator::m_start_time;
 /** Constructor of the shared library. It initialises the OS object
  *  which stores pointers to all original file related functions.
  *  Then it initialises the config object, which is responsible
@@ -17,6 +19,7 @@ namespace ALIO
  */ 
 extern "C" void __attribute__((constructor)) my_init(void)
 {
+    ALIO::DebugFileObjectDecorator::init();
     ALIO::OS::init();
     ALIO::Config::create(/* is_slave*/ true);
     // We need to capture stdout, since the desctructor will be
