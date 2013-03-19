@@ -8,4 +8,4 @@ add_executable(server
  server.cpp
 )
 
-target_link_libraries (server  tools)
+target_link_libraries (server tools)

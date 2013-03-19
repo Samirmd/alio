@@ -26,15 +26,6 @@ add_library(client SHARED
  timer_manager.cpp
  timer_manager.hpp
  wrapper.cpp
- ${PROJECT_SOURCE_DIR}/tools/message.cpp  
- ${PROJECT_SOURCE_DIR}/tools/message.hpp
- ${PROJECT_SOURCE_DIR}/tools/os.cpp
- ${PROJECT_SOURCE_DIR}/tools/os.hpp
- ${PROJECT_SOURCE_DIR}/tools/string_utils.cpp
- ${PROJECT_SOURCE_DIR}/tools/string_utils.hpp
-
 )
 
-#target_link_libraries(stdc++)
-
-target_link_libraries(client xml)
+target_link_libraries(client tools xml)
