@@ -37,7 +37,6 @@ TimerFileObjectDecorator::TimerFileObjectDecorator(I_FileObject *parent,
     m_write_table = true;
     info->get("xml",   &m_write_xml  );
     info->get("table", &m_write_table);
-    printf("%d %d\n", m_write_xml, m_write_table);
 };   // TimerFileObjectDecorator
 
 }   // namespace ALIO
