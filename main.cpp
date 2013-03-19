@@ -1,17 +1,23 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#ifdef DO_MPI
 #include "mpi.h"
+#endif
 
 int main(int argc, char **argv)
 {
 
-    MPI_Init(&argc, &argv);
     int my_rank;
+#ifdef DO_MPI
+    MPI_Init(&argc, &argv);
 
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+#else
+    my_rank = 0;
+#endif
 
-    //if(my_rank==0)
     if(my_rank==0)
     {
         const char *message="Hello from 0\n";
@@ -33,7 +39,10 @@ int main(int argc, char **argv)
         fwrite(message, 1, strlen(message), f);
         fclose(f);
     }
+
+#ifdef DO_MPI
     MPI_Finalize();
+#endif
 
     exit(0);
 }   // main
