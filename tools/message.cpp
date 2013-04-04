@@ -78,13 +78,13 @@ void Message::clear()
 /** Reserves the memory for a message. 
  *  \param size Number of bytes to reserve.
  */
-void Message::allocate(int size)
+void Message::allocate(size_t size)
 {
     m_data_size = size+1;
     m_data      = new char[size+1];
     if(!m_data)
     {
-        printf("can't allocate '%d' bytes.\n", size+1);
+        printf("can't allocate '%ld' bytes.\n", size+1);
         assert(false);
     }
     m_data[0]   = m_type;

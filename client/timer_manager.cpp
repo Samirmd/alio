@@ -57,6 +57,8 @@ void TimerManager::atExit(FILE *out)
 }   // atExit
 
 // ----------------------------------------------------------------------------
+/** Writes an XML file file with all collected IO information.
+ */
 void TimerManager::writeXML(FILE *out)
 {
     bool found=false;
@@ -108,6 +110,8 @@ void TimerManager::writeXML(FILE *out)
 }   // writeXML
     
 // ----------------------------------------------------------------------------
+/** Writes an ASCII file containing all collected performance information.
+ */
 void TimerManager::writeAsciiTable(FILE *out)
 {
     bool found=false;

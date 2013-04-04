@@ -49,15 +49,30 @@ void Config::destroy()
     m_config = NULL;
 }   // destroy
 // ----------------------------------------------------------------------------
-
+/** Creates the once instance of the config object (one for master, one for
+ *  slave).
+ */
 Config::Config(bool is_slave) : m_is_slave(is_slave)
 {
+    FileObjectInfo::init();
     const std::string name("alio.xml");
     const XMLNode *root = new ALIO::XMLNode(name);
     readConfig(root);
+    FileObjectInfo::callAllStaticInitFunctions();
 }   // Config
 
 // ----------------------------------------------------------------------------
+/** Destructor.
+ */
+Config::~Config()
+{
+    FileObjectInfo::atExit();
+}   // ~Config
+
+// ----------------------------------------------------------------------------
+/** Reads the actual config xml file.
+ *  \param root XMLNode object of the root of the xml file.
+ */
 void Config::readConfig(const XMLNode *root)
 {
     if(!root || root->getName()!="alio")
@@ -71,20 +86,15 @@ void Config::readConfig(const XMLNode *root)
     }
     const XMLNode *config = root->getNode(m_is_slave ? "client" : "master");
 
+    // For each file pattern create the "file object" info object:
     for(unsigned int i=0; i<config->getNumNodes(); i++)
     {
         FileObjectInfo *foi = new FileObjectInfo(config->getNode(i));
         m_all_file_object_info.push_back(foi);
     }
 
-}   // Config
+}   // readConfig
 
-// ----------------------------------------------------------------------------
-/** Destructor.
- */
-Config::~Config()
-{
-}   // ~Config
 // ----------------------------------------------------------------------------
 ALIO::I_FileObject *Config::createFileObject(const char *name)
 {

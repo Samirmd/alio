@@ -37,6 +37,12 @@ protected:
 
 public:
 
+    /** No static init function needed. */
+    static int init() { return 0; }
+    // ------------------------------------------------------------------------
+    /** No static atExit function needed. */
+    static int atExit() { return 0; }
+    // ------------------------------------------------------------------------
     StandardFileObject(const XMLNode *info) : BaseFileObject(info)
     {
         m_file     = NULL; 

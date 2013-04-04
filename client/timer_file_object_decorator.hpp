@@ -23,6 +23,7 @@
 #include "client/timer.hpp"
 #include "client/timer_data.hpp"
 #include "client/timer_manager.hpp"
+#include "tools/os.hpp"
 
 #include <errno.h>
 #include <math.h>
@@ -53,9 +54,25 @@ class TimerFileObjectDecorator : public I_FileObjectDecorator
     /** True if an ASCII table should be written, false otherwise. */
     bool  m_write_table;
 
-public:
-    TimerFileObjectDecorator(I_FileObject *parent, const XMLNode *info);
+    /** To keep stdout - when atExit is called, stdout is closed. */
+    static FILE *m_stdout;
 
+public:
+    static int init() 
+    { 
+        m_stdout = OS::fopen("/dev/stdout", "w");
+        return 0; 
+    }
+    // ------------------------------------------------------------------------
+    static int atExit()
+    {
+        printf("tfod atExit called.\n");
+        TimerManager::atExit(m_stdout);
+        return 0;
+    }   // atExit
+
+    // ------------------------------------------------------------------------
+    TimerFileObjectDecorator(I_FileObject *parent, const XMLNode *info);
     // ------------------------------------------------------------------------
     virtual ~TimerFileObjectDecorator() {};
     // ------------------------------------------------------------------------

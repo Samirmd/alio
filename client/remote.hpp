@@ -32,12 +32,18 @@ class XMLNode;
 
 class Remote : public BaseFileObject
 {
-    static bool m_was_init;
+    /** True if the connection to the server was established.
+     */
+    static bool     m_connected;
+
+    /** The intercommunicator used to communicate with the server. 
+     */
     static MPI_Comm m_intercomm;
 
 public:
     static int      init();
-
+    static int      atExit();
+    static int      connectToServer();
                     Remote(const XMLNode *info);
     virtual        ~Remote();
     virtual FILE   *fopen(const char *mode);

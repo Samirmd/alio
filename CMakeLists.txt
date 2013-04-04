@@ -2,7 +2,7 @@
 # ------------------
 
 set(CMAKE_CXX_COMPILER "mpic++")
-set(CMAKE_VERBOSE_MAKEFILE "ON")
+#set(CMAKE_VERBOSE_MAKEFILE "ON")
 
 project (ALIO)
 set(PROJECT_VERSION "SVN")
@@ -31,3 +31,5 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/xml"   )
 add_subdirectory("${PROJECT_SOURCE_DIR}/client")
 add_subdirectory("${PROJECT_SOURCE_DIR}/server")
 
+# add_executable(server.exe server.cpp)
+#add_executable(client.exe client.cpp)

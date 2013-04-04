@@ -35,6 +35,21 @@ private:
     static double m_start_time;
 
 public:
+    // ------------------------------------------------------------------------
+    /** Static initialisation function, which sets the start time so that
+     *  all other times can be printed in seconds since start. 
+     */
+    static int init()
+    {
+        m_start_time = 0.0;  // now getSecondsSinceStart will return current time
+        m_start_time = getSecondsSinceStart();
+        return 0;
+    }   // init
+    // ------------------------------------------------------------------------
+    /** No static atExit function needed. */
+    static int atExit() { return 0; }
+
+    // ------------------------------------------------------------------------
     DebugFileObjectDecorator(I_FileObject *parent, const XMLNode *info)
         : I_FileObjectDecorator(parent, info)
     {
@@ -51,17 +66,6 @@ public:
         gettimeofday(&tv, NULL);
         return tv.tv_sec + tv.tv_usec*1.0e-6 - m_start_time;
     }   // getSecondsSinceStart
-
-    // ------------------------------------------------------------------------
-    /** Static initialisation function, which sets the start time so that
-     *  all other times can be printed in seconds since start. 
-     */
-    static void init()
-    {
-        m_start_time = 0.0;  // now getSecodsSinceStart will return current time
-        m_start_time = getSecondsSinceStart();
-    }   // init
-
 
     // ------------------------------------------------------------------------
     /** Prints the filename and the time stamp.

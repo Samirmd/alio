@@ -30,97 +30,84 @@ class Message
 public:
     typedef enum
     {
-        MSG_FOPEN,
-        MSG_FOPEN64,
-        MSG_FSEEK,
-        MSG_FSEEKO,
-        MSG_FSEEKO64,
-        MSG_FTELL,
-        MSG_FTELLO,
-        MSG_FTELLO64,
-        MSG_FERROR,
-        MSG_FWRITE, 
-        MSG_FREAD,
-        MSG_FEOF,
-        MSG_FGETS,
-        MSG_FCLOSE,
-        MSG_OPEN,
-        MSG_OPEN64,
-        MSG___XSTAT,
-        MSG___FXSTAT,
-        MSG___FXSTAT64,
-        MSG___LXSTAT,
-        MSG_LSEEK,
-        MSG_LSEEK64,
-        MSG_WRITE,
-        MSG_READ,
-        MSG_CLOSE,
-        MSG_RENAME,
+        MSG_FOPEN,      MSG_FOPEN64,   MSG_FSEEK,
+        MSG_FSEEKO,     MSG_FSEEKO64,  MSG_FTELL,
+        MSG_FTELLO,     MSG_FTELLO64,  MSG_FERROR,
+        MSG_FWRITE,     MSG_FREAD,     MSG_FEOF,
+        MSG_FGETS,      MSG_FCLOSE,    MSG_OPEN,
+        MSG_OPEN64,     MSG___XSTAT,   MSG___FXSTAT,
+        MSG___FXSTAT64, MSG___LXSTAT,  MSG_LSEEK,
+        MSG_LSEEK64,    MSG_WRITE,     MSG_READ,
+        MSG_CLOSE,      MSG_RENAME,  
         MSG_QUIT
-    } MessageType ;
+    } MessageType;
 
 private:
-    char        *m_data;
-    MessageType  m_type;
-    int          m_data_size;
-    unsigned int m_pos; // simple stack counter for constructing packet data
-    bool         m_needs_destroy;  // only received messages need to be destroyed
+    char         *m_data;
+    MessageType   m_type;
+    int           m_data_size;
+    size_t        m_pos; // simple stack counter for constructing packet data
+protected:
+    bool          m_needs_destroy;  // only received messages need to be destroyed
 
 public:
 
     /** Template add function, that adds one element of the given type 
-     * to the message. */
+     *  to the message. The parameter n is in case of char * etc, where
+     *  an additional call to strlen would be necessary. So by adding the
+     *  size as parameter, at least one call is removed.
+     */
     template <typename TYPE>
-    void add(TYPE data)
-    {  
-        assert((int)(m_pos + sizeof(TYPE)) <= m_data_size);
-        memcpy(m_data+m_pos, &data, sizeof(TYPE)); 
-        m_pos += sizeof(TYPE);
-    };
+    void add(const TYPE &data, size_t n)
+    {
+        assert(m_pos + n <= m_data_size);
+        memcpy(m_data+m_pos, &data, n);
+        m_pos += n;
+    };  // add(TYPE, n)
+
     // ------------------------------------------------------------------------
     /** Specialisation for null-terminated character arrays. */
-    void add(const char *c) 
+    void add(const char *c, size_t n) 
     {
-        int n=strlen(c);
         assert((int)(m_pos+n)<=m_data_size);
         memcpy(m_data+m_pos, c, n);
         m_pos+=n;
-    }
+    }   // add(const char*, n)
+
     // ------------------------------------------------------------------------
     /** Specialisation for arbitrary binary data of a given length. */
-    void add(const void *p, off_t n)
+    void add(const void *p, size_t n)
     {
-        assert((int)(m_pos+n)<=m_data_size);
+        assert(m_pos+n<=m_data_size);
         memcpy(m_data+m_pos, p, n);
         m_pos+=n;
-    }
+    }   // add(void*, n)
 
     // ------------------------------------------------------------------------
     /** Specialisation for std::strings. */
-    void add(const std::string &data)
+    void add(const std::string &data, size_t n)
     { 
-        int len = data.size()+1;  // copy 0 end byte
-        assert((int)(m_pos+len) <=m_data_size);
-        memcpy (m_data+m_pos, data.c_str(), len);
-        m_pos += len;
+        assert(m_pos+n <=m_data_size);
+        memcpy (m_data+m_pos, data.c_str(), n);
+        m_pos += n;
     }
 
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
     /** Template class to extract an arbitrary data type from a message. */
     template <class TYPE>
-    void get(TYPE &data)
+    void get(TYPE *data)
     {
-        memcpy(&data, m_data+m_pos, sizeof(TYPE));
+        memcpy((void*)data, m_data+m_pos, sizeof(TYPE));
         m_pos += sizeof(TYPE);
     }
     // ------------------------------------------------------------------------
     /** Specialisation for std::strings. */
-    void get(std::string &name)
+    void get(std::string *name)
     {
         char *str = m_data + m_pos;
         int len   = strlen(str)+1;
-        name = m_data+m_pos;
+        *name = m_data+m_pos;
         m_pos += len;
     }
     // ------------------------------------------------------------------------
@@ -147,13 +134,14 @@ public:
     {
         return strlen(data)+1;  // 0 byte at end.
     }
+    // ------------------------------------------------------------------------
 
 public:
                  Message(MessageType m);
                  Message(char *buffer, int len);
                 ~Message();
     void         clear();
-    void         allocate(int size);
+    void         allocate(size_t size);
     // ------------------------------------------------------------------------
     /** Returns the message type. */
     MessageType  getType() const   { return m_type; }
@@ -165,6 +153,111 @@ public:
     char*        getData() {return m_data; }
 
 };   // Message
+
+// ============================================================================
+/** Convenient class that takes 0 arguments (i.e. only a type, no additional
+ *  information.
+ */
+class Message0 : public Message
+{
+public:
+    Message0(MessageType type) : Message(type)
+    {
+        allocate(0);
+    }
+};   // class Message0
+
+// ============================================================================
+/** Convenient template class that takes 1 argument. Using a template has
+ *  the advantage that type checking can be done at compile time.
+ */
+template <typename T1>
+class Message1 : public Message
+{
+
+public:
+    Message1(MessageType type, const T1 &t1) : Message(type)
+    {
+        size_t n1 = getSize(t1);
+        allocate(n1);
+        add(t1, n1);
+    }   // Message1
+
+    /** Special constructor that adds n bytes of binary data.
+     */
+    Message1(MessageType type, const T1 &t1, const void *p) 
+        : Message(type)
+    {
+        size_t n1 = getSize(t1);
+        allocate(n1+t1);
+        add(t1, n1);
+        add(p,  t1);
+    }   // Message1
+
+};   // class Message1
+
+// ============================================================================
+/** Convenient template class that takes 2 argumentS. Using a template has
+ *  the advantage that type checking can be done at compile time.
+ */
+template <typename T1, typename T2>
+class Message2 : public Message
+{
+
+public:
+    Message2(MessageType type, const T1 &t1, const T2 &t2) : Message(type)
+    {
+        size_t n1 = getSize(t1);
+        size_t n2 = getSize(t2);
+        allocate(n1+n2);
+        add(t1, n1);
+        add(t2, n2);
+    }   // Messag2
+
+    // ------------------------------------------------------------------------
+    /** Special constructor that adds n bytes of binary data.
+     */
+    Message2(MessageType type, const T1 &t1, const T2 &t2, size_t n, const void *p) 
+        : Message(type)
+    {
+        size_t n1 = getSize(t1);
+        size_t n2 = getSize(t2);
+        allocate(n1+n2+n);
+        add(t1, n1);
+        add(t2, n2);
+        add(p,   n);
+    }   // Message2
+    // ------------------------------------------------------------------------
+    Message2(char *buffer, int n, T1 *t1, T2 *t2) : Message(buffer, n)
+    {
+        m_needs_destroy=false;
+        get(t1);
+        get(t2);
+    }
+};   // class Message2
+
+// ============================================================================
+/** Convenient template class that takes 2 argumentS. Using a template has
+ *  the advantage that type checking can be done at compile time.
+ */
+template <typename T1, typename T2, typename T3>
+class Message3 : public Message
+{
+
+public:
+    Message3(MessageType type, const T1 &t1, const T2 &t2, 
+                               const T3 &t3               ) : Message(type)
+    {
+        size_t n1 = getSize(t1);
+        size_t n2 = getSize(t2);
+        size_t n3 = getSize(t3);
+        allocate(n1+n2+n3);
+        add(t1, n1);
+        add(t2, n2);
+        add(t3, n3);
+    }   // Message3
+
+};   // class Message3
 
 
 #endif

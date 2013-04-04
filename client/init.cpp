@@ -17,15 +17,14 @@
 //
 
 #include "client/config.hpp"
+#include "client/debug_file_object_decorator.hpp"
+#include "client/remote.hpp"
 #include "client/standard_file_object.hpp"
 #include "client/timer_manager.hpp"
-#include "client/debug_file_object_decorator.hpp"
 #include "tools/os.hpp"
 
 namespace ALIO
 {
-    static FILE *stdout_capture;
-
     double DebugFileObjectDecorator::m_start_time;
 /** Constructor of the shared library. It initialises the OS object
  *  which stores pointers to all original file related functions.
@@ -37,25 +36,23 @@ namespace ALIO
  */ 
 extern "C" void __attribute__((constructor)) my_init(void)
 {
-    ALIO::DebugFileObjectDecorator::init();
     ALIO::OS::init();
     ALIO::Config::create(/* is_slave*/ true);
     // We need to capture stdout, since the desctructor will be
     // called after stdout is closed, so we could not write
     // anything otherwise
-    ALIO::stdout_capture = fopen("/dev/stdout", "w");
-}
+}   // my_init
 
 // ============================================================================
 /** The destructor, called when unloading this shared library.
- *  It calls the static output function of the timer to print all
- *  timer output (if there is any).
+ *  It destroys the config object, which in turn will all all
+ *  static atExit functions of all file objects.
  */
 
 extern "C" void __attribute__((destructor)) my_exit(void)
 {
-    ALIO::TimerManager::atExit(ALIO::stdout_capture);
-}
+    ALIO::Config::destroy();
+}    // my_exit
 
 
-}
+}   // namespace ALIO

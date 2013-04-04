@@ -26,6 +26,7 @@
 
 namespace ALIO
 {
+FILE *TimerFileObjectDecorator::m_stdout = NULL;
 
 // ----------------------------------------------------------------------------
 TimerFileObjectDecorator::TimerFileObjectDecorator(I_FileObject *parent, 

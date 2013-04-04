@@ -3,7 +3,7 @@
 
   <client>
     <file pattern="a">
-       <io type="standard"/>
+       <io type="remote"/>
        <addon type="debug" />
        <addon type="timer" table="yes" xml="yes"/>
     </file>

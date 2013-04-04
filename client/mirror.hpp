@@ -37,6 +37,12 @@ private:
     I_FileObject *m_mirror;
 
 public:
+    /** No static init function needed. */
+    static int init() { return 0; }
+    // ------------------------------------------------------------------------
+    /** No static atExit function needed. */
+    static int atExit() { return 0; }
+    // ------------------------------------------------------------------------
     MirrorFileObjectDecorator(I_FileObject *parent, const XMLNode *info)
         : I_FileObjectDecorator(parent, info)
     {

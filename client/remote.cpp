@@ -27,13 +27,45 @@
 namespace ALIO
 {
 
-bool     Remote::m_was_init = false;
+bool     Remote::m_connected = false;
 MPI_Comm Remote::m_intercomm;
-// ------------------------------------------------------------------------
+
+/** Static init functions called once at startup.  Note that we CAN NOT call 
+ *  Remote::connectToServer here: This would call MPI_Init, which in turns 
+ *  starts the mpi daemon orted. This then preloads ALIO again, which calls 
+ *  Remote::init, which calls MPI_Init, and another daemon is started ... 
+ */
 int Remote::init()
 {
-    if(m_was_init) return 0;
-    m_was_init = true;
+    m_connected = false;
+    return 0;
+}   // init
+
+// ----------------------------------------------------------------------------
+int Remote::atExit()
+{
+    if(!m_connected)
+        return 0;
+
+    int flag;
+    MPI_Initialized(&flag);
+    if(flag)
+    {
+        MPI_Finalize();
+        printf("Disconnected.\n");
+    }
+    else
+        printf("Not connected.\n");
+    return 0;
+};   // atExit
+
+// ------------------------------------------------------------------------
+/** This is a static function that is called the first time an object
+ *  of type Remote is created.
+ */
+int Remote::connectToServer()
+{
+    assert(!m_connected);
  
     // No access to argc/argv here - so just make some fields up
     int argc=1;
@@ -54,28 +86,32 @@ int Remote::init()
     MPI_Comm_connect(port_name, MPI_INFO_NULL, 0, MPI_COMM_SELF, &m_intercomm); 
     printf("Connected.\n");
 
+    m_connected = true;
     return 0;
     
-}   // init
+}   // connectToServer
 
 // ------------------------------------------------------------------------
+/** The constructor of the Remote file object. The first time a Remote
+ *  file object is created it will connect to the MPI server.
+ *  \param info XML data for the remote file.
+ */
 Remote::Remote(const XMLNode *info) : BaseFileObject(info)
 {
+    if(!m_connected)
+        connectToServer();
 };   // Remote
 
 // ----------------------------------------------------------------------------
  Remote::~Remote()
 {
-};   // ~Remote
+}   // ~Remote
 
 // ----------------------------------------------------------------------------
 FILE* Remote:: fopen(const char *mode)
-{
-    Message m(Message::MSG_FOPEN);
-    int mode_len = strlen(mode);
-    m.allocate(m.getSize(getFilename()) + m.getSize(mode));
-    m.add(getFilename());
-    m.add(mode);
+{ 
+    Message2<const std::string, const char *> 
+        m(Message::MSG_FOPEN, getFilename(), mode);
 
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return (FILE*)this;
@@ -83,11 +119,8 @@ FILE* Remote:: fopen(const char *mode)
 // ----------------------------------------------------------------------------
 FILE* Remote:: fopen64(const char *mode)
 {
-    Message m(Message::MSG_FOPEN64);
-    int mode_len = strlen(mode);
-    m.allocate(m.getSize(getFilename()) + m.getSize(mode));
-    m.add(getFilename());
-    m.add(mode);
+    Message2<const std::string, const char *> 
+        m(Message::MSG_FOPEN64, getFilename(), mode);
 
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return (FILE*)this;
@@ -104,13 +137,10 @@ int Remote::setvbuf(char *buf, int mode, size_t size)
 
 // ----------------------------------------------------------------------------
 
-#define SEEK(NAME, TYPE, TAG)                                         \
+#define FSEEK(NAME, TYPE, TAG)                                        \
 int Remote::NAME(TYPE offset, int whence)                             \
 {                                                                     \
-    Message m(Message::TAG);                                          \
-    m.allocate(m.getSize(offset)+m.getSize(whence));                  \
-    m.add(offset);                                                    \
-    m.add(whence);                                                    \
+    Message2<TYPE, int> m(Message::TAG, offset, whence);              \
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);   \
     MPI_Status status;                                                \
                                                                       \
@@ -126,11 +156,12 @@ int Remote::NAME(TYPE offset, int whence)                             \
         errno = (int)(p[1]);                                          \
     delete msg;                                                       \
     return result;                                                    \
-}   
+}
 
-SEEK(fseek,    long,    MSG_FSEEK   )
-SEEK(fseeko,   off_t,   MSG_FSEEKO  )
-SEEK(fseeko64, off64_t, MSG_FSEEKO64)
+FSEEK(fseek,    long,    MSG_FSEEK   )
+FSEEK(fseeko,   off_t,   MSG_FSEEKO  )
+FSEEK(fseeko64, off64_t, MSG_FSEEKO64)
+
 // ----------------------------------------------------------------------------
 #define TELL(NAME, TYPE, TAG)                                        \
 TYPE Remote::NAME()                                                  \
@@ -188,11 +219,8 @@ int Remote::ferror()
 // ----------------------------------------------------------------------------
 size_t Remote::fwrite(const void *ptr,size_t size, size_t nmemb)
 {
-    Message m(Message::MSG_FWRITE);
-    m.allocate(size*nmemb + m.getSize(size)+m.getSize(nmemb));
-    m.add(size);
-    m.add(nmemb);
-    m.add((char*)ptr, size*nmemb);
+    Message2 <size_t, size_t> m(Message::MSG_FWRITE, size, nmemb,
+                                  size*nmemb, ptr);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return nmemb;
 }   // f_write
@@ -201,10 +229,7 @@ size_t Remote::fwrite(const void *ptr,size_t size, size_t nmemb)
 size_t Remote::fread(void *ptr,size_t size, size_t nmemb)
 {
     assert("Not yet implemented"==NULL);
-    Message m(Message::MSG_FREAD);
-    m.allocate(m.getSize(size)+m.getSize(nmemb));
-    m.add(size);
-    m.add(nmemb);
+    Message2<size_t, size_t>  m(Message::MSG_FREAD, size, nmemb);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     //    Message m_recv;
     return nmemb;
@@ -213,12 +238,10 @@ size_t Remote::fread(void *ptr,size_t size, size_t nmemb)
 // ----------------------------------------------------------------------------
 int Remote::fclose()
 {
-    Message msg_close(Message::MSG_FCLOSE);
-    msg_close.allocate(0);
+    Message0 msg_close(Message::MSG_FCLOSE);
     MPI_Send(msg_close.getData(), msg_close.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     
-    Message m(Message::MSG_QUIT);
-    m.allocate(0);
+    Message0 m(Message::MSG_QUIT);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return 0;
 }   // fclose
@@ -226,7 +249,7 @@ int Remote::fclose()
 // ----------------------------------------------------------------------------
 int Remote::feof()
 {
-    Message msg_eof(Message::MSG_FEOF);
+    Message0 msg_eof(Message::MSG_FEOF);
     MPI_Send(msg_eof.getData(), msg_eof.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     assert(false);
     return false;
@@ -234,7 +257,8 @@ int Remote::feof()
 // ----------------------------------------------------------------------------
 char *Remote::fgets(char *s, int size)
 {
-    Message msg_fgets(Message::MSG_FGETS);
+    Message1<int> msg_fgets(Message::MSG_FGETS, size);
+
     MPI_Send(msg_fgets.getData(), msg_fgets.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     assert(false);
     return NULL;
@@ -243,11 +267,8 @@ char *Remote::fgets(char *s, int size)
 // ----------------------------------------------------------------------------
 int Remote::open(int flags, mode_t mode)
 {
-    Message m(Message::MSG_OPEN);
-    m.allocate(m.getSize(getFilename()) + m.getSize(flags)+m.getSize(mode));
-    m.add(getFilename());
-    m.add(flags);
-    m.add((int)mode);
+    Message3<const std::string, int, mode_t> 
+        m(Message::MSG_OPEN, getFilename(), flags, mode);
 
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return getIndex()+1024;
@@ -255,81 +276,41 @@ int Remote::open(int flags, mode_t mode)
 // ----------------------------------------------------------------------------
 int Remote::open64(int flags, mode_t mode)
 {
-    Message m(Message::MSG_OPEN64);
-    m.allocate(m.getSize(getFilename()) + m.getSize(flags)+m.getSize(mode));
-    m.add(getFilename());
-    m.add(flags);
-    m.add((int)mode);
+    Message3<const std::string, int, mode_t> 
+        m(Message::MSG_OPEN64, getFilename(), flags, mode);
 
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return getIndex()+1024;
 }   // open
 
 // ----------------------------------------------------------------------------
-int Remote::__xstat(int ver, struct stat *buf)
-{
-    Message m(Message::MSG___XSTAT);
-    m.allocate(0);
-    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
+#define STAT(NAME, TYPE, TAG)                                        \
+int Remote::NAME(int ver, TYPE *buf)                                 \
+{                                                                    \
+    Message0 m(Message::TAG);                                        \
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);  \
+                                                                     \
+    MPI_Status status;                                               \
+    char *msg = new char[sizeof(TYPE) + 2*sizeof(int)];              \
+    MPI_Recv(msg, sizeof(TYPE)+2*sizeof(int), MPI_CHAR, 0, 9,        \
+             m_intercomm, &status);                                  \
+    int *p    = (int *)msg;                                          \
+    memcpy(buf, p+2, sizeof(TYPE));                                  \
+    int result = p[0];                                               \
+    if(result)                                                       \
+        errno = p[1];                                                \
+    delete msg;                                                      \
+    return result;                                                   \
+}                                                                    \
 
-    MPI_Status status;
-    char *msg = new char[sizeof(struct stat) + 2*sizeof(int)];
-    MPI_Recv(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, 
-             m_intercomm, &status);
-    int *p    = (int *)msg;
-    memcpy(buf, p+2, sizeof(struct stat));
-    int result = p[0];
-    if(result)
-        errno = p[1];
-    delete msg;
-    return result;
-}   // fstat
-
-// ----------------------------------------------------------------------------
-int Remote::__fxstat(int ver, struct stat *buf)
-{
-    Message m(Message::MSG___FXSTAT);
-    m.allocate(0);
-    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
-
-    MPI_Status status;
-    char *msg = new char[sizeof(struct stat) + 2*sizeof(int)];
-    MPI_Recv(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, 
-             m_intercomm, &status);
-    int *p    = (int *)msg;
-    memcpy(buf, p+2, sizeof(struct stat));
-    int result = p[0];
-    if(result)
-        errno = p[1];
-    delete msg;
-    return result;
-}   // __fxstat
-
-// ----------------------------------------------------------------------------
-int Remote::__fxstat64(int ver, struct stat64 *buf)
-{
-    Message m(Message::MSG___FXSTAT64);
-    m.allocate(0);
-    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
-
-    MPI_Status status;
-    char *msg = new char[sizeof(struct stat) + 2*sizeof(int)];
-    MPI_Recv(msg, sizeof(struct stat64)+2*sizeof(int), MPI_CHAR, 0, 9, 
-             m_intercomm, &status);
-    int *p    = (int *)msg;
-    memcpy(buf, p+2, sizeof(struct stat64));
-    int result = p[0];
-    if(result)
-        errno = p[1];
-    delete msg;
-    return result;
-}   // __fxstat64
+STAT(__xstat,    struct stat,   MSG___XSTAT );
+STAT(__fxstat,   struct stat,   MSG___FXSTAT);
+STAT(__fxstat64, struct stat64, MSG___FXSTAT64);
 
 // ----------------------------------------------------------------------------
 int Remote::__lxstat(int ver, struct stat *buf)
 {
-    Message m(Message::MSG___LXSTAT);
-    m.allocate(0);
+    Message0 m(Message::MSG___LXSTAT);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
 
     MPI_Status status;
@@ -346,57 +327,34 @@ int Remote::__lxstat(int ver, struct stat *buf)
 }   // fstat
 
 // ----------------------------------------------------------------------------
-off_t Remote::lseek(off_t offset, int whence)
-{
-    Message m(Message::MSG_LSEEK);
-    m.allocate(m.getSize(offset)+m.getSize(whence));
-    m.add(offset);
-    m.add(whence);
-    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
-    MPI_Status status;
-    off_t result;
+#define LSEEK(NAME, TYPE, TAG)                                       \
+TYPE Remote::NAME(TYPE offset, int whence)                           \
+{                                                                    \
+    Message2<TYPE, int> m(Message::TAG, offset, whence);             \
+    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);  \
+    MPI_Status status;                                               \
+    TYPE result;                                                     \
+                                                                     \
+    int recv_len = m.getSize(result)+m.getSize(errno);               \
+    char *msg = new char[recv_len];                                  \
+    off_t *p = (TYPE *)msg;                                          \
+    MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);   \
+                                                                     \
+    result = p[0];                                                   \
+    if(result==(off_t)-1)                                            \
+        errno = (int)(p[1]);                                         \
+    delete msg;                                                      \
+    return result;                                                   \
+}   // SEEK
 
-    int recv_len = m.getSize(result)+m.getSize(errno);
-    char *msg = new char[recv_len];
-    off_t *p = (off_t*)msg;
-    MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);
-    
-    result = p[0];
-    if(result==(off_t)-1)
-        errno = (int)(p[1]);
-    delete msg;
-    return result;
-}   // lseek
-// ----------------------------------------------------------------------------
-off64_t Remote::lseek64(off64_t offset, int whence)
-{
-    Message m(Message::MSG_LSEEK64);
-    m.allocate(m.getSize(offset)+m.getSize(whence));
-    m.add(offset);
-    m.add(whence);
-    MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
-    MPI_Status status;
-    off_t result;
-
-    int recv_len = m.getSize(result)+m.getSize(errno);
-    char *msg = new char[recv_len];
-    off_t *p = (off_t*)msg;
-    MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);
-    
-    result = p[0];
-    if(result==(off_t)-1)
-        errno = (int)(p[1]);
-    delete msg;
-    return result;
-}   // lseek64
+LSEEK(lseek,   off_t,   MSG_LSEEK  );
+LSEEK(lseek64, off64_t, MSG_LSEEK64);
 
 // ----------------------------------------------------------------------------
 ssize_t Remote::write(const void *buf, size_t nbyte)
 {
-    Message m(Message::MSG_WRITE);
-    m.allocate(nbyte + m.getSize(nbyte));
-    m.add(nbyte);
-    m.add(buf, nbyte);
+    Message1<size_t> m(Message::MSG_WRITE, nbyte, buf);
+
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return nbyte;
 }   // write
@@ -404,9 +362,7 @@ ssize_t Remote::write(const void *buf, size_t nbyte)
 // ----------------------------------------------------------------------------
 ssize_t Remote::read(void *buf, size_t count)
 {
-    Message m(Message::MSG_READ);
-    m.allocate(m.getSize(count));
-    m.add(count);
+    Message1<size_t> m(Message::MSG_READ, count);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
 
     ssize_t result;
@@ -444,13 +400,13 @@ int Remote::close()
 // ----------------------------------------------------------------------------
 int Remote::rename(const char *newpath)
 {
-    Message m(Message::MSG_RENAME);
-    m.allocate(m.getSize(getFilename()) + m.getSize(newpath));
-    m.add(getFilename());
-    m.add(newpath);
+    Message2<const std::string , const char*> 
+        m(Message::MSG_RENAME, getFilename(), newpath);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
     return 0;
 }   // rename
 
 
 }   // namespace ALIO
+
+

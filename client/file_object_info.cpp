@@ -31,6 +31,49 @@
 
 namespace ALIO
 {
+
+int FileObjectInfo::m_all_needed_types = 0;
+
+
+/** Static function, called once at startup time. 
+ */
+int FileObjectInfo::init()
+{
+    m_all_needed_types = 0;
+    return 0;
+}   // init
+
+// ----------------------------------------------------------------------------
+/** Called when unloading the library. It calls the atExit functions of all
+ *  classes that were initialised.
+ */
+int FileObjectInfo::atExit()
+{
+    if(m_all_needed_types & IO_TYPE_STANDARD) StandardFileObject       ::atExit();
+    if(m_all_needed_types & IO_TYPE_REMOTE  ) Remote                   ::atExit();
+    if(m_all_needed_types & IO_TYPE_NULL    ) NullFileObject           ::atExit();
+    if(m_all_needed_types & IO_TYPE_MIRROR  ) MirrorFileObjectDecorator::atExit();
+    if(m_all_needed_types & IO_TYPE_TIMER   ) TimerFileObjectDecorator ::atExit();
+    if(m_all_needed_types & IO_TYPE_DEBUG   ) DebugFileObjectDecorator ::atExit();
+    return 0;
+}   // atExit
+
+// ----------------------------------------------------------------------------
+/** Calls the static init functions for all file objects and file object
+ *  decorators that were requested in the config file.
+ */
+int FileObjectInfo::callAllStaticInitFunctions()
+{
+    if(m_all_needed_types & IO_TYPE_STANDARD) StandardFileObject       ::init();
+    if(m_all_needed_types & IO_TYPE_REMOTE  ) Remote                   ::init();
+    if(m_all_needed_types & IO_TYPE_NULL    ) NullFileObject           ::init();
+    if(m_all_needed_types & IO_TYPE_MIRROR  ) MirrorFileObjectDecorator::init();
+    if(m_all_needed_types & IO_TYPE_TIMER   ) TimerFileObjectDecorator ::init();
+    if(m_all_needed_types & IO_TYPE_DEBUG   ) DebugFileObjectDecorator ::init();
+    return 0;
+}   // callAllStaticInitFunctions
+
+// ----------------------------------------------------------------------------
 FileObjectInfo::FileObjectInfo(const XMLNode *node)
 {
     if(!node->get("pattern", &m_pattern))
@@ -46,20 +89,26 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
     if(s=="standard")
     {
         m_io_types.push_back(IO_TYPE_STANDARD);
+        m_all_needed_types |= IO_TYPE_STANDARD;
     }
     else if(s=="remote")
     {
         m_io_types.push_back(IO_TYPE_REMOTE);
-        
+        m_all_needed_types |= IO_TYPE_REMOTE;
     }
     else if(s=="null")
+    {
         m_io_types.push_back(IO_TYPE_NULL);
+        m_all_needed_types |= IO_TYPE_NULL;
+    }
     else
     {
         printf("Invalid io '%s' for pattern '%s'- using standard.\n", 
                s.c_str(), m_pattern.c_str());
         m_io_types.push_back(IO_TYPE_STANDARD);
+        m_all_needed_types |= IO_TYPE_STANDARD;
     }
+
     // Store the XML object so that at instantiation time it is available.
     m_io_xml_info.push_back(io);
 
@@ -68,7 +117,7 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
         const XMLNode *addons = node->getNode(i);
         if(!addons)
             continue;   // shouldn't happen - but just in case
-        if(addons->getName()=="io")
+        if(addons->getName()=="io")  // already handled above
             continue;
         else if(addons->getName()!="addon")
         {
@@ -76,14 +125,24 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
                    addons->getName().c_str(), m_pattern.c_str(), i);
             continue;
         }
+
         std::string decorator;
         addons->get("type", &decorator);
         if(decorator=="mirror")
+        {
             m_io_types.push_back(IO_TYPE_MIRROR);
+            m_all_needed_types |= IO_TYPE_MIRROR;
+        }
         else if(decorator=="timer")
+        {
             m_io_types.push_back(IO_TYPE_TIMER);
+            m_all_needed_types |= IO_TYPE_TIMER;
+        }
         else if(decorator=="debug")
+        {
             m_io_types.push_back(IO_TYPE_DEBUG);
+            m_all_needed_types |= IO_TYPE_DEBUG;
+        }
         else
         {
             printf("Invalid config entry '%s' found - aborting.\n",
@@ -109,8 +168,7 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
     {
     case IO_TYPE_STANDARD : fo = new StandardFileObject(m_io_xml_info[0]); break;
     case IO_TYPE_NULL     : fo = new NullFileObject(m_io_xml_info[0]);     break;
-    case IO_TYPE_REMOTE   : Remote::init();
-                            fo = new Remote(m_io_xml_info[0]);             break;
+    case IO_TYPE_REMOTE   : fo = new Remote(m_io_xml_info[0]);             break;
     default:
         printf("No final first type found - this shouldn't happen.\n");
         exit(-1);

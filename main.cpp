@@ -44,5 +44,5 @@ int main(int argc, char **argv)
     MPI_Finalize();
 #endif
 
-    exit(0);
+    //    exit(0);
 }   // main

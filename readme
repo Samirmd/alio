@@ -11,7 +11,7 @@ ncks -d Time,0,0 -v eta_t -c ncrcat_ocean_mean_test.nc eta_mean_test.nc
 2) Debugging with gdb
 =====================
 gdb /apps/nco/4.1.0/bin/ncks
-set environment LD_PRELOAD=./client/libclient.so
+set environment LD_PRELOAD=./bld/client/libclient.so
 run -v eta_t,x_T,y_T -c ncrcat_ocean_mean_test.nc eta.nc
 
 3) Debugging with ddt

@@ -38,12 +38,12 @@ class FileObjectInfo
 private:
     typedef enum 
     {
-            IO_TYPE_STANDARD,   /** Write to disk */
-            IO_TYPE_NULL,       /** Write to /dev/null */
-            IO_TYPE_REMOTE,     /** Connect to a server. */
-            IO_TYPE_DEBUG,      /** Decorator: print debug info.*/
-            IO_TYPE_MIRROR,     /** Decorator: mirroring. */
-            IO_TYPE_TIMER       /** Decorator: Collect timing information. */
+            IO_TYPE_STANDARD = 0x001,     /** Write to disk */
+            IO_TYPE_NULL     = 0x002,     /** Write to /dev/null */
+            IO_TYPE_REMOTE   = 0x004,     /** Connect to a server. */
+            IO_TYPE_DEBUG    = 0x008,     /** Decorator: print debug info.*/
+            IO_TYPE_MIRROR   = 0x010,     /** Decorator: mirroring. */
+            IO_TYPE_TIMER    = 0x020      /** Decorator: Collect timing information. */
     } IOType; 
 
     /** To which pattern this entry applies. */
@@ -55,10 +55,18 @@ private:
     /** Stores the original XML node for that particular addon. */
     std::vector<const XMLNode*> m_io_xml_info;
 
+    /** A bit-mask storing all types that are used in the config files. 
+     *  It is used to avoid initialising the object for a certain type
+     *  more than once. */
+    static int m_all_needed_types;
 
 public:
-         FileObjectInfo(const XMLNode *node);
-    bool isApplicable(const std::string &filename) const;
+         
+                  FileObjectInfo(const XMLNode *node);
+    static int    init();
+    static int    atExit();
+    static int    callAllStaticInitFunctions();
+    bool          isApplicable(const std::string &filename) const;
     I_FileObject *createFileObject(const std::string &filename) const;
 };   // FileObjectInfo
 
