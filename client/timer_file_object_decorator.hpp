@@ -66,7 +66,6 @@ public:
     // ------------------------------------------------------------------------
     static int atExit()
     {
-        printf("tfod atExit called.\n");
         TimerManager::atExit(m_stdout);
         return 0;
     }   // atExit

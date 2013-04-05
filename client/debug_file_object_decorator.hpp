@@ -111,7 +111,7 @@ public:
     // ------------------------------------------------------------------------
     virtual int setvbuf(char *buf, int mode, size_t size)
     {
-        header(); printf(" setvbuf(%lx, %d, %ld)", buf, mode, size);
+        header(); printf("setvbuf(%lx, %d, %ld)", buf, mode, size);
         int result = I_FileObjectDecorator::setvbuf(buf, mode, size);
         printf(" = %d\n", result);
         return result;

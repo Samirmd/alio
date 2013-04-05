@@ -165,6 +165,10 @@ public:
     {
         allocate(0);
     }
+    // ------------------------------------------------------------------------
+    Message0(char *buffer, int n) : Message(buffer, n)
+    {
+    }
 };   // class Message0
 
 // ============================================================================
@@ -194,6 +198,12 @@ public:
         add(p,  t1);
     }   // Message1
 
+    // ------------------------------------------------------------------------
+    Message1(char *buffer, int n, T1 *t1) : Message(buffer, n)
+    {
+        m_needs_destroy=false;
+        get(t1);
+    }
 };   // class Message1
 
 // ============================================================================
@@ -257,7 +267,36 @@ public:
         add(t3, n3);
     }   // Message3
 
+    // ------------------------------------------------------------------------
+    Message3(char *buffer, int n, T1 *t1, T2 *t2, T3 *t3) : Message(buffer, n)
+    {
+        m_needs_destroy=false;
+        get(t1);
+        get(t2);
+        get(t3);
+    }
 };   // class Message3
+
+// ============================================================================
+
+typedef Message2<std::string, std::string> Message_fopen;
+typedef Message2<long,        int        > Message_fseek_long;
+typedef Message2<off_t,       int        > Message_fseek_off_t;
+typedef Message2<off64_t,     int        > Message_fseek_off64_t;
+typedef Message2<int,         int        > Message_fseek_answer;
+typedef Message0                           Message_ftell;
+typedef Message0                           Message_ferror;
+typedef Message2<size_t,      size_t     > Message_fwrite;
+typedef Message2<size_t,      size_t     > Message_fread;
+typedef Message0                           Message_fclose;
+typedef Message0                           Message_feof;
+typedef Message1<int                     > Message_fgets;
+typedef Message3<std::string, int, mode_t> Message_open;
+typedef Message0                           Message_stat;
+typedef Message0                           Message_quit;
+typedef Message2<off_t,       int        > Message_lseek_off_t;
+typedef Message2<off64_t,     int        > Message_lseek_off64_t;
+typedef Message1<size_t                  > Message_write;
 
 
 #endif
