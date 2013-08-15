@@ -23,6 +23,8 @@
 #include "tools/os.hpp"
 
 #include <errno.h>
+#include <cstdio>
+#include <stdlib.h>
 #include <sys/time.h>
 
 namespace ALIO

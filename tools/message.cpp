@@ -22,6 +22,7 @@
 #include <math.h>
 #include <stdexcept>
 #include <assert.h>
+#include <stdio.h>
 
 /** Creates a message to be sent.
  *  This only initialised the data structures, it does not reserve any memory.

@@ -19,6 +19,8 @@
 #include "string_utils.hpp"
 
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 namespace ALIO {
 namespace StringUtils {
