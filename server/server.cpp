@@ -80,14 +80,17 @@ bool handleRequests(MPI_Comm intercomm)
     switch((Message::MessageType)buffer[0])
     {
     case Message::MSG_FOPEN:
-    case Message::MSG_FOPEN64:
         {
             std::string mode;
             Message_fopen m(buffer, len, &m_filename, &mode);
-            if(m.getType()==Message::MSG_FOPEN)
-                m_file = fopen(m_filename.c_str(), mode.c_str());
-            else
-                m_file = fopen64(m_filename.c_str(), mode.c_str());
+            m_file = fopen(m_filename.c_str(), mode.c_str());
+            break;
+        }
+    case Message::MSG_FOPEN64:
+        {
+            std::string mode;
+            Message_fopen64 m(buffer, len, &m_filename, &mode);
+            m_file = fopen64(m_filename.c_str(), mode.c_str());
             break;
         }
     case Message::MSG_FSEEK:
@@ -98,8 +101,7 @@ bool handleRequests(MPI_Comm intercomm)
             MESSAGE_TYPE m(buffer, len, &offset, &whence);       \
             int send_len = m.getSize(whence)+m.getSize(errno);   \
             int result = NAME(m_file, offset, whence);           \
-            Message_fseek_answer m_answer(Message::MSG_FSEEK,    \
-                                          result, errno);        \
+            Message_fseek_answer m_answer(result, errno);        \
             MPI_Send(m_answer.getData(), m_answer.getLen(),      \
                      MPI_CHAR, 0, 9, intercomm);
 
@@ -122,8 +124,8 @@ bool handleRequests(MPI_Comm intercomm)
 
     case Message::MSG_FTELL:
         {
-#define FTELL(NAME, TYPE)                                      \
-            Message_ftell m(buffer, len);                      \
+#define FTELL(MESSAGE, NAME, TYPE)                             \
+            MESSAGE m(buffer, len);                            \
             TYPE result;                                       \
             int send_len = m.getSize(result)+m.getSize(errno); \
             char *msg    = new char[send_len];                 \
@@ -133,19 +135,19 @@ bool handleRequests(MPI_Comm intercomm)
             MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);\
             delete msg;
 
-            FTELL(ftell, long);
+            FTELL(Message_ftell, ftell, long);
             break;
         }   // switch
 
     case Message::MSG_FTELLO:
         {
-            FTELL(ftello, off_t);
+            FTELL(Message_ftello, ftello, off_t);
             break;
         }   // switch
 
     case Message::MSG_FTELLO64:
         {
-            FTELL(ftello64, off64_t);
+            FTELL(Message_ftello64, ftello64, off64_t);
             break;
         }   // switch
 
@@ -166,10 +168,10 @@ bool handleRequests(MPI_Comm intercomm)
     case Message::MSG_FWRITE:
         {
             size_t size, nmemb;
-            Message_fwrite m(buffer, len, &size, &nmemb);
+            void *data;
+            Message_fwrite m(buffer, len, &size, &nmemb, &data);
 
-            char * buffer = m.get();
-            fwrite(buffer, size, nmemb, m_file);
+            fwrite(data, size, nmemb, m_file);
             break;
         }
     case Message::MSG_FREAD:
@@ -225,7 +227,7 @@ bool handleRequests(MPI_Comm intercomm)
             return false;
             XSTAT(struct stat, );
 #endif
-            Message m(buffer, len);
+            Message_stat m(buffer, len);
             int send_len = sizeof(struct stat) + 2*sizeof(int);
             char *msg    = new char[send_len];
             int *p       = (int *)msg;
@@ -238,7 +240,7 @@ bool handleRequests(MPI_Comm intercomm)
         
     case Message::MSG___FXSTAT:
         {
-            Message m(buffer, len);
+            Message_stat m(buffer, len);
             int send_len = sizeof(struct stat) + 2*sizeof(int);
             char *msg    = new char[send_len];
             int *p       = (int *)msg;
@@ -251,7 +253,7 @@ bool handleRequests(MPI_Comm intercomm)
 
     case Message::MSG___FXSTAT64:
         {
-            Message m(buffer, len);
+            Message_stat m(buffer, len);
             int send_len = sizeof(struct stat64) + 2*sizeof(int);
             char *msg    = new char[send_len];
             int *p       = (int *)msg;
@@ -277,11 +279,9 @@ bool handleRequests(MPI_Comm intercomm)
         
     case Message::MSG_LSEEK:
         {
-            Message m(buffer, len);
             off_t offset;
-            m.get(&offset);
             int whence;
-            m.get(&whence);
+            Message_lseek_off_t m(buffer, len, &offset, &whence);
             int send_len = m.getSize(offset)+m.getSize(errno);
             char *msg    = new char[send_len];
             off_t *p     = (off_t*)msg;
@@ -294,11 +294,9 @@ bool handleRequests(MPI_Comm intercomm)
 
     case Message::MSG_LSEEK64:
         {
-            Message m(buffer, len);
             off64_t offset;
-            m.get(&offset);
             int whence;
-            m.get(&whence);
+            Message_lseek_off_t m(buffer, len, &offset, &whence);
             int send_len = m.getSize(offset)+m.getSize(errno);
             char *msg    = new char[send_len];
             off_t *p     = (off_t*)msg;
@@ -312,17 +310,17 @@ bool handleRequests(MPI_Comm intercomm)
     case Message::MSG_WRITE:
         {
             size_t nbyte;
-            Message_write m(buffer, len, &nbyte);
+            void *data;
+            Message_write m(buffer, len, &nbyte, &data);
 
-            char * buffer = m.get();
-            write(m_filedes, buffer, nbyte);
+            write(m_filedes, data, nbyte);
             break;
         }
     case Message::MSG_READ:
         {
-            Message m(buffer, len);
             size_t count;
-            m.get(&count);
+            Message_read m(buffer, len, &count);
+
             ssize_t result;
             int send_len = m.getSize(result) + m.getSize(errno) + count;
             char *msg = new char[send_len];
@@ -336,7 +334,7 @@ bool handleRequests(MPI_Comm intercomm)
         }
     case Message::MSG_CLOSE:
         {
-            Message m(buffer, len);
+            Message_close m(buffer, len);
             int msg[2];
             msg[0] = close(m_filedes);
             msg[1] = errno;

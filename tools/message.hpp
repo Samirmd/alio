@@ -22,6 +22,8 @@
 #include <cstring>
 #include <string>
 #include <assert.h>
+#include <sys/types.h>
+
 
 using std::memcpy;
 
@@ -39,7 +41,8 @@ public:
         MSG___FXSTAT64, MSG___LXSTAT,  MSG_LSEEK,
         MSG_LSEEK64,    MSG_WRITE,     MSG_READ,
         MSG_CLOSE,      MSG_RENAME,  
-        MSG_QUIT
+        MSG_QUIT,
+        MSG_FSEEK_ANSWER
     } MessageType;
 
 private:
@@ -138,7 +141,7 @@ public:
 
 public:
                  Message(MessageType m);
-                 Message(char *buffer, int len);
+                 Message(MessageType m, const void *buffer, int len);
                 ~Message();
     void         clear();
     void         allocate(size_t size);
@@ -158,16 +161,18 @@ public:
 /** Convenient class that takes 0 arguments (i.e. only a type, no additional
  *  information.
  */
+template <Message::MessageType MT>
 class Message0 : public Message
 {
 public:
-    Message0(MessageType type) : Message(type)
+    Message0() : Message(MT)
     {
         allocate(0);
     }
     // ------------------------------------------------------------------------
-    Message0(char *buffer, int n) : Message(buffer, n)
+    Message0(const void *buffer, int n) : Message(MT, buffer, n)
     {
+        assert(getType()==MT);
     }
 };   // class Message0
 
@@ -175,34 +180,42 @@ public:
 /** Convenient template class that takes 1 argument. Using a template has
  *  the advantage that type checking can be done at compile time.
  */
-template <typename T1>
+template <typename T1, Message::MessageType MT>
 class Message1 : public Message
 {
 
 public:
-    Message1(MessageType type, const T1 &t1) : Message(type)
+    Message1(const T1 &t1) : Message(MT)
     {
         size_t n1 = getSize(t1);
         allocate(n1);
         add(t1, n1);
     }   // Message1
 
+    // ------------------------------------------------------------------------
     /** Special constructor that adds n bytes of binary data.
      */
-    Message1(MessageType type, const T1 &t1, const void *p) 
-        : Message(type)
+    Message1(T1 &t1, const void *p, size_t n) 
+        : Message(MT)
     {
         size_t n1 = getSize(t1);
-        allocate(n1+t1);
-        add(t1, n1);
-        add(p,  t1);
+        allocate(n1+n);
+        add(t1,n1);
+        add(p, n);
     }   // Message1
 
     // ------------------------------------------------------------------------
-    Message1(char *buffer, int n, T1 *t1) : Message(buffer, n)
+    Message1(const void *buffer, int n, T1 *t1) : Message(MT, buffer, n)
     {
         m_needs_destroy=false;
         get(t1);
+    }
+    // ------------------------------------------------------------------------
+    Message1(const void *buffer, int n, T1 *t1, void **p) : Message(MT, buffer, n)
+    {
+        m_needs_destroy=false;
+        get(t1);
+        *p = get();
     }
 };   // class Message1
 
@@ -210,25 +223,25 @@ public:
 /** Convenient template class that takes 2 argumentS. Using a template has
  *  the advantage that type checking can be done at compile time.
  */
-template <typename T1, typename T2>
+template <typename T1, typename T2, Message::MessageType MT>
 class Message2 : public Message
 {
 
 public:
-    Message2(MessageType type, const T1 &t1, const T2 &t2) : Message(type)
+    Message2(const T1 &t1, const T2 &t2) : Message(MT)
     {
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);
         allocate(n1+n2);
         add(t1, n1);
         add(t2, n2);
-    }   // Messag2
+    }   // Message2
 
     // ------------------------------------------------------------------------
     /** Special constructor that adds n bytes of binary data.
      */
-    Message2(MessageType type, const T1 &t1, const T2 &t2, size_t n, const void *p) 
-        : Message(type)
+    Message2(const T1 &t1, const T2 &t2, const void *p, size_t n) 
+        : Message(MT, p, n)
     {
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);
@@ -238,11 +251,22 @@ public:
         add(p,   n);
     }   // Message2
     // ------------------------------------------------------------------------
-    Message2(char *buffer, int n, T1 *t1, T2 *t2) : Message(buffer, n)
+    Message2(const void *buffer, int n, T1 *t1, T2 *t2) : Message(MT, buffer, n)
     {
+        assert(getType()==MT);
         m_needs_destroy=false;
         get(t1);
         get(t2);
+    }
+    // ------------------------------------------------------------------------
+    Message2(const void *buffer, int n, T1 *t1, T2 *t2, void **data) 
+           : Message(MT, buffer, n)
+    {
+        assert(getType()==MT);
+        m_needs_destroy=false;
+        get(t1);
+        get(t2);
+        *data = get();
     }
 };   // class Message2
 
@@ -250,13 +274,13 @@ public:
 /** Convenient template class that takes 2 argumentS. Using a template has
  *  the advantage that type checking can be done at compile time.
  */
-template <typename T1, typename T2, typename T3>
+template <typename T1, typename T2, typename T3, Message::MessageType MT>
 class Message3 : public Message
 {
 
 public:
-    Message3(MessageType type, const T1 &t1, const T2 &t2, 
-                               const T3 &t3               ) : Message(type)
+    Message3(const T1 &t1, const T2 &t2, 
+             const T3 &t3               ) : Message(MT)
     {
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);
@@ -268,7 +292,7 @@ public:
     }   // Message3
 
     // ------------------------------------------------------------------------
-    Message3(char *buffer, int n, T1 *t1, T2 *t2, T3 *t3) : Message(buffer, n)
+    Message3(char *buffer, int n, T1 *t1, T2 *t2, T3 *t3) : Message(MT, buffer, n)
     {
         m_needs_destroy=false;
         get(t1);
@@ -279,25 +303,31 @@ public:
 
 // ============================================================================
 
-typedef Message2<std::string, std::string> Message_fopen;
-typedef Message2<long,        int        > Message_fseek_long;
-typedef Message2<off_t,       int        > Message_fseek_off_t;
-typedef Message2<off64_t,     int        > Message_fseek_off64_t;
-typedef Message2<int,         int        > Message_fseek_answer;
-typedef Message0                           Message_ftell;
-typedef Message0                           Message_ferror;
-typedef Message2<size_t,      size_t     > Message_fwrite;
-typedef Message2<size_t,      size_t     > Message_fread;
-typedef Message0                           Message_fclose;
-typedef Message0                           Message_feof;
-typedef Message1<int                     > Message_fgets;
-typedef Message3<std::string, int, mode_t> Message_open;
-typedef Message0                           Message_stat;
-typedef Message0                           Message_quit;
-typedef Message2<off_t,       int        > Message_lseek_off_t;
-typedef Message2<off64_t,     int        > Message_lseek_off64_t;
-typedef Message1<size_t                  > Message_write;
-
+typedef Message2<std::string, std::string, Message::MSG_FOPEN   > Message_fopen;
+typedef Message2<std::string, std::string, Message::MSG_FOPEN64 > Message_fopen64;
+typedef Message2<long,        int,         Message::MSG_FSEEK   > Message_fseek_long;
+typedef Message2<off_t,       int,         Message::MSG_FSEEKO  > Message_fseek_off_t;
+typedef Message2<off64_t,     int,         Message::MSG_FSEEKO64> Message_fseek_off64_t;
+typedef Message2<int,         int,         Message::MSG_FSEEK_ANSWER > Message_fseek_answer;
+typedef Message0<Message::MSG_FTELL                                  > Message_ftell;
+typedef Message0<Message::MSG_FTELLO                                 > Message_ftello;
+typedef Message0<Message::MSG_FTELLO64                               > Message_ftello64;
+typedef Message0<Message::MSG_FERROR                                 > Message_ferror;
+typedef Message2<size_t,      size_t,      Message::MSG_FWRITE   > Message_fwrite;
+typedef Message2<size_t,      size_t,      Message::MSG_FREAD    > Message_fread;
+typedef Message0<Message::MSG_FCLOSE                             > Message_fclose;
+typedef Message0<Message::MSG_FEOF                               > Message_feof;
+typedef Message1<int, Message::MSG_FGETS                     > Message_fgets;
+typedef Message3<std::string, int, mode_t, Message::MSG_OPEN> Message_open;
+typedef Message3<std::string, int, mode_t, Message::MSG_OPEN64> Message_open64;
+typedef Message0<Message::MSG___XSTAT                               > Message_stat;
+typedef Message0<Message::MSG_QUIT                               > Message_quit;
+typedef Message2<off_t,       int,         Message::MSG_LSEEK  > Message_lseek_off_t;
+typedef Message2<off64_t,     int,         Message::MSG_LSEEK64> Message_lseek_off64_t;
+typedef Message1<size_t, Message::MSG_WRITE> Message_write;
+typedef Message1<size_t, Message::MSG_READ                  > Message_read;
+typedef Message0<Message::MSG_CLOSE                              > Message_close;
+typedef Message2<std::string, std::string, Message::MSG_RENAME > Message_rename;
 
 #endif
 

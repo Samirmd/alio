@@ -45,12 +45,12 @@ Message::Message(MessageType type)
  *  \param m      The type of the message. The type is checked via an assert!
  */
 
-Message::Message(char *buffer, int len)
+Message::Message(MessageType type, const void *buffer, int len)
 {
     assert(sizeof(int)==4);
     m_data_size = len;
-    m_data      = buffer;
-    m_type      = (MessageType)m_data[0];
+    m_data      = (char*)buffer;
+    m_type      = type;
     m_pos       = 1;
     m_needs_destroy = true;
 }

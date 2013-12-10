@@ -110,6 +110,7 @@ ALIO::I_FileObject *Config::createFileObject(const char *name)
             return fo;
         }
     }
+    printf("not handling file '%s'.\n", name);
     return NULL;
 
 }   // createFileObject

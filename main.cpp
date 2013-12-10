@@ -32,7 +32,7 @@ int main(int argc, char **argv)
         fflush(f);
         fclose(f);
     }
-    else
+//    else
     {
         const char *message="Hello from others\n";
         FILE *f = fopen64("b", "w");
