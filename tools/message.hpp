@@ -180,7 +180,7 @@ public:
 /** Convenient template class that takes 1 argument. Using a template has
  *  the advantage that type checking can be done at compile time.
  */
-template <typename T1, Message::MessageType MT>
+template <Message::MessageType MT, typename T1>
 class Message1 : public Message
 {
 
@@ -209,21 +209,21 @@ public:
     {
         m_needs_destroy=false;
         get(t1);
-    }
+    }   // Message1
     // ------------------------------------------------------------------------
     Message1(const void *buffer, int n, T1 *t1, void **p) : Message(MT, buffer, n)
     {
         m_needs_destroy=false;
         get(t1);
         *p = get();
-    }
+    }   // Message1
 };   // class Message1
 
 // ============================================================================
 /** Convenient template class that takes 2 argumentS. Using a template has
  *  the advantage that type checking can be done at compile time.
  */
-template <typename T1, typename T2, Message::MessageType MT>
+template <Message::MessageType MT, typename T1, typename T2>
 class Message2 : public Message
 {
 
@@ -274,7 +274,7 @@ public:
 /** Convenient template class that takes 2 argumentS. Using a template has
  *  the advantage that type checking can be done at compile time.
  */
-template <typename T1, typename T2, typename T3, Message::MessageType MT>
+template <Message::MessageType MT, typename T1, typename T2, typename T3>
 class Message3 : public Message
 {
 
@@ -303,31 +303,31 @@ public:
 
 // ============================================================================
 
-typedef Message2<std::string, std::string, Message::MSG_FOPEN   > Message_fopen;
-typedef Message2<std::string, std::string, Message::MSG_FOPEN64 > Message_fopen64;
-typedef Message2<long,        int,         Message::MSG_FSEEK   > Message_fseek_long;
-typedef Message2<off_t,       int,         Message::MSG_FSEEKO  > Message_fseek_off_t;
-typedef Message2<off64_t,     int,         Message::MSG_FSEEKO64> Message_fseek_off64_t;
-typedef Message2<int,         int,         Message::MSG_FSEEK_ANSWER > Message_fseek_answer;
-typedef Message0<Message::MSG_FTELL                                  > Message_ftell;
-typedef Message0<Message::MSG_FTELLO                                 > Message_ftello;
-typedef Message0<Message::MSG_FTELLO64                               > Message_ftello64;
-typedef Message0<Message::MSG_FERROR                                 > Message_ferror;
-typedef Message2<size_t,      size_t,      Message::MSG_FWRITE   > Message_fwrite;
-typedef Message2<size_t,      size_t,      Message::MSG_FREAD    > Message_fread;
-typedef Message0<Message::MSG_FCLOSE                             > Message_fclose;
-typedef Message0<Message::MSG_FEOF                               > Message_feof;
-typedef Message1<int, Message::MSG_FGETS                     > Message_fgets;
-typedef Message3<std::string, int, mode_t, Message::MSG_OPEN> Message_open;
-typedef Message3<std::string, int, mode_t, Message::MSG_OPEN64> Message_open64;
+typedef Message2<Message::MSG_FOPEN,        std::string, std::string> Message_fopen;
+typedef Message2<Message::MSG_FOPEN64,      std::string, std::string> Message_fopen64;
+typedef Message2<Message::MSG_FSEEK,        long,        int        > Message_fseek_long;
+typedef Message2<Message::MSG_FSEEKO,       off_t,       int        > Message_fseek_off_t;
+typedef Message2<Message::MSG_FSEEKO64,     off64_t,     int        > Message_fseek_off64_t;
+typedef Message2<Message::MSG_FSEEK_ANSWER, int,         int        > Message_fseek_answer;
+typedef Message0<Message::MSG_FTELL                                 > Message_ftell;
+typedef Message0<Message::MSG_FTELLO                                > Message_ftello;
+typedef Message0<Message::MSG_FTELLO64                              > Message_ftello64;
+typedef Message0<Message::MSG_FERROR                                > Message_ferror;
+typedef Message2<Message::MSG_FWRITE,       size_t,      size_t     > Message_fwrite;
+typedef Message2<Message::MSG_FREAD,        size_t,      size_t     > Message_fread;
+typedef Message0<Message::MSG_FCLOSE                                > Message_fclose;
+typedef Message0<Message::MSG_FEOF                                  > Message_feof;
+typedef Message1<Message::MSG_FGETS,        int                     > Message_fgets;
+typedef Message3<Message::MSG_OPEN,         std::string, int, mode_t> Message_open;
+typedef Message3<Message::MSG_OPEN64,       std::string, int, mode_t> Message_open64;
 typedef Message0<Message::MSG___XSTAT                               > Message_stat;
-typedef Message0<Message::MSG_QUIT                               > Message_quit;
-typedef Message2<off_t,       int,         Message::MSG_LSEEK  > Message_lseek_off_t;
-typedef Message2<off64_t,     int,         Message::MSG_LSEEK64> Message_lseek_off64_t;
-typedef Message1<size_t, Message::MSG_WRITE> Message_write;
-typedef Message1<size_t, Message::MSG_READ                  > Message_read;
-typedef Message0<Message::MSG_CLOSE                              > Message_close;
-typedef Message2<std::string, std::string, Message::MSG_RENAME > Message_rename;
+typedef Message0<Message::MSG_QUIT                                  > Message_quit;
+typedef Message2<Message::MSG_LSEEK,        off_t,       int        > Message_lseek_off_t;
+typedef Message2<Message::MSG_LSEEK64,      off64_t,     int        > Message_lseek_off64_t;
+typedef Message1<Message::MSG_WRITE,        size_t                  > Message_write;
+typedef Message1<Message::MSG_READ,         size_t                  > Message_read;
+typedef Message0<Message::MSG_CLOSE                                 > Message_close;
+typedef Message2<Message::MSG_RENAME,       std::string, std::string> Message_rename;
 
 #endif
 
