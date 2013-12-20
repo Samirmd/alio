@@ -24,6 +24,10 @@
 #include <string>
 #include <vector>
 
+// Have to use C regex, since support for C++ std::regex does not work
+#include <sys/types.h>
+#include <regex.h>
+
 
 /** Stores information for one file name prefix, i.e. which file object
  *  to use.
@@ -46,8 +50,14 @@ private:
             IO_TYPE_TIMER    = 0x020      /** Decorator: Collect timing information. */
     } IOType; 
 
-    /** To which pattern this entry applies. */
+    /** The original string for the regex, only to make debugging easier. */
     std::string m_pattern;
+
+    /** If a search or a match should be done. */
+    bool m_search;
+
+    /** The regular expression. */
+    regex_t  m_regex;
 
     /** Which IO objects to instantiate. */
     std::vector<IOType> m_io_types;
@@ -63,6 +73,7 @@ private:
 public:
          
                   FileObjectInfo(const XMLNode *node);
+                 ~FileObjectInfo();
     static int    init();
     static int    atExit();
     static int    callAllStaticInitFunctions();
