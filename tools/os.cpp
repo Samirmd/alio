@@ -51,6 +51,7 @@ namespace OS  {
     t_ftello   ftello64 = NULL;
     t_fflush   fflush   = NULL;
     t_ferror   ferror   = NULL;
+    t_fileno   fileno   = NULL;
     t_fwrite   fwrite   = NULL;
     t_fread    fread    = NULL;
     t_fgets    fgets    = NULL;
@@ -97,6 +98,7 @@ int ALIO::OS::init()
     ALIO::OS::ftello64 = GET(t_ftello64, "ftello64");
     ALIO::OS::fflush   = GET(t_fflush,   "fflush"  );
     ALIO::OS::ferror   = GET(t_ferror,   "ferror"  );
+    ALIO::OS::fileno   = GET(t_fileno,   "fileno"  );
     ALIO::OS::fwrite   = GET(t_fwrite,   "fwrite"  );
     ALIO::OS::fread    = GET(t_fread,    "fread"   );
     ALIO::OS::fgets    = GET(t_fgets,    "fgets"   );

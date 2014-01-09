@@ -127,6 +127,12 @@ public:
         return I_FileObjectDecorator::ferror();
     }   // ferror
     // ------------------------------------------------------------------------
+    virtual int fileno()
+    {
+        m_mirror->fileno();
+        return I_FileObjectDecorator::fileno();
+    }   // fileno
+    // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
         m_mirror->fwrite(ptr, size, nmemb);

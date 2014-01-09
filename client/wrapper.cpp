@@ -171,6 +171,19 @@ int ferror(FILE *stream) __THROW
 }   // ferror
 
 // ----------------------------------------------------------------------------
+int fileno(FILE *stream) __THROW
+{
+    printf("fileno called.\n");
+    ALIO::Config *config   = ALIO::Config::get();
+    ALIO::I_FileObject *fo = NULL;
+
+    if(!config || !(fo=config->getFileObject(stream)))
+        return ALIO::OS::fileno(stream);
+
+    return fo->fileno();
+}   // fileno
+
+// ----------------------------------------------------------------------------
 size_t fwrite(const void *ptr,size_t size, size_t nmemb, FILE *stream)
 {
     ALIO::Config *config   = ALIO::Config::get();

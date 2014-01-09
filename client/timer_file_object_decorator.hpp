@@ -177,6 +177,14 @@ public:
         m_timer_data->stop(TIMER_MISC);
         return result;
     }   // ferror
+    // ------------------------------------------------------------------------
+    virtual int fileno()
+    {
+        m_timer_data->start(TIMER_MISC);
+        int result = I_FileObjectDecorator::fileno();
+        m_timer_data->stop(TIMER_MISC);
+        return result;
+    }   // fileno
 
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)

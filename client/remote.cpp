@@ -215,6 +215,12 @@ int Remote::ferror()
     return result;
 }   // ferror
 // ----------------------------------------------------------------------------
+int Remote::fileno()
+{
+    printf("Fileno still to be implemented.\n");
+    assert(false);
+}   // fileno
+// ----------------------------------------------------------------------------
 size_t Remote::fwrite(const void *ptr,size_t size, size_t nmemb)
 {
     Message_fwrite m(size, nmemb, ptr, size*nmemb);

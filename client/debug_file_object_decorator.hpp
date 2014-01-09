@@ -190,6 +190,14 @@ public:
         printf(" = %d\n", result);
         return result;
     }   // ferror
+    // ------------------------------------------------------------------------
+    virtual int fileno()
+    {
+        header(); printf("fileno()");
+        int result = I_FileObjectDecorator::fileno();
+        printf(" = %d\n", result);
+        return result;
+    }   // fileno
 
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)

@@ -97,6 +97,8 @@ public:
     // ------------------------------------------------------------------------
     virtual int ferror() { return m_parent->ferror(); }
     // ------------------------------------------------------------------------
+    virtual int fileno() { return m_parent->fileno(); }
+    // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {
         return m_parent->fwrite(ptr, size, nmemb);

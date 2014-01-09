@@ -59,6 +59,7 @@ public:
         m_file=OS::fopen(getFilename().c_str(), mode);
         if(!m_file)
             return NULL;
+        printf("fopen --> %d\n", ALIO::OS::fileno(m_file));
         return (FILE*)this;
     }   // fopen
 
@@ -116,6 +117,12 @@ public:
     {
         return OS::ferror(m_file);
     }   // ferror
+    // ------------------------------------------------------------------------
+    virtual int fileno()
+    {
+        printf("Doing fileno.\n");
+        return OS::fileno(m_file);
+    }   // fileno
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)
     {

@@ -1,6 +1,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #ifdef DO_MPI
 #include "mpi.h"
@@ -17,7 +20,14 @@ int main(int argc, char **argv)
 #else
     my_rank = 0;
 #endif
-
+    struct stat buf;
+    FILE *ff = fopen("a","r");
+    int filedes = fileno(ff);
+    printf("filedes %d\n", filedes);
+    int status  = fstat(filedes, &buf);
+    printf("Size is %ld\n", buf.st_size);
+    close(filedes);
+    exit(0);
     if(my_rank==0)
     {
         const char *message="Hello from 0\n";

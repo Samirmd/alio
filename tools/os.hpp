@@ -55,6 +55,7 @@ namespace OS {
         typedef off64_t (*t_ftello64)(FILE *stream);
         typedef int     (*t_fflush  )(FILE *stream);
         typedef int     (*t_ferror  )(FILE *stream);
+        typedef int     (*t_fileno  )(FILE *stream); 
         typedef size_t  (*t_fwrite  )(const void *ptr,size_t size, size_t nmemb, FILE *stream);
         typedef size_t  (*t_fread   )(void *ptr,size_t size, size_t nmemb, FILE *stream);
         typedef char *  (*t_fgets   )(char *s, int size, FILE *stream);
@@ -89,6 +90,7 @@ namespace OS {
     extern t_ftello64 ftello64;
     extern t_fflush   fflush;
     extern t_ferror   ferror;
+    extern t_fileno   fileno;
     extern t_fwrite   fwrite;
     extern t_fread    fread;
     extern t_fgets    fgets;

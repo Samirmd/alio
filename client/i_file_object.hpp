@@ -67,6 +67,7 @@ public:
     virtual off64_t ftello64() = 0;
     virtual int     fflush() = 0;
     virtual int     ferror() = 0;
+    virtual int     fileno() = 0;
     virtual size_t  fwrite(const void *ptr, size_t size, size_t nmemb) = 0;
     virtual size_t  fread(void *ptr,size_t size, size_t nmemb) = 0;
     virtual int     feof() = 0;
