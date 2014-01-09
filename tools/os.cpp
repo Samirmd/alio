@@ -61,7 +61,8 @@ namespace OS  {
     t_rename  rename    = NULL;
 } }  // namespace ALIO::OS
 
-
+/** This function saves the function pointers to the original IO functions.
+ */
 int ALIO::OS::init()
 {
 #ifdef WIN32

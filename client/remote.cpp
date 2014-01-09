@@ -17,8 +17,9 @@
 //
 
 #include "client/remote.hpp"
-#include "tools/message.hpp"
 
+#include "client/config.hpp"
+#include "tools/message.hpp"
 
 #include "mpi.h"
 
@@ -273,7 +274,7 @@ int Remote::open(int flags, mode_t mode)
     Message_open m(getFilename(), flags, mode);
 
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
-    return getIndex()+1024;
+    return getIndex()+Config::get()->getMaxFiles();
 }   // open
 // ----------------------------------------------------------------------------
 int Remote::open64(int flags, mode_t mode)
@@ -281,7 +282,7 @@ int Remote::open64(int flags, mode_t mode)
     Message_open64 m(getFilename(), flags, mode);
 
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
-    return getIndex()+1024;
+    return getIndex()+Config::get()->getMaxFiles();
 }   // open
 
 // ----------------------------------------------------------------------------

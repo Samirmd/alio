@@ -173,7 +173,6 @@ int ferror(FILE *stream) __THROW
 // ----------------------------------------------------------------------------
 int fileno(FILE *stream) __THROW
 {
-    printf("fileno called.\n");
     ALIO::Config *config   = ALIO::Config::get();
     ALIO::I_FileObject *fo = NULL;
 

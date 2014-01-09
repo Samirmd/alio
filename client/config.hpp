@@ -47,14 +47,19 @@ private:
     /** Stores pointer to the original file objects. */
     std::vector<I_FileObject*> m_file_objects;
 
-    /** True if this config object is for a slave. */
-    bool m_is_slave;
+    /** True if this config object is for a client. */
+    bool m_is_client;
 
-    Config(bool is_slave);
+    /** Maximum number of file descriptors. This is used to
+     *  define 'virtual' descriptors, so that it's easy to see
+     *  if a descriptor is for the normal functions or alia. */
+    int m_max_files;
+
+    Config(bool is_client);
    ~Config();
    void readConfig(const XMLNode *root);
 public:
-   static void create(bool is_slave);
+   static void create(bool is_client);
    static void destroy();
    static Config *get()
    {
@@ -64,6 +69,10 @@ public:
     I_FileObject *createFileObject(const char *name);
     I_FileObject *getFileObject(FILE *file);
     I_FileObject *getFileObject(int filedes);
+    // ------------------------------------------------------------------------
+    /** Returns the maximum number of files, which is also the maximum
+     *  file descriptor that can be used. */
+    int           getMaxFiles() const { return m_max_files; }
 };   // Config
 
 }   // namespace ALIO

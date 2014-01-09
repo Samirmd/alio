@@ -24,6 +24,8 @@
 
 #include <stdio.h>
 #include <string>
+#include <sys/resource.h>
+#include <sys/time.h>
 
 namespace ALIO
 {
@@ -31,12 +33,12 @@ namespace ALIO
 Config *Config::m_config = NULL;
 
 // ----------------------------------------------------------------------------
-/** Creates and initialises either a master or a slave configuration object.
+/** Creates and initialises either a master or a client configuration object.
  */
-void Config::create(bool is_slave)
+void Config::create(bool is_client)
 {
     assert(!m_config);
-    m_config = new Config(is_slave);
+    m_config = new Config(is_client);
 }   // create;
 
 // ----------------------------------------------------------------------------
@@ -49,11 +51,16 @@ void Config::destroy()
     m_config = NULL;
 }   // destroy
 // ----------------------------------------------------------------------------
-/** Creates the once instance of the config object (one for master, one for
- *  slave).
+/** Creates the once instance of the config object (one for server, one for
+ *  client). This is called from the constructor of the alio dll
+ *  (see init.cpp).
+ *  \param is_client True if this is the 
  */
-Config::Config(bool is_slave) : m_is_slave(is_slave)
+Config::Config(bool is_client) : m_is_client(is_client)
 {
+    struct rlimit rlim;
+    getrlimit(RLIMIT_NOFILE, &rlim);
+    m_max_files = rlim.rlim_max;
     FileObjectInfo::init();
     const std::string name("alio.xml");
     const XMLNode *root = new ALIO::XMLNode(name);
@@ -84,7 +91,7 @@ void Config::readConfig(const XMLNode *root)
         //   if(root) delete root;
         //exit(-1);
     }
-    const XMLNode *config = root->getNode(m_is_slave ? "client" : "master");
+    const XMLNode *config = root->getNode(m_is_client ? "client" : "master");
 
     // For each file pattern create the "file object" info object:
     for(unsigned int i=0; i<config->getNumNodes(); i++)
@@ -150,9 +157,9 @@ I_FileObject *Config::getFileObject(FILE *file)
 // ----------------------------------------------------------------------------
 I_FileObject *Config::getFileObject(int filedes)
 {
-    if(filedes<1024)
+    if(filedes<=m_max_files)
         return NULL;
-    int indx = filedes -1024;
+    int indx = filedes - m_max_files;
     if(indx<m_file_objects.size())
         return m_file_objects[indx];
     return NULL;

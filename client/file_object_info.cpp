@@ -28,7 +28,6 @@
 #include "xml/xml_node.hpp"
 
 #include <assert.h>
-#include <regex>
 
 namespace ALIO
 {

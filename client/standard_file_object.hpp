@@ -20,6 +20,7 @@
 #define HEADER_STANDARD_FILE_OBJECT_HPP
 
 #include "client/base_file_object.hpp"
+#include "client/config.hpp"
 #include "tools/os.hpp"
 
 #include <string>
@@ -59,7 +60,6 @@ public:
         m_file=OS::fopen(getFilename().c_str(), mode);
         if(!m_file)
             return NULL;
-        printf("fopen --> %d\n", ALIO::OS::fileno(m_file));
         return (FILE*)this;
     }   // fopen
 
@@ -120,7 +120,6 @@ public:
     // ------------------------------------------------------------------------
     virtual int fileno()
     {
-        printf("Doing fileno.\n");
         return OS::fileno(m_file);
     }   // fileno
     // ------------------------------------------------------------------------
@@ -158,13 +157,13 @@ public:
     virtual int open(int flags, mode_t mode)
     {
         m_filedes = OS::open(getFilename().c_str(), flags, mode);
-        return getIndex()+1024;
+        return getIndex()+Config::get()->getMaxFiles();
     }   // open
     // ------------------------------------------------------------------------
     virtual int open64(int flags, mode_t mode)
     {
         m_filedes = OS::open64(getFilename().c_str(), flags, mode);
-        return getIndex()+1024;
+        return getIndex()+Config::get()->getMaxFiles();
     }   // open
     // ------------------------------------------------------------------------
     virtual int __xstat(int ver, struct stat *buf)
