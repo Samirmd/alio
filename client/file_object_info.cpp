@@ -28,6 +28,7 @@
 #include "xml/xml_node.hpp"
 
 #include <assert.h>
+#include <regex>
 
 namespace ALIO
 {
@@ -78,10 +79,22 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
 {
     if(!node->get("pattern", &m_pattern))
     {
-        printf("No pattern found, aborting.\n");
+        printf("No pattern found. Use either 'pattern' to define the file pattern.\n");
         exit(-1);
     }
     
+    int error = regcomp(&m_regex, m_pattern.c_str(), REG_NOSUB);
+    if(error)
+    {
+        printf("Pattern '%s' is not a valid regular expression: error %d.\n",
+               m_pattern.c_str(),error);
+        char message[1024];
+        regerror(error, &m_regex, message, 1024);
+        printf("%s\n", message);
+        regfree(&m_regex);
+        exit(-1);
+    }
+
     const XMLNode *io = node->getNode("io");
     std::string s;
     io->get("type", &s);
@@ -156,10 +169,19 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
 }   // FileObjectInfo
 
 // ----------------------------------------------------------------------------
+/** Destructor, frees memory used by the regex.
+ */
+FileObjectInfo::~FileObjectInfo()
+{
+    regfree(&m_regex);
+}   // ~FileObjectInfo
+
+// ----------------------------------------------------------------------------
 bool FileObjectInfo::isApplicable(const std::string &filename) const
 {
-    return filename.substr(0, m_pattern.size())==m_pattern;
+    return regexec(&m_regex, filename.c_str(), 0, 0, 0)!=REG_NOMATCH;
 }   // isApplicable
+
 // ----------------------------------------------------------------------------
 I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) const
 {
