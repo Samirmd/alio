@@ -47,6 +47,7 @@ public:
     StandardFileObject(const XMLNode *info) : BaseFileObject(info)
     {
         m_file     = NULL; 
+        m_filedes  = -1;
     };   // StandardFileObject
 
     // ------------------------------------------------------------------------
@@ -60,6 +61,9 @@ public:
         m_file=OS::fopen(getFilename().c_str(), mode);
         if(!m_file)
             return NULL;
+        // We need to save the original filedes, in case that the
+        // program uses fileno to get the file descriptor.
+        m_filedes = OS::fileno(m_file);
         return (FILE*)this;
     }   // fopen
 
@@ -69,6 +73,9 @@ public:
         m_file=OS::fopen64(getFilename().c_str(), mode);
         if(!m_file)
             return NULL;
+        // We need to save the original filedes, in case that the
+        // program uses fileno to get the file descriptor.
+        m_filedes = OS::fileno(m_file);
         return (FILE*)this;
     }   // fopen
 
@@ -120,7 +127,11 @@ public:
     // ------------------------------------------------------------------------
     virtual int fileno()
     {
-        return OS::fileno(m_file);
+        // We don't return m_filedes (since otherwise any further access
+        // would bypass alio), instead we return the index of this object
+        // in the Config objects plus offset, so that this filedes is
+        // recognised to be an alio filedes later
+        return getIndex() + Config::get()->getMaxFiles();
     }   // fileno
     // ------------------------------------------------------------------------
     virtual size_t fwrite(const void *ptr,size_t size, size_t nmemb)

@@ -157,7 +157,7 @@ I_FileObject *Config::getFileObject(FILE *file)
 // ----------------------------------------------------------------------------
 I_FileObject *Config::getFileObject(int filedes)
 {
-    if(filedes<=m_max_files)
+    if(filedes<m_max_files)
         return NULL;
     int indx = filedes - m_max_files;
     if(indx<m_file_objects.size())
