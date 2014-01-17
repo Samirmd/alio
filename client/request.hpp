@@ -22,29 +22,41 @@
 #include "tools/synchronised.hpp"
 #include <pthread.h>
 
+/** A request class used to send commands from the application to the
+ *  IO thread.
+ */
 class Request
 {
 public:
+    /** The various types of requests. */
     enum RequestType {RQ_QUIT, RQ_OPEN};
 private:
+    /** The various types of requests. */
     RequestType m_type;
 public:
     Request(RequestType type);
     // ------------------------------------------------------------------------
     RequestType getType() const { return m_type; }
     // ------------------------------------------------------------------------
+    /** Empty function, but useful for blocking requests. */
     virtual void done() {}
 };   // class Request
 
 // ============================================================================
+/** A blocking request: the application thread can wait for this request
+ *  to be finished (and potentially get status information back).
+ */
 class BlockingRequest : public Request
 {
 private:
+    /** Flag to indicate when the request is done. */
     Synchronised<bool>  m_done;
+
+    /** For signaling between the two threads. */
     pthread_cond_t m_signal_done;
 public:
     BlockingRequest(RequestType type);
-    void wait();
+    void         wait();
     virtual void done();
 
 };   // class BlockingRequest
