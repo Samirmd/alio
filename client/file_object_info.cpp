@@ -16,8 +16,10 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "client/debug_file_object_decorator.hpp"
 #include "client/file_object_info.hpp"
+
+#include "client/buffered.hpp"
+#include "client/debug_file_object_decorator.hpp"
 #include "client/mirror.hpp"
 #include "client/null_file_object.hpp"
 #include "client/remote.hpp"
@@ -55,6 +57,7 @@ int FileObjectInfo::atExit()
     if(m_all_needed_types & IO_TYPE_MIRROR  ) MirrorFileObjectDecorator::atExit();
     if(m_all_needed_types & IO_TYPE_TIMER   ) TimerFileObjectDecorator ::atExit();
     if(m_all_needed_types & IO_TYPE_DEBUG   ) DebugFileObjectDecorator ::atExit();
+    if(m_all_needed_types & IO_TYPE_BUFFERED) BufferedFileObject       ::atExit();
     return 0;
 }   // atExit
 
@@ -70,6 +73,7 @@ int FileObjectInfo::callAllStaticInitFunctions()
     if(m_all_needed_types & IO_TYPE_MIRROR  ) MirrorFileObjectDecorator::init();
     if(m_all_needed_types & IO_TYPE_TIMER   ) TimerFileObjectDecorator ::init();
     if(m_all_needed_types & IO_TYPE_DEBUG   ) DebugFileObjectDecorator ::init();
+    if(m_all_needed_types & IO_TYPE_BUFFERED) BufferedFileObject       ::init();
     return 0;
 }   // callAllStaticInitFunctions
 
@@ -155,6 +159,11 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
             m_io_types.push_back(IO_TYPE_DEBUG);
             m_all_needed_types |= IO_TYPE_DEBUG;
         }
+        else if(decorator=="buffer")
+        {
+            m_io_types.push_back(IO_TYPE_BUFFERED);
+            m_all_needed_types |= IO_TYPE_BUFFERED;
+        }
         else
         {
             printf("Invalid config entry '%s' found - aborting.\n",
@@ -206,6 +215,8 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
             fo = new DebugFileObjectDecorator(fo, m_io_xml_info[i]); break;
         case IO_TYPE_MIRROR : 
             fo = new MirrorFileObjectDecorator(fo, m_io_xml_info[i]); break;
+        case IO_TYPE_BUFFERED : 
+            fo = new BufferedFileObject(fo, m_io_xml_info[i]); break;
         default:
             printf("Incorrect decorator found - ignored.\n");
         }

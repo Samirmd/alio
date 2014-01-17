@@ -6,6 +6,8 @@ add_definitions(-D__STDC_LIMIT_MACROS)
 
 add_library(client SHARED
  base_file_object.hpp
+ buffered.cpp
+ buffered.hpp
  config.cpp
  config.hpp
  debug_file_object_decorator.hpp
@@ -18,6 +20,8 @@ add_library(client SHARED
  null_file_object.hpp
  remote.cpp
  remote.hpp
+ request.cpp
+ request.hpp
  standard_file_object.hpp
  timer_data.hpp
  timer_file_object_decorator.cpp

@@ -5,6 +5,7 @@
     <file pattern="a">
        <io type="standard"/>
        <addon type="debug" />
+       <addon type="buffer" />
        <addon type="timer" table="yes" xml="yes"/>
     </file>
     <file pattern="b">

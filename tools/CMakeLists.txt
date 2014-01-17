@@ -8,5 +8,6 @@ add_library(tools
  os.hpp
  string_utils.cpp
  string_utils.hpp
+ synchronised.hpp
 )
 

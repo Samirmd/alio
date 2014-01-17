@@ -47,7 +47,8 @@ private:
             IO_TYPE_REMOTE   = 0x004,     /** Connect to a server. */
             IO_TYPE_DEBUG    = 0x008,     /** Decorator: print debug info.*/
             IO_TYPE_MIRROR   = 0x010,     /** Decorator: mirroring. */
-            IO_TYPE_TIMER    = 0x020      /** Decorator: Collect timing information. */
+            IO_TYPE_TIMER    = 0x020,     /** Decorator: Collect timing information. */
+            IO_TYPE_BUFFERED = 0x040      /** Decorator: use memory as buffer. */
     } IOType; 
 
     /** The original string for the regex, only to make debugging easier. */
