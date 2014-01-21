@@ -1,1 +1,7 @@
 bld
+*~
+/shmem
+/a.out
+# Test filenames frequently used.
+/a
+/b
