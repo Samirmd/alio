@@ -31,4 +31,9 @@ add_library(client SHARED
  wrapper.cpp
 )
 
-target_link_libraries(client tools xml)
+if(USE_MPI)
+    target_link_libraries(client tools xml)
+else()
+    # Needed when using g++
+    target_link_libraries(client tools xml dl)
+endif()
