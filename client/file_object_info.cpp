@@ -88,7 +88,7 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
 {
     if(!node->get("pattern", &m_pattern))
     {
-        printf("No pattern found. Use either 'pattern' to define the file pattern.\n");
+        printf("No pattern found. Use 'pattern' to define the file pattern.\n");
         exit(-1);
     }
     
@@ -203,7 +203,6 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
 {
     std::string s;
     m_io_xml_info[0]->get("type", &s);
-    printf("Creating %s %s %s", filename.c_str(), m_io_xml_info[0]->getName().c_str(), s.c_str());
     I_FileObject *fo = NULL;
     switch(m_io_types[0])
     {

@@ -1,29 +1,32 @@
 <?xml version="1.0"?>
-<alio> 
+<alio>
 
-  <client>
-    <file pattern="a">
-       <io type="standard"/>
-       <addon type="debug" />
-       <addon type="buffer" />
-       <addon type="timer" table="yes" xml="yes"/>
-    </file>
-    <file pattern="b">
-      <io type="standard"/>
-      <addon type="debug"/>
-      <addon type="timer"/>
-    </file>
-    <file pattern="eta_mean">
-      <io type="standard"/>
-      <addon type="timer" xml="yes"/>
-    </file>
-    <file pattern="ncrcat">
-      <io type="standard"/>
-      <addon type="timer" xml="yes"/>
-    </file>
-  </clients>
+    <client>
+        <file pattern="a">
+            <io type="standard" />
+            <addon type="debug" default="disable">
+                <read mode="verbose" />
+           </addon>
+            <addon type="timer" table="yes" xml="yes" />
+        </file>
+        <file pattern="b">
+            <io type="standard" />
+            <addon type="debug" default="disable">
+                <write mode="verbose"/>
+            </addon>
+            <addon type="timer" />
+        </file>
+        <file pattern="eta_mean">
+            <io type="standard" />
+            <addon type="timer" xml="yes" />
+        </file>
+        <file pattern="ncrcat">
+            <io type="standard" />
+            <addon type="timer" xml="yes" />
+        </file>
+    </clients>
 
-  <master>
-  </master>
+    <master>
+    </master>
 
 </alio>

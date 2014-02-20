@@ -20,6 +20,7 @@ int main(int argc, char **argv)
 #else
     my_rank = 0;
 #endif
+#if 0
     struct stat buf;
     FILE *ff = fopen("a","r");
     int filedes = fileno(ff);
@@ -28,6 +29,8 @@ int main(int argc, char **argv)
     printf("Size is %ld\n", buf.st_size);
     close(filedes);
     exit(0);
+#endif
+
     if(my_rank==0)
     {
         const char *message="Hello from 0\n";
@@ -41,6 +44,12 @@ int main(int argc, char **argv)
         fwrite(message, 1, strlen(message), f);
         fflush(f);
         fclose(f);
+
+        f = fopen64("a", "r");
+        fread(buffer, 1, 1024, f);
+        fclose(f);
+        printf("Read '%s'.\n", buffer);
+
     }
 //    else
     {
@@ -49,6 +58,7 @@ int main(int argc, char **argv)
         fwrite(message, 1, strlen(message), f);
         fclose(f);
     }
+
 
 #ifdef DO_MPI
     MPI_Finalize();

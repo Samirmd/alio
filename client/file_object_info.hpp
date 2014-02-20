@@ -54,9 +54,6 @@ private:
     /** The original string for the regex, only to make debugging easier. */
     std::string m_pattern;
 
-    /** If a search or a match should be done. */
-    bool m_search;
-
     /** The regular expression. */
     regex_t  m_regex;
 
