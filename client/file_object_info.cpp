@@ -117,6 +117,11 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
         m_io_types.push_back(IO_TYPE_NULL);
         m_all_needed_types |= IO_TYPE_NULL;
     }
+    else if(s=="buffer")
+    {
+        m_io_types.push_back(IO_TYPE_BUFFERED);
+        m_all_needed_types |= IO_TYPE_BUFFERED;
+    }
     else
     {
         printf("Invalid io '%s' for pattern '%s'- using standard.\n", 
@@ -159,11 +164,6 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
             m_io_types.push_back(IO_TYPE_DEBUG);
             m_all_needed_types |= IO_TYPE_DEBUG;
         }
-        else if(decorator=="buffer")
-        {
-            m_io_types.push_back(IO_TYPE_BUFFERED);
-            m_all_needed_types |= IO_TYPE_BUFFERED;
-        }
         else
         {
             printf("Invalid config entry '%s' found - aborting.\n",
@@ -193,12 +193,16 @@ bool FileObjectInfo::isApplicable(const std::string &filename) const
 // ----------------------------------------------------------------------------
 I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) const
 {
+    std::string s;
+    m_io_xml_info[0]->get("type", &s);
+    printf("Creating %s %s %s", filename.c_str(), m_io_xml_info[0]->getName().c_str(), s.c_str());
     I_FileObject *fo = NULL;
     switch(m_io_types[0])
     {
     case IO_TYPE_STANDARD : fo = new StandardFileObject(m_io_xml_info[0]); break;
     case IO_TYPE_NULL     : fo = new NullFileObject(m_io_xml_info[0]);     break;
     case IO_TYPE_REMOTE   : fo = new Remote(m_io_xml_info[0]);             break;
+    case IO_TYPE_BUFFERED : fo = new BufferedFileObject(m_io_xml_info[0]); break;
     default:
         printf("No final first type found - this shouldn't happen.\n");
         exit(-1);
@@ -215,8 +219,6 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
             fo = new DebugFileObjectDecorator(fo, m_io_xml_info[i]); break;
         case IO_TYPE_MIRROR : 
             fo = new MirrorFileObjectDecorator(fo, m_io_xml_info[i]); break;
-        case IO_TYPE_BUFFERED : 
-            fo = new BufferedFileObject(fo, m_io_xml_info[i]); break;
         default:
             printf("Incorrect decorator found - ignored.\n");
         }

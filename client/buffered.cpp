@@ -19,6 +19,7 @@
 #include "buffered.hpp"
 
 #include "client/request.hpp"
+#include "xml/xml_node.hpp"
 
 #include <pthread.h>
 
@@ -56,11 +57,11 @@ namespace ALIO
         return 0; 
     }
     // ------------------------------------------------------------------------
-    BufferedFileObject::BufferedFileObject(I_FileObject *fo, 
-                                           const XMLNode *info)
+    BufferedFileObject::BufferedFileObject(const XMLNode *info)
                       : BaseFileObject(info)
     {
-        m_file     = NULL; 
+        m_file     = NULL;
+        printf("node name %s\n", info->getName().c_str());
     };   // BufferedFileObject
     // ------------------------------------------------------------------------
     BufferedFileObject::~BufferedFileObject()

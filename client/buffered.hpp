@@ -28,6 +28,8 @@
 #include <queue>
 #include <string>
 
+class XMLNode;
+
 namespace ALIO
 {
 class BufferedFileObject : public BaseFileObject
@@ -59,7 +61,7 @@ public:
     static int init();
     static int atExit();
 
-             BufferedFileObject(I_FileObject *fo, const XMLNode *info);
+             BufferedFileObject(const XMLNode *info);
     virtual ~BufferedFileObject();
 
     // ------------------------------------------------------------------------
