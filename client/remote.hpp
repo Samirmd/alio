@@ -16,6 +16,8 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifdef USE_MPI
+
 #ifndef HEADER_REMOTE_HPP
 #define HEADER_REMOTE_HPP
 
@@ -80,4 +82,7 @@ public:
 };   // Remote
 
 };   // namespace ALIO
+#endif
+
+// USE_MPI
 #endif

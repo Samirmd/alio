@@ -16,6 +16,7 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifdef USE_MPI
 #include "client/remote.hpp"
 
 #include "client/config.hpp"
@@ -410,4 +411,5 @@ int Remote::rename(const char *newpath)
 
 }   // namespace ALIO
 
-
+// USE_MPI
+#endif

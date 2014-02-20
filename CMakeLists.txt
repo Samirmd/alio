@@ -1,11 +1,18 @@
 # Cmake build script
 # ------------------
 
-set(CMAKE_CXX_COMPILER "mpic++")
+option(USE_MPI "Support for MPI" ON)
+
+if(USE_MPI)
+    add_definitions(-DUSE_MPI)
+    set(CMAKE_CXX_COMPILER "mpic++")
+endif()
+
 #set(CMAKE_VERBOSE_MAKEFILE "ON")
 
-project (ALIO)
+project (ALIO CXX)
 set(PROJECT_VERSION "SVN")
+
 
 cmake_minimum_required (VERSION 2.6)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)

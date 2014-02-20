@@ -16,8 +16,8 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include <stdlib.h>
 
+#ifdef USE_MPI
 
 #include "mpi.h"
 
@@ -25,6 +25,7 @@
 #include "tools/message.hpp"
 
 #include <errno.h>
+#include <stdlib.h>
 
 bool handleRequests(MPI_Comm intercomm);
 
@@ -349,3 +350,17 @@ bool handleRequests(MPI_Comm intercomm)
     }   // switch
     return false;
 }   // handleRequests
+
+
+#else   // USE_MPI
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char **argv)
+{
+    printf("No MPI was used in compilation, the server can not be used.\n");
+    exit(-1);
+}   // main
+
+#endif

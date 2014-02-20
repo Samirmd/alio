@@ -22,7 +22,9 @@
 #include "client/debug_file_object_decorator.hpp"
 #include "client/mirror.hpp"
 #include "client/null_file_object.hpp"
+#ifdef USE_MPI
 #include "client/remote.hpp"
+#endif
 #include "client/standard_file_object.hpp"
 #include "client/timer_file_object_decorator.hpp"
 
@@ -52,7 +54,9 @@ int FileObjectInfo::init()
 int FileObjectInfo::atExit()
 {
     if(m_all_needed_types & IO_TYPE_STANDARD) StandardFileObject       ::atExit();
+#ifdef USE_MPI
     if(m_all_needed_types & IO_TYPE_REMOTE  ) Remote                   ::atExit();
+#endif
     if(m_all_needed_types & IO_TYPE_NULL    ) NullFileObject           ::atExit();
     if(m_all_needed_types & IO_TYPE_MIRROR  ) MirrorFileObjectDecorator::atExit();
     if(m_all_needed_types & IO_TYPE_TIMER   ) TimerFileObjectDecorator ::atExit();
@@ -68,7 +72,9 @@ int FileObjectInfo::atExit()
 int FileObjectInfo::callAllStaticInitFunctions()
 {
     if(m_all_needed_types & IO_TYPE_STANDARD) StandardFileObject       ::init();
+#ifdef USE_MPI
     if(m_all_needed_types & IO_TYPE_REMOTE  ) Remote                   ::init();
+#endif
     if(m_all_needed_types & IO_TYPE_NULL    ) NullFileObject           ::init();
     if(m_all_needed_types & IO_TYPE_MIRROR  ) MirrorFileObjectDecorator::init();
     if(m_all_needed_types & IO_TYPE_TIMER   ) TimerFileObjectDecorator ::init();
@@ -107,11 +113,13 @@ FileObjectInfo::FileObjectInfo(const XMLNode *node)
         m_io_types.push_back(IO_TYPE_STANDARD);
         m_all_needed_types |= IO_TYPE_STANDARD;
     }
+#ifdef USE_MPI
     else if(s=="remote")
     {
         m_io_types.push_back(IO_TYPE_REMOTE);
         m_all_needed_types |= IO_TYPE_REMOTE;
     }
+#endif
     else if(s=="null")
     {
         m_io_types.push_back(IO_TYPE_NULL);
@@ -201,7 +209,9 @@ I_FileObject *FileObjectInfo::createFileObject(const std::string &filename) cons
     {
     case IO_TYPE_STANDARD : fo = new StandardFileObject(m_io_xml_info[0]); break;
     case IO_TYPE_NULL     : fo = new NullFileObject(m_io_xml_info[0]);     break;
+#ifdef USE_MPI
     case IO_TYPE_REMOTE   : fo = new Remote(m_io_xml_info[0]);             break;
+#endif
     case IO_TYPE_BUFFERED : fo = new BufferedFileObject(m_io_xml_info[0]); break;
     default:
         printf("No final first type found - this shouldn't happen.\n");
