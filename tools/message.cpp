@@ -29,9 +29,10 @@
  *  A call to allocate() is therefore necessary.
  *  \param type  The type of the message
  */
-Message::Message(MessageType type)
+Message::Message(MessageType type, int index)
 {
     assert(sizeof(int)==4);
+    m_index         = index;
     m_type          = type;
     m_pos           = 0;
     m_data_size     = -1;
@@ -41,8 +42,9 @@ Message::Message(MessageType type)
 
 // ----------------------------------------------------------------------------
 /** Handles a received message.
+ *  \param type The type of the message. Used in asserts to detect errors.
  *  \param buffer The actual data.
- *  \param m      The type of the message. The type is checked via an assert!
+ *  \param len Amount of data in bytes.
  */
 
 Message::Message(MessageType type, const void *buffer, int len)
@@ -53,7 +55,8 @@ Message::Message(MessageType type, const void *buffer, int len)
     m_type      = type;
     m_pos       = 1;
     m_needs_destroy = true;
-}
+    get(&m_index);
+}   // Message(type, buffer, len);
 
 // ----------------------------------------------------------------------------
 /** Frees the memory allocated for this message. */
@@ -81,15 +84,16 @@ void Message::clear()
  */
 void Message::allocate(size_t size)
 {
-    m_data_size = size+1;
-    m_data      = new char[size+1];
+    m_data_size = size+1+sizeof(int);
+    m_data      = new char[m_data_size];
     if(!m_data)
     {
-        printf("can't allocate '%ld' bytes.\n", size+1);
+        printf("can't allocate '%ld' bytes.\n", m_data_size);
         assert(false);
     }
     m_data[0]   = m_type;
     m_pos       = 1;
+    add(m_index, sizeof(m_index));
 }   // allocate
 
 // ----------------------------------------------------------------------------

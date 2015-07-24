@@ -42,16 +42,28 @@ public:
         MSG_LSEEK64,    MSG_WRITE,     MSG_READ,
         MSG_CLOSE,      MSG_RENAME,  
         MSG_QUIT,
-        MSG_FSEEK_ANSWER
+        MSG_FSEEK_ANSWER, MSG_FREAD_ANSWER
     } MessageType;
 
 private:
-    char         *m_data;
+    /** The message type. */
     MessageType   m_type;
+
+    /** The actual content of the messsage. */
+    char         *m_data;
+
+    /** Size of the data. */
     int           m_data_size;
-    size_t        m_pos; // simple stack counter for constructing packet data
+
+    /** Simple stack counter for constructing packet data. */
+    size_t        m_pos;
+
+    /** Local index of the file object that is responsible for this 
+     *  message. */
+    int           m_index;
 protected:
-    bool          m_needs_destroy;  // only received messages need to be destroyed
+    // only received messages need to be destroyed
+    bool          m_needs_destroy;
 
 public:
 
@@ -140,7 +152,7 @@ public:
     // ------------------------------------------------------------------------
 
 public:
-                 Message(MessageType m);
+                 Message(MessageType m, int index);
                  Message(MessageType m, const void *buffer, int len);
                 ~Message();
     void         clear();
@@ -154,6 +166,13 @@ public:
     // ------------------------------------------------------------------------
     /** Returns a pointer to the actual data - excluding the 1 byte type. */
     char*        getData() {return m_data; }
+    // ------------------------------------------------------------------------
+    /** Returns the local index of the file object responsible for this
+     *  message. */
+    int getIndex() const 
+    {
+        return m_index;
+    }   // getIndex
 
 };   // Message
 
@@ -165,7 +184,7 @@ template <Message::MessageType MT>
 class Message0 : public Message
 {
 public:
-    Message0() : Message(MT)
+    Message0(int index) : Message(MT, index)
     {
         allocate(0);
     }
@@ -185,7 +204,7 @@ class Message1 : public Message
 {
 
 public:
-    Message1(const T1 &t1) : Message(MT)
+    Message1(int index, const T1 &t1) : Message(MT, index)
     {
         size_t n1 = getSize(t1);
         allocate(n1);
@@ -195,8 +214,7 @@ public:
     // ------------------------------------------------------------------------
     /** Special constructor that adds n bytes of binary data.
      */
-    Message1(T1 &t1, const void *p, size_t n) 
-        : Message(MT)
+    Message1(int index, T1 &t1, const void *p, size_t n) : Message(MT, index)
     {
         size_t n1 = getSize(t1);
         allocate(n1+n);
@@ -228,7 +246,7 @@ class Message2 : public Message
 {
 
 public:
-    Message2(const T1 &t1, const T2 &t2) : Message(MT)
+    Message2(int index, const T1 &t1, const T2 &t2) : Message(MT, index)
     {
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);
@@ -240,8 +258,8 @@ public:
     // ------------------------------------------------------------------------
     /** Special constructor that adds n bytes of binary data.
      */
-    Message2(const T1 &t1, const T2 &t2, const void *p, size_t n) 
-        : Message(MT, p, n)
+    Message2(int index, const T1 &t1, const T2 &t2, const void *p, size_t n) 
+        : Message(MT, index)
     {
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);
@@ -279,8 +297,8 @@ class Message3 : public Message
 {
 
 public:
-    Message3(const T1 &t1, const T2 &t2, 
-             const T3 &t3               ) : Message(MT)
+    Message3(int index,    const T1 &t1, 
+             const T2 &t2, const T3 &t3) : Message(MT, index)
     {
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);

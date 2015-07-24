@@ -96,14 +96,14 @@ bool handleRequests(MPI_Comm intercomm)
         }
     case Message::MSG_FSEEK:
         {
-#define FSEEK(NAME, TYPE, MESSAGE_TYPE)                          \
-            TYPE offset;                                         \
-            int whence;                                          \
-            MESSAGE_TYPE m(buffer, len, &offset, &whence);       \
-            int send_len = m.getSize(whence)+m.getSize(errno);   \
-            int result = NAME(m_file, offset, whence);           \
-            Message_fseek_answer m_answer(result, errno);        \
-            MPI_Send(m_answer.getData(), m_answer.getLen(),      \
+#define FSEEK(NAME, TYPE, MESSAGE_TYPE)                                 \
+            TYPE offset;                                                \
+            int whence;                                                 \
+            MESSAGE_TYPE m(buffer, len, &offset, &whence);              \
+            int send_len = m.getSize(whence)+m.getSize(errno);          \
+            int result = NAME(m_file, offset, whence);                  \
+            Message_fseek_answer m_answer(m.getIndex(), result, errno); \
+            MPI_Send(m_answer.getData(), m_answer.getLen(),             \
                      MPI_CHAR, 0, 9, intercomm);
 
 
@@ -179,7 +179,20 @@ bool handleRequests(MPI_Comm intercomm)
         {
             size_t size, nmemb;
             Message_fread m(buffer, len, &size, &nmemb);
-            assert(false);  // not yet implemented
+            int complete_size = size*nmemb+5+sizeof(size_t);
+            char *msg = new char[complete_size];
+
+            if(!msg)
+            {
+                printf("Could not allocate %d bytes in read.\n", complete_size);
+                assert(false);
+            }
+            msg[0] = Message::MSG_FREAD_ANSWER;
+            int *p = (int*)(msg+1);
+            *p = m.getIndex();
+            size_t result = fread(msg+5+sizeof(size_t), size, nmemb, m_file);
+            MPI_Send(msg, complete_size, MPI_CHAR, 0, 9, intercomm);
+            delete msg;
             break;
         }
     case Message::MSG_FCLOSE:
