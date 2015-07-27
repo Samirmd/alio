@@ -101,7 +101,7 @@ bool handleRequests(MPI_Comm intercomm)
             int whence;                                                 \
             MESSAGE_TYPE m(buffer, len, &offset, &whence);              \
             int send_len = m.getSize(whence)+m.getSize(errno);          \
-            int result = NAME(m_file, offset, whence);                  \
+            int result = NAME(m_file, offset, whence);                \
             Message_fseek_answer m_answer(m.getIndex(), result, errno); \
             MPI_Send(m_answer.getData(), m_answer.getLen(),             \
                      MPI_CHAR, 0, 9, intercomm);
@@ -171,7 +171,6 @@ bool handleRequests(MPI_Comm intercomm)
             size_t size, nmemb;
             void *data;
             Message_fwrite m(buffer, len, &size, &nmemb, &data);
-
             fwrite(data, size, nmemb, m_file);
             break;
         }
@@ -179,20 +178,18 @@ bool handleRequests(MPI_Comm intercomm)
         {
             size_t size, nmemb;
             Message_fread m(buffer, len, &size, &nmemb);
-            int complete_size = size*nmemb+5+sizeof(size_t);
-            char *msg = new char[complete_size];
 
-            if(!msg)
-            {
-                printf("Could not allocate %d bytes in read.\n", complete_size);
-                assert(false);
-            }
-            msg[0] = Message::MSG_FREAD_ANSWER;
-            int *p = (int*)(msg+1);
-            *p = m.getIndex();
-            size_t result = fread(msg+5+sizeof(size_t), size, nmemb, m_file);
-            MPI_Send(msg, complete_size, MPI_CHAR, 0, 9, intercomm);
-            delete msg;
+            size_t result = -1;
+            int answer_size = size*nmemb+sizeof(result);
+            Message_fread_answer m_ans(m.getIndex(), /*dont_allocate*/true);
+            m_ans.allocate(size*nmemb+sizeof(size_t));
+            // Read the file content and write it to the message buffer.
+            // Leave space for the result at the beginning, which is necessary
+            // for the server side to know how many bytes to copy
+            result = fread(m_ans.get()+sizeof(result), size, nmemb, m_file);
+            m_ans.add(result);
+            MPI_Send(m_ans.getData(), m_ans.getLen(), MPI_CHAR, 0, 9, intercomm);
+            // Memory in m_ans will be freed when m_ans is freed automatically
             break;
         }
     case Message::MSG_FCLOSE:
@@ -336,6 +333,7 @@ bool handleRequests(MPI_Comm intercomm)
             Message_read m(buffer, len, &count);
 
             ssize_t result;
+
             int send_len = m.getSize(result) + m.getSize(errno) + count;
             char *msg = new char[send_len];
             ssize_t *p = (ssize_t*)msg;
@@ -359,6 +357,11 @@ bool handleRequests(MPI_Comm intercomm)
         {
             Message_quit m(buffer, len);
             return true;
+        }
+    default:
+        {
+            printf("Incorrect type %d found - ignored.\n",
+                   (Message::MessageType)buffer[0]);
         }
     }   // switch
     return false;

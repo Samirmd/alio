@@ -1,0 +1,170 @@
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   1) //
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   2) //    ALIO - ALternative IO library
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   3) //    Copyright (C) 2013  Joerg Henrichs
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   4) //
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   5) //    ALIO is free software: you can redistribute it and/or modify
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   6) //    it under the terms of the GNU General Public License as published by
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   7) //    the Free Software Foundation, either version 3 of the License, or
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   8) //    (at your option) any later version.
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000   9) //
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  10) //    ALIO is distributed in the hope that it will be useful,
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  11) //    but WITHOUT ANY WARRANTY; without even the implied warranty of
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  12) //    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  13) //    GNU General Public License for more details.
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  14) //
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  15) //    You should have received a copy of the GNU General Public License
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  16) //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
+180dd8bb (Joerg Henrichs 2013-03-18 02:36:32 +0000  17) //
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  18) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  19) #include "client/config.hpp"
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  20) #include "client/standard_file_object.hpp"
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  21) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  22) #include "tools/os.hpp"
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  23) #include "xml/xml_node.hpp"
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  24) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  25) #include <stdio.h>
+cb015c13 (Joerg Henrichs 2013-02-26 01:12:45 +0000  26) #include <string>
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  27) #include <sys/resource.h>
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  28) #include <sys/time.h>
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  29) 
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000  30) namespace ALIO
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  31) {
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  32) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  33) Config *Config::m_config = NULL;
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  34) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  35) // ----------------------------------------------------------------------------
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  36) /** Creates and initialises either a master or a client configuration object.
+3a61b5b0 (Joerg Henrichs 2013-02-26 02:00:55 +0000  37)  */
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  38) void Config::create(bool is_client)
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  39) {
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  40)     assert(!m_config);
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  41)     m_config = new Config(is_client);
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  42) }   // create;
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  43) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  44) // ----------------------------------------------------------------------------
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  45) /** Destroys the one instance of Config.
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  46)  */
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  47) void Config::destroy()
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  48) {
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  49)     assert(m_config);
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  50)     delete m_config;
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  51)     m_config = NULL;
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  52) }   // destroy
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  53) // ----------------------------------------------------------------------------
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  54) /** Creates the once instance of the config object (one for server, one for
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  55)  *  client). This is called from the constructor of the alio dll
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  56)  *  (see init.cpp).
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  57)  *  \param is_client True if this is the 
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  58)  */
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  59) Config::Config(bool is_client) : m_is_client(is_client)
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  60) {
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  61)     struct rlimit rlim;
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  62)     getrlimit(RLIMIT_NOFILE, &rlim);
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  63)     m_max_files = rlim.rlim_max;
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  64)     FileObjectInfo::init();
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000  65)     const std::string name("alio.xml");
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000  66)     const XMLNode *root = new ALIO::XMLNode(name);
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  67)     readConfig(root);
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  68)     FileObjectInfo::callAllStaticInitFunctions();
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000  69) }   // Config
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  70) 
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000  71) // ----------------------------------------------------------------------------
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  72) /** Destructor.
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  73)  */
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  74) Config::~Config()
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  75) {
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  76)     FileObjectInfo::atExit();
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  77) }   // ~Config
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  78) 
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  79) // ----------------------------------------------------------------------------
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  80) /** Reads the actual config xml file.
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  81)  *  \param root XMLNode object of the root of the xml file.
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  82)  */
+3a61b5b0 (Joerg Henrichs 2013-02-26 02:00:55 +0000  83) void Config::readConfig(const XMLNode *root)
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000  84) {
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000  85)     if(!root || root->getName()!="alio")
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  86)     {
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000  87)         fprintf(stderr, "Can't open file '%s' - no alio node '%s' %d.\n", 
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  88)                 root->getFilename().c_str(), root->getName().c_str(),
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  89)                 root->getNumNodes()
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  90)                 );
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  91)         //   if(root) delete root;
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000  92)         //exit(-1);
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  93)     }
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000  94)     const XMLNode *config = root->getNode(m_is_client ? "client" : "master");
+cb015c13 (Joerg Henrichs 2013-02-26 01:12:45 +0000  95) 
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000  96)     // For each file pattern create the "file object" info object:
+3a61b5b0 (Joerg Henrichs 2013-02-26 02:00:55 +0000  97)     for(unsigned int i=0; i<config->getNumNodes(); i++)
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000  98)     {
+3a61b5b0 (Joerg Henrichs 2013-02-26 02:00:55 +0000  99)         FileObjectInfo *foi = new FileObjectInfo(config->getNode(i));
+248394cf (Joerg Henrichs 2013-02-26 01:59:21 +0000 100)         m_all_file_object_info.push_back(foi);
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 101)     }
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 102) 
+30bfa9fc (Joerg Henrichs 2013-04-04 04:49:45 +0000 103) }   // readConfig
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 104) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 105) // ----------------------------------------------------------------------------
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000 106) ALIO::I_FileObject *Config::createFileObject(const char *name)
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 107) {
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 108)     std::string s_name(name);
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 109)     for(unsigned int i=0; i<m_all_file_object_info.size(); i++)
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 110)     {
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 111)         const FileObjectInfo *foi = m_all_file_object_info[i];
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 112)         if(foi->isApplicable(s_name))
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 113)         {
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 114)             I_FileObject *fo = foi->createFileObject(name);
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 115)             fo->setIndex(m_file_objects.size());
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 116)             m_file_objects.push_back(fo);
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 117)             return fo;
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 118)         }
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 119)     }
+4eaa2a9e (Joerg Henrichs 2013-12-10 03:42:35 +0000 120)     printf("not handling file '%s'.\n", name);
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 121)     return NULL;
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 122) 
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 123) }   // createFileObject
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 124) 
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 125) // ----------------------------------------------------------------------------
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 126) /** Find the I_FileObject for a given FILE structure. While generally the FILE 
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000 127)  *  structure returned by ALIO to the application is a pointer to the 
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 128)  *  I_FileObject we have to handle the case that e.g. a previously opened FILE
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 129)  *  structure is passed in (so we can't simply cast all FILE structures to 
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 130)  *  I_FileObject).
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 131)  *  We could either search in m_file_objects to find if the address of the
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 132)  *  FILE structure is in there. But to avoid this overhead each I_FileObject
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 133)  *  has an integer field as its first component, which stores the index of the
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 134)  *  I_FileObject in m_file_objects. It is still possible that by accident a 
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 135)  *  FILE structure containts a valid index number, so we still have to test
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 136)  *  if the pointer at the specified index is indeed the right one.
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 137)  */
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 138) I_FileObject *Config::getFileObject(FILE *file)
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 139) {
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 140)     I_FileObject *fo = (I_FileObject*)(file);
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 141)     for(unsigned int i=0; i<m_file_objects.size(); i++)
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 142)     {
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 143)         if(m_file_objects[i]==fo)
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 144)             return fo;
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 145)     }
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 146) 
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 147)     return NULL;
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 148) 
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 149)     int index = fo->getIndex();
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 150)     if(index>=0 && index <m_file_objects.size() &&
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 151)        fo==m_file_objects[index])
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 152)         return m_file_objects[index];
+d3e5ea15 (Joerg Henrichs 2013-02-26 01:35:33 +0000 153) 
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 154)     return NULL;
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 155) }   // getFileObject(FILE*)
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 156) 
+b418ba65 (Joerg Henrichs 2013-02-26 01:13:29 +0000 157) // ----------------------------------------------------------------------------
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 158) I_FileObject *Config::getFileObject(int filedes)
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 159) {
+21152505 (Joerg Henrichs 2014-01-10 04:49:16 +0000 160)     if(filedes<m_max_files)
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 161)         return NULL;
+d4180c8f (Joerg Henrichs 2014-01-09 04:31:11 +0000 162)     int indx = filedes - m_max_files;
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 163)     if(indx<m_file_objects.size())
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 164)         return m_file_objects[indx];
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 165)     return NULL;
+15e12fad (Joerg Henrichs 2013-02-26 01:10:12 +0000 166) 
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 167) }   // getFileObject(int)
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 168) 
+8bbc6529 (Joerg Henrichs 2013-02-26 01:37:37 +0000 169) // ----------------------------------------------------------------------------
+aa245b2e (Joerg Henrichs 2013-02-26 03:35:22 +0000 170) }   // namespace ALIO

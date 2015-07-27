@@ -53,8 +53,11 @@ Message::Message(MessageType type, const void *buffer, int len)
     m_data_size = len;
     m_data      = (char*)buffer;
     m_type      = type;
-    m_pos       = 1;
+    m_pos       = 0;
     m_needs_destroy = true;
+    MessageType message_type;
+    get(&message_type);
+    assert(message_type==type);
     get(&m_index);
 }   // Message(type, buffer, len);
 
@@ -74,6 +77,7 @@ void Message::clear()
 {
     if(m_needs_destroy)
         delete m_data;
+
     m_data = NULL;
     m_needs_destroy = false;
 }   // clear
@@ -84,16 +88,17 @@ void Message::clear()
  */
 void Message::allocate(size_t size)
 {
-    m_data_size = size+1+sizeof(int);
+    // Message type and local file index at the beginning
+    m_data_size = sizeof(m_type)+sizeof(m_index)+size;
     m_data      = new char[m_data_size];
     if(!m_data)
     {
         printf("can't allocate '%ld' bytes.\n", m_data_size);
         assert(false);
     }
-    m_data[0]   = m_type;
-    m_pos       = 1;
-    add(m_index, sizeof(m_index));
+    add(m_type);
+    add(m_index);
+    m_needs_destroy = true;
 }   // allocate
 
 // ----------------------------------------------------------------------------

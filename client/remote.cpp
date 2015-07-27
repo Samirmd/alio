@@ -151,7 +151,7 @@ int Remote::NAME(TYPE offset, int whence)                             \
                                                                       \
     int result;                                                       \
                                                                       \
-    int recv_len = sizeof(m_index)+m.getSize(result)+m.getSize(errno)+1;\
+    int recv_len = sizeof(m_index)+m.getSize(result)+m.getSize(errno)+2*sizeof(int); \
     char *msg    = new char[recv_len];                                \
     int *p       = (int *)msg;                                        \
     MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);    \
@@ -173,7 +173,6 @@ FSEEK(fseeko64, off64_t, Message_fseek_off64_t);
 TYPE Remote::NAME()                                                  \
 {                                                                    \
     MESSAGE m(getIndex());                                           \
-    m.allocate(0);                                                   \
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);  \
                                                                      \
     MPI_Status status;                                               \
@@ -242,15 +241,15 @@ size_t Remote::fread(void *ptr,size_t size, size_t nmemb)
 {
     Message_fread  m(getIndex(), size, nmemb);
     MPI_Send(m.getData(), m.getLen(), MPI_CHAR, 0, 1, m_intercomm);
-    int recv_len = size*nmemb+5+sizeof(size_t);
+    int recv_len = size*nmemb+5+sizeof(size_t)+2*sizeof(int);
     char *msg = new char[recv_len];
+    int *p = (int*)msg;
     MPI_Status status;
     MPI_Recv(msg, recv_len, MPI_CHAR, 0, 9, m_intercomm, &status);
-    assert(msg[0]==Message::MSG_FREAD_ANSWER);
-    assert((int)(msg[1]) == getIndex());
-    int result = (size_t)(msg[5]);
-    memcpy(ptr, msg+5+sizeof(size_t), size*nmemb);
-    printf("Received %s.\n", ptr);
+    assert(p[0]==Message::MSG_FREAD_ANSWER);
+    assert(p[1] == getIndex());
+    int result = (size_t)(msg[8]);
+    memcpy(ptr, msg+16, result);
     delete msg;
     return result;
 }   // fread

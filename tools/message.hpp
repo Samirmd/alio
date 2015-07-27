@@ -24,6 +24,7 @@
 #include <assert.h>
 #include <sys/types.h>
 
+#include <stdio.h>
 
 using std::memcpy;
 
@@ -54,7 +55,7 @@ private:
 
     /** Size of the data. */
     int           m_data_size;
-
+public:
     /** Simple stack counter for constructing packet data. */
     size_t        m_pos;
 
@@ -73,11 +74,11 @@ public:
      *  size as parameter, at least one call is removed.
      */
     template <typename TYPE>
-    void add(const TYPE &data, size_t n)
+    void add(const TYPE &data)
     {
-        assert(m_pos + n <= m_data_size);
-        memcpy(m_data+m_pos, &data, n);
-        m_pos += n;
+        assert(m_pos + sizeof(TYPE) <= m_data_size);
+        memcpy(m_data+m_pos, &data, sizeof(TYPE));
+        m_pos += sizeof(TYPE);
     };  // add(TYPE, n)
 
     // ------------------------------------------------------------------------
@@ -100,12 +101,13 @@ public:
 
     // ------------------------------------------------------------------------
     /** Specialisation for std::strings. */
-    void add(const std::string &data, size_t n)
+    void add(const std::string &data)
     { 
-        assert(m_pos+n <=m_data_size);
+        size_t n = data.size()+1;   // 1 byte for end NULL.
+        assert(m_pos+n<=m_data_size);
         memcpy (m_data+m_pos, data.c_str(), n);
         m_pos += n;
-    }
+    }   // add(std::string)
 
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
@@ -184,10 +186,11 @@ template <Message::MessageType MT>
 class Message0 : public Message
 {
 public:
-    Message0(int index) : Message(MT, index)
+    Message0(int index, bool dont_allocate=false) : Message(MT, index)
     {
-        allocate(0);
-    }
+        if(!dont_allocate)
+            allocate(0);
+    }   // class Message0
     // ------------------------------------------------------------------------
     Message0(const void *buffer, int n) : Message(MT, buffer, n)
     {
@@ -208,7 +211,7 @@ public:
     {
         size_t n1 = getSize(t1);
         allocate(n1);
-        add(t1, n1);
+        add(t1);
     }   // Message1
 
     // ------------------------------------------------------------------------
@@ -218,7 +221,7 @@ public:
     {
         size_t n1 = getSize(t1);
         allocate(n1+n);
-        add(t1,n1);
+        add(t1);
         add(p, n);
     }   // Message1
 
@@ -251,8 +254,8 @@ public:
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);
         allocate(n1+n2);
-        add(t1, n1);
-        add(t2, n2);
+        add(t1);
+        add(t2);
     }   // Message2
 
     // ------------------------------------------------------------------------
@@ -264,8 +267,8 @@ public:
         size_t n1 = getSize(t1);
         size_t n2 = getSize(t2);
         allocate(n1+n2+n);
-        add(t1, n1);
-        add(t2, n2);
+        add(t1);
+        add(t2);
         add(p,   n);
     }   // Message2
     // ------------------------------------------------------------------------
@@ -304,9 +307,9 @@ public:
         size_t n2 = getSize(t2);
         size_t n3 = getSize(t3);
         allocate(n1+n2+n3);
-        add(t1, n1);
-        add(t2, n2);
-        add(t3, n3);
+        add(t1);
+        add(t2);
+        add(t3);
     }   // Message3
 
     // ------------------------------------------------------------------------
@@ -333,6 +336,7 @@ typedef Message0<Message::MSG_FTELLO64                              > Message_ft
 typedef Message0<Message::MSG_FERROR                                > Message_ferror;
 typedef Message2<Message::MSG_FWRITE,       size_t,      size_t     > Message_fwrite;
 typedef Message2<Message::MSG_FREAD,        size_t,      size_t     > Message_fread;
+typedef Message0<Message::MSG_FREAD_ANSWER,                         > Message_fread_answer;
 typedef Message0<Message::MSG_FCLOSE                                > Message_fclose;
 typedef Message0<Message::MSG_FEOF                                  > Message_feof;
 typedef Message1<Message::MSG_FGETS,        int                     > Message_fgets;
