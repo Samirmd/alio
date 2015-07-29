@@ -33,49 +33,40 @@ FILE *m_file = NULL;int  m_filedes = 0;
 
 std::string m_filename("");
 
-int main(int argc, char **argv)
+
+Server::Server(ICommunication *communication)
 {
-    ALIO::OS::init();
+    m_file          = NULL;
+    m_filedes       = 0;
+    m_communication = communication;
 
-    MPI_Init(&argc, &argv);
-
-    char port_name[MPI_MAX_PORT_NAME];
-    bzero(port_name, MPI_MAX_PORT_NAME);
-    MPI_Open_port(MPI_INFO_NULL, port_name); 
-    printf("Server: open port '%s'.\n", port_name);
+    m_communication->openPort();
 
     FILE *port_file = ALIO::OS::fopen("alio_config.dat", "w");
+    char *port_name = m_communication->getPortName();
+
     ALIO::OS::fwrite(port_name, 1, strlen(port_name), port_file);
     ALIO::OS::fclose(port_file);
 
-    MPI_Comm intercomm;
-    printf("Server: accepting.\n");
-    MPI_Comm_accept(port_name, MPI_INFO_NULL, 0, MPI_COMM_SELF, &intercomm); 
-    printf("Accepted.\n");
-    
+    m_communication->waitForConnection();
+
     while(1)
     {
-        if(handleRequests(intercomm))
-            break;
+        if(m_communication->waitForMessage())
+            return 1;
+        char *buffer = m_communication->receive();
+        handleRequest(buffer);
+        delete buffer;
     }
-    
 
-}   // main
+}   // Server
 
 // ----------------------------------------------------------------------------
-bool handleRequests(MPI_Comm intercomm)
+/** Waits in a loop for incomming requests.
+ *  \return 0 If a quit request was received, 1 in case of error.
+ */
+int Server::handleRequests(char *buffer)
 {
-    MPI_Status status;
-    printf("probe.\n");fflush(stdout);
-    MPI_Probe(0, 1, intercomm, &status);
-
-    int len;
-    MPI_Get_count(&status, MPI_CHAR, &len);
-    char *buffer = new char[len];
-    
-    MPI_Recv(buffer, len, MPI_CHAR, 0, 1, intercomm, &status);
-    printf("Len=%d type %d\n", len, buffer[0]);
-    //TODO can be removed
     
 
     switch((Message::MessageType)buffer[0])
