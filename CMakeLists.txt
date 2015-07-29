@@ -3,15 +3,25 @@
 
 option(USE_MPI "Support for MPI" ON)
 
-if(USE_MPI)
-    add_definitions(-DUSE_MPI)
-    set(CMAKE_CXX_COMPILER "mpic++")
-endif()
-
 #set(CMAKE_VERBOSE_MAKEFILE "ON")
 
 project (ALIO CXX)
-set(PROJECT_VERSION "SVN")
+set(PROJECT_VERSION "GIT")
+
+# If MPI is selected, try to find the compiler
+if(USE_MPI)
+        find_package(MPI QUIET)
+        if(MPI_CXX_FOUND)
+                set(USE_MPI ON)
+                set(CMAKE_CXX_COMPILER "mpic++")
+                add_definitions(-DUSE_MPI)
+        else()
+                message(STATUS "MPI not found")
+                set(USE_MPI OFF)
+        endif()
+else()
+        message(STATUS "MPI disabled.")
+endif()
 
 
 cmake_minimum_required (VERSION 2.6)
