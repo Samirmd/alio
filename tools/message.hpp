@@ -336,7 +336,7 @@ typedef Message0<Message::MSG_FTELLO64                              > Message_ft
 typedef Message0<Message::MSG_FERROR                                > Message_ferror;
 typedef Message2<Message::MSG_FWRITE,       size_t,      size_t     > Message_fwrite;
 typedef Message2<Message::MSG_FREAD,        size_t,      size_t     > Message_fread;
-typedef Message0<Message::MSG_FREAD_ANSWER,                         > Message_fread_answer;
+typedef Message0<Message::MSG_FREAD_ANSWER                          > Message_fread_answer;
 typedef Message0<Message::MSG_FCLOSE                                > Message_fclose;
 typedef Message0<Message::MSG_FEOF                                  > Message_feof;
 typedef Message1<Message::MSG_FGETS,        int                     > Message_fgets;
