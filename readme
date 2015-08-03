@@ -1,8 +1,14 @@
+The alio library is a dynamically pre-linked library that sits between an application and glibc. All IO calls (fopen, open, fwrite, read, stat, ...) will go though wrapper functions in alio. The library is intended to be used in High Performance Computing (HPC) applications, where large scale IO (100 GBs) cause a significant slow down for large scale parallel applications. It can be used to test, tune, and optimise IO for applications.
+
+
 1) Modules to load and how to use it:
 =====================================
-module load intel/12.1.8.273  openmpi/1.4.3
+# Example for an netcdf based program:
+module load intel/12.1.8.273  openmpi/1.6.5
+# Note that openmpi 1.8.4 apparently has a bug in the dynamic process
+# handling and can not connect remotely.
 module load nco
-LD_PRELOAD=./client/libclient.so ncks -v eta_t,x_T,y_T -c ncrcat_ocean_mean_test.nc eta_mean_test.nc
+LD_PRELOAD=./bld/client/libclient.so ncks -v eta_t,x_T,y_T -c ncrcat_ocean_mean_test.nc eta_mean_test.nc
 export LD_LIBRARY_PATH=/g/sc/home/joergh/projects/alio/tools:$LD_LIBRARY_PATH
 
 #Short
@@ -10,9 +16,10 @@ ncks -d Time,0,0 -v eta_t -c ncrcat_ocean_mean_test.nc eta_mean_test.nc
 
 2) Debugging with gdb
 =====================
-gdb /apps/nco/4.1.0/bin/ncks
+gdb .../a.out
 set environment LD_PRELOAD=./bld/client/libclient.so
-run -v eta_t,x_T,y_T -c ncrcat_ocean_mean_test.nc eta.nc
+run
+
 
 3) Debugging with ddt
 =====================
