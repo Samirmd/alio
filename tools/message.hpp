@@ -26,6 +26,8 @@
 
 #include <stdio.h>
 
+class ICommunication;
+
 using std::memcpy;
 
 class Message
@@ -159,6 +161,7 @@ public:
                 ~Message();
     void         clear();
     void         allocate(size_t size);
+    void         send(ICommunication *communication);
     // ------------------------------------------------------------------------
     /** Returns the message type. */
     MessageType  getType() const   { return m_type; }

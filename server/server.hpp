@@ -16,21 +16,25 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include <stdio.h>
+#include <string>
+
 class ICommunication;
 
 class Server
 {
 private:
-    FILE *m_file = NULL;
+    FILE *m_file;
 
 
-    int  m_filedes = 0;
+    int  m_filedes;
 
-std::string m_filename("");
+    std::string m_filename;
+
     /** The object used for all communication. */
     ICommunication *m_communication;
 
-    int handleRequests(char *buffer);
+    int handleRequest(char *buffer);
 public:
     Server(ICommunication *communication);
 };   // class Server

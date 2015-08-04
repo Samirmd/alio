@@ -18,8 +18,8 @@
 
 
 
-
-#include "tools/i_communication.hpp"
+#include "server/server.hpp"
+#include "tools/mpi_communication.hpp"
 #include "tools/message.hpp"
 #include "tools/os.hpp"
 
@@ -32,7 +32,8 @@ int main(int argc, char **argv)
     ALIO::OS::init();
 
 #ifdef USE_MPI
-    ICommunication *communication = new MPICommunication(argc, argv);
+    ICommunication *communication = new MPICommunication(/*is_server*/true,
+                                                         argc, argv);
 #endif
 
     Server *server = new Server(communication);

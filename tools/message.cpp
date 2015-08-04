@@ -16,6 +16,7 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include "tools/i_communication.hpp"
 #include "tools/message.hpp"
 
 #include <string>
@@ -93,13 +94,19 @@ void Message::allocate(size_t size)
     m_data      = new char[m_data_size];
     if(!m_data)
     {
-        printf("can't allocate '%ld' bytes.\n", m_data_size);
+        printf("can't allocate '%d' bytes.\n", m_data_size);
         assert(false);
     }
     add(m_type);
     add(m_index);
     m_needs_destroy = true;
 }   // allocate
+
+// ----------------------------------------------------------------------------
+void Message::send(ICommunication *communication)
+{
+    communication->send(getData(), getLen(), /*tag*/9);
+}   // send
 
 // ----------------------------------------------------------------------------
 

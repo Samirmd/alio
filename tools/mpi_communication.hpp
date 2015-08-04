@@ -27,7 +27,7 @@
 
 #include "mpi.h"
 
-class MPICommunication : publich ICommunication
+class MPICommunication : public ICommunication
 {
 private:
     /** The port name used when opening a port. */
@@ -42,11 +42,14 @@ private:
     /** Length of incoming message. */
     int m_message_length;
 public:
-                  MPICommunication(int argc=0, char **argv=NULL);
+                  MPICommunication(bool is_server, int argc=0,
+                                   char **argv=NULL);
+    virtual int   init();
     virtual int   openPort();
     virtual int   waitForConnection();
     virtual int   waitForMessage();
     virtual char *receive();
+    virtual int   send(void *buffer, int len, int tag);
     // ------------------------------------------------------------------------
     /** Returns the length of an incoming message. */
     virtual int   getMessageLength()
@@ -65,7 +68,7 @@ public:
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
 
-}   // MPICommunication
+};   // MPICommunication
 
 #endif   // USE_MPI
 

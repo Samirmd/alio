@@ -22,12 +22,19 @@
 
 #ifdef USE_MPI
 
-MPICommunication::MPICommunication(int argc, char **argv) : ICommunication()
+MPICommunication::MPICommunication(bool is_server, int argc, char **argv)
+                : ICommunication(is_server)
 {
     m_port_name      = NULL;
     m_message_length = -1;
     MPI_Init(&argc, &argv);
 }   // MPICommunication
+
+// ----------------------------------------------------------------------------
+int MPICommunication::init()
+{
+    return 0;
+}   // init
 
 // ----------------------------------------------------------------------------
 /** Waits for a client to connect.
@@ -57,6 +64,7 @@ int MPICommunication::waitForMessage()
     printf("probe.\n");fflush(stdout);
     MPI_Probe(0, 1, m_intercomm, &m_status);
     MPI_Get_count(&m_status, MPI_CHAR, &m_message_length);
+    return 0;
 }   // waitForMessage
 
 // ----------------------------------------------------------------------------
@@ -67,11 +75,22 @@ char *MPICommunication::receive()
         waitForMessage();
 
     char *buffer = new char[m_message_length];
-    MPI_Recv(buffer, m_message_length, MPI_CHAR, 0, 1, m_intercomm, &m_status);
+    MPI_Recv(buffer, m_message_length, MPI_CHAR, MPI_ANY_SOURCE, 
+             MPI_ANY_TAG, m_intercomm, &m_status);
     return buffer;
 }   // receive
 
 // ----------------------------------------------------------------------------
+int MPICommunication::send(void *buffer, int len, int tag)
+{
+    printf("MPI Sending tag %d\n", tag);
+    if(m_is_server)
+        MPI_Send(buffer, len, MPI_CHAR, 0, tag, m_intercomm);
+    else
+        MPI_Send(buffer, len, MPI_CHAR, 0, tag, m_intercomm);
+    return 0;
+}   // send
+
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------
 // ----------------------------------------------------------------------------

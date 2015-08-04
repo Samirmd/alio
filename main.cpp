@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 #endif
 #if 0
     struct stat buf;
-    FILE *ff = fopen("a","r");
+    FILE *ff = fopen("axxaxx","r");
     int filedes = fileno(ff);
     printf("filedes %d\n", filedes);
     int status  = fstat(filedes, &buf);
@@ -33,20 +33,24 @@ int main(int argc, char **argv)
 
     if(my_rank==0)
     {
-        const char *message="Hello from 0\n";
+        const char *message="Hello from 0";
         
-        FILE *f = fopen64("a", "w");
+        FILE *f;
+        char buffer[1024];
+
+        f = fopen64("axxaxx", "w");
         fseeko64(f, 0, SEEK_SET);
         ferror(f);
         ftello64(f);
-        char buffer[1024];
         setvbuf(f, buffer, _IONBF, 1024);
         fwrite(message, 1, strlen(message), f);
         fflush(f);
         fclose(f);
 
-        f = fopen64("a", "r");
-        fread(buffer, 1, 1024, f);
+        fprintf(stdout,"Done\n");
+        f = fopen64("axxaxx", "r");
+        int n = fread(buffer, 1, 1024, f);
+        buffer[n] = 0;
         fclose(f);
         printf("Read '%s'.\n", buffer);
 

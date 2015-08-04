@@ -17,22 +17,15 @@
 //
 
 
-#ifdef USE_MPI
-
-#include "mpi.h"
-
-#include "tools/os.hpp"
+#include "server/server.hpp"
+#include "tools/i_communication.hpp"
 #include "tools/message.hpp"
+#include "tools/os.hpp"
 
 #include <errno.h>
 #include <stdlib.h>
 
-bool handleRequests(MPI_Comm intercomm);
-
-FILE *m_file = NULL;int  m_filedes = 0;
-
-std::string m_filename("");
-
+#include "mpi.h"
 
 Server::Server(ICommunication *communication)
 {
@@ -53,7 +46,10 @@ Server::Server(ICommunication *communication)
     while(1)
     {
         if(m_communication->waitForMessage())
-            return 1;
+        {
+            printf("Error waiting for message.\n");
+            return;
+        }
         char *buffer = m_communication->receive();
         handleRequest(buffer);
         delete buffer;
@@ -65,10 +61,12 @@ Server::Server(ICommunication *communication)
 /** Waits in a loop for incomming requests.
  *  \return 0 If a quit request was received, 1 in case of error.
  */
-int Server::handleRequests(char *buffer)
+int Server::handleRequest(char *buffer)
 {
-    
+    static int xxx=1;
 
+    int len = m_communication->getMessageLength();
+    printf("Command %d\n", (Message::MessageType)buffer[0]);
     switch((Message::MessageType)buffer[0])
     {
     case Message::MSG_FOPEN:
@@ -80,9 +78,12 @@ int Server::handleRequests(char *buffer)
         }
     case Message::MSG_FOPEN64:
         {
+
             std::string mode;
             Message_fopen64 m(buffer, len, &m_filename, &mode);
+            printf("Open64 '%s' mode '%s'\n", m_filename.c_str(), mode.c_str());
             m_file = fopen64(m_filename.c_str(), mode.c_str());
+            printf("done Open64 '%s' mode '%s'\n", m_filename.c_str(), mode.c_str());
             break;
         }
     case Message::MSG_FSEEK:
@@ -92,11 +93,9 @@ int Server::handleRequests(char *buffer)
             int whence;                                                 \
             MESSAGE_TYPE m(buffer, len, &offset, &whence);              \
             int send_len = m.getSize(whence)+m.getSize(errno);          \
-            int result = NAME(m_file, offset, whence);                \
-            Message_fseek_answer m_answer(m.getIndex(), result, errno); \
-            MPI_Send(m_answer.getData(), m_answer.getLen(),             \
-                     MPI_CHAR, 0, 9, intercomm);
-
+            int result = NAME(m_file, offset, whence);                  \
+            Message_fseek_answer answer(m.getIndex(), result, errno);   \
+            answer.send(m_communication);
 
             FSEEK(fseek, long, Message_fseek_long);
             break;
@@ -117,14 +116,17 @@ int Server::handleRequests(char *buffer)
     case Message::MSG_FTELL:
         {
 #define FTELL(MESSAGE, NAME, TYPE)                             \
+            printf("XXXXXXXXX\n");\
             MESSAGE m(buffer, len);                            \
             TYPE result;                                       \
             int send_len = m.getSize(result)+m.getSize(errno); \
+            send_len = 16; \
+            printf("send len %d\n", send_len); \
             char *msg    = new char[send_len];                 \
             TYPE *p      = (TYPE*)msg;                         \
             p[0]         = NAME(m_file);                       \
             memcpy(p+1, &errno, sizeof(errno));                \
-            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);\
+            m_communication->send(msg, send_len, 9);           \
             delete msg;
 
             FTELL(Message_ftell, ftell, long);
@@ -150,9 +152,24 @@ int Server::handleRequests(char *buffer)
             int send_len = m.getSize(n)+m.getSize(errno);
             char *msg    = new char[send_len];
             int *p       = (int*)msg;
+            if(xxx==1)
+            {
+                FILE *f1= fopen("Baxxaxx", "w");
+                fwrite("Hello\n", 1, 6, f1);
+                fclose(f1);
+                xxx++;
+            }
+            else
+            {
+                FILE *f1= fopen("Caxxaxx", "w");
+                fwrite("Hello\n", 1, 6, f1);
+                fclose(f1);
+                xxx++;
+            }
+
             p[0]         = ferror(m_file);
             p[1]         = errno;
-            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, send_len, 9);
             delete msg;
             break;
         }   // switch
@@ -179,14 +196,16 @@ int Server::handleRequests(char *buffer)
             // for the server side to know how many bytes to copy
             result = fread(m_ans.get()+sizeof(result), size, nmemb, m_file);
             m_ans.add(result);
-            MPI_Send(m_ans.getData(), m_ans.getLen(), MPI_CHAR, 0, 9, intercomm);
+            printf("Sending fread answer.\n");
+            m_ans.send(m_communication);
             // Memory in m_ans will be freed when m_ans is freed automatically
             break;
         }
     case Message::MSG_FCLOSE:
         {
-            Message_fclose m(buffer, len);
-            fclose(m_file);
+            printf("Closing file.\n");
+            //Message_fclose m(buffer, len);
+            //fclose(m_file);
             break;
         }
     case Message::MSG_FEOF:
@@ -224,7 +243,7 @@ int Server::handleRequests(char *buffer)
             int *p       = (int *)msg;
             p[0]         = FUNC(m_filename.c_str(), (struct stat*)(p+2) );
             p[1]         = errno;
-            MPI_Send(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
             delete msg;
             return false;
             XSTAT(struct stat, );
@@ -235,7 +254,7 @@ int Server::handleRequests(char *buffer)
             int *p       = (int *)msg;
             p[0]         = stat(m_filename.c_str(), (struct stat*)(p+2) );
             p[1]         = errno;
-            MPI_Send(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
             delete msg;
             break;
         }
@@ -248,7 +267,7 @@ int Server::handleRequests(char *buffer)
             int *p       = (int *)msg;
             p[0]         = fstat(m_filedes, (struct stat*)(p+2) );
             p[1]         = errno;
-            MPI_Send(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
             delete msg;
             break;
         }
@@ -261,7 +280,7 @@ int Server::handleRequests(char *buffer)
             int *p       = (int *)msg;
             p[0]         = fstat64(m_filedes, (struct stat64*)(p+2) );
             p[1]         = errno;
-            MPI_Send(msg, sizeof(struct stat64)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, sizeof(struct stat64)+2*sizeof(int), 9);
             delete msg;
             break;
         }
@@ -274,7 +293,7 @@ int Server::handleRequests(char *buffer)
             int *p       = (int *)msg;
             p[0]         = lstat(m_filename.c_str(), (struct stat*)(p+2) );
             p[1]         = errno;
-            MPI_Send(msg, sizeof(struct stat)+2*sizeof(int), MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
             delete msg;
             break;
         }
@@ -289,7 +308,7 @@ int Server::handleRequests(char *buffer)
             off_t *p     = (off_t*)msg;
             p[0]         = lseek(m_filedes, offset, whence);
             p[1]         = errno;
-            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, send_len, 9);
             delete msg;
             break;
         }   // switch
@@ -304,7 +323,7 @@ int Server::handleRequests(char *buffer)
             off_t *p     = (off_t*)msg;
             p[0]         = lseek(m_filedes, offset, whence);
             p[1]         = errno;
-            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, send_len, 9);
             delete msg;
             break;
         }   // switch
@@ -331,7 +350,7 @@ int Server::handleRequests(char *buffer)
             p[0] = read(m_filedes, msg+ m.getSize(result) + m.getSize(errno), count);
             // We can't assign to p[1], since then 8 bytes would be written
             memcpy(p+1, &errno, sizeof(errno));
-            MPI_Send(msg, send_len, MPI_CHAR, 0, 9, intercomm);
+            m_communication->send(msg, send_len, 9);
             delete msg;
             break;
         }
@@ -341,7 +360,7 @@ int Server::handleRequests(char *buffer)
             int msg[2];
             msg[0] = close(m_filedes);
             msg[1] = errno;
-            MPI_Send(msg, 2, MPI_INT, 0, 9, intercomm);
+            m_communication->send(msg, 2*sizeof(int), 9);
             break;
         }
     case Message::MSG_QUIT:
@@ -356,18 +375,5 @@ int Server::handleRequests(char *buffer)
         }
     }   // switch
     return false;
-}   // handleRequests
+}   // handleRequest
 
-
-#else   // USE_MPI
-
-#include <stdio.h>
-#include <stdlib.h>
-
-int main(int argc, char **argv)
-{
-    printf("No MPI was used in compilation, the server can not be used.\n");
-    exit(-1);
-}   // main
-
-#endif

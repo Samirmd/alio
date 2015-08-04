@@ -16,12 +16,22 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#ifndef HEADER_I_COMMUNICATION
+#define HEADER_I_COMMUNICATION
 
 class ICommunication
 {
+protected:
+    /** If this is a communication for the server (true) or not. 
+     *  This way the rank can be automatically computed. */
+    bool m_is_server;
+
 public:
     /** Dummy constructor. */
-    ICommunication() {};
+    ICommunication(bool is_server) 
+    {
+        m_is_server = is_server;
+    };
 
     // ------------------------------------------------------------------------
     /** An init call. 
@@ -53,7 +63,10 @@ public:
     // ------------------------------------------------------------------------
     virtual int getMessageLength() = 0;
     // ------------------------------------------------------------------------
+    virtual int send(void *buffer, int len, int tag) = 0;
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
 };   // ICommunication
+
+#endif // HEADER_I_COMMUNICATION

@@ -2,14 +2,14 @@
 <alio>
 
     <client>
-        <file pattern="a">
-            <io type="standard" />
+        <file pattern="axxaxx">
+            <io type="remote" />
             <addon type="debug" default="disable">
                 <read mode="verbose" />
            </addon>
             <addon type="timer" table="yes" xml="yes" />
         </file>
-        <file pattern="b">
+        <file pattern="bxxbxx">
             <io type="standard" />
             <addon type="debug" default="disable">
                 <write mode="verbose"/>
