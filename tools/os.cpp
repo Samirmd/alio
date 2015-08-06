@@ -24,6 +24,12 @@
 #include <dlfcn.h>
 #endif
 
+#include <pwd.h>
+#include <stdlib.h>
+#include <string>
+#include <unistd.h>
+
+
 namespace ALIO {
 namespace OS  {
     t_open       open       = NULL;
@@ -108,4 +114,54 @@ int ALIO::OS::init()
     ALIO::OS::rename   = GET(t_rename,   "rename"  );
     return 0;
 }   // init
+
+// -----------------------------------------------------------------------------
+const std::string ALIO::OS::getConfigDir()
+{
+    std::string dir;
+
+    if (getenv("XDG_CONFIG_HOME") !=NULL)
+    {
+        dir = getenv("XDG_CONFIG_HOME");
+    }
+    else if (getenv("HOME"))
+    {
+        dir = getenv("HOME");
+    }
+    else
+    {
+        struct passwd *pw = getpwuid(getuid());
+        dir = pw->pw_dir;
+    }
+
+    dir += "/.alio/";
+    if(access(dir.c_str(), F_OK)!=0)
+    {
+        if(mkdir(dir.c_str(), 0755) != 0)
+        {
+            printf("Can not create '%s', aborting.\n", dir.c_str());
+            perror("Aborting");
+        }
+    }
+    struct stat my_stat;
+    if(stat(dir.c_str(), &my_stat)<0)
+    {
+        printf("Can not stat '%s', aborting.\n", dir.c_str());
+        perror("Aborting");
+    }
+    if(!S_ISDIR(my_stat.st_mode))
+    {
+        printf("'%s' is not a directory, aborting.\n", dir.c_str());
+        perror("Aborting");
+    }
+
+    if(access(dir.c_str(), W_OK|R_OK)!=0)
+    {
+        printf("Can not read or write '%s' - aborting.\n", dir.c_str());
+        perror("Aborting");
+    }
+
+    return dir;
+
+}   // getConfigDir
 

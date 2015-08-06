@@ -18,9 +18,9 @@
 
 #include "tools/mpi_communication.hpp"
 
-#include "mpi.h"
-
 #ifdef USE_MPI
+
+#include "mpi.h"
 
 MPICommunication::MPICommunication(bool is_server, int argc, char **argv)
                 : ICommunication(is_server)

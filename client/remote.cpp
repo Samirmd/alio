@@ -69,6 +69,16 @@ int Remote::connectToServer()
 {
     assert(!m_connected);
  
+    // First read the server connection data
+    // -------------------------------------
+    std::string config_dir = ALIO::OS::getConfigDir();
+
+    char buffer[256];
+    FILE *port_file = ALIO::OS::fopen("server.dat", "r");
+    bzero(port_name, MPI_MAX_PORT_NAME);
+    ALIO::OS::fread(buffer, 1, 256, port_file);
+    ALIO::OS::fclose(port_file);
+
     // No access to argc/argv here - so just make some fields up
     int argc=1;
     char **argv;
@@ -77,11 +87,6 @@ int Remote::connectToServer()
     argv[1]=NULL;
     MPI_Init(&argc, &argv);
 
-    FILE *port_file = ALIO::OS::fopen("alio_config.dat", "r");
-    char port_name[MPI_MAX_PORT_NAME];
-    bzero(port_name, MPI_MAX_PORT_NAME);
-    ALIO::OS::fread(port_name, 1, MPI_MAX_PORT_NAME, port_file);
-    ALIO::OS::fclose(port_file);
 
     printf("Got portname '%s'.\n", port_name);
 

@@ -22,17 +22,53 @@
 #include "tools/message.hpp"
 #include "tools/os.hpp"
 
+#include <arpa/inet.h>
 #include <errno.h>
+#include <ifaddrs.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <pwd.h>
+#include <sstream>
 #include <stdlib.h>
+#include <string>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#include "mpi.h"
-
-Server::Server(ICommunication *communication)
+/** Starts the server. The server listens on a socket in a separate thread
+ *  for connection requests. The socket will send the connection information
+ *  back to the client (e.g. MPI port string), and inform the main thread
+ *  to accept a new incomming connection. This is a work around for MPI's
+ *  blocking MPI_Accept call :(
+ *
+ *  \param if_name Name of the interface on which to listen.
+ *  \param communication A communication object to communicate with a client.
+ */
+Server::Server(const std::string &if_name, ICommunication *communication )
 {
+    m_config_dir    = ALIO::OS::getConfigDir();
     m_file          = NULL;
     m_filedes       = 0;
     m_communication = communication;
+    m_if_name       = if_name;
+    m_new_connection_available.setAtomic(0);
 
+    // Spawn of a thread that will handle incoming connection requests.
+    // This is necessary e.g. in the case of MPI since the MPI_Comm_accept
+    // blocks (and then this process can not do anything else, and trying
+    // to use multi-threading with (esp Open)MPI is a bad idea.
+    pthread_attr_t  attr;
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+    // Should be the default, but just in case:
+    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+    pthread_t *thread_id = new pthread_t();
+
+
+    int error = pthread_create(thread_id, &attr,
+                               &Server::handleConnectionRequests,  this);
+
+    sleep(5000);
     m_communication->openPort();
 
     FILE *port_file = ALIO::OS::fopen("alio_config.dat", "w");
@@ -41,21 +77,150 @@ Server::Server(ICommunication *communication)
     ALIO::OS::fwrite(port_name, 1, strlen(port_name), port_file);
     ALIO::OS::fclose(port_file);
 
-    m_communication->waitForConnection();
 
     while(1)
     {
-        if(m_communication->waitForMessage())
+        if(m_new_connection_available.getAtomic()==1)
         {
-            printf("Error waiting for message.\n");
-            return;
+            m_communication->waitForConnection();
+            m_new_connection_available.setAtomic(2);
+
         }
-        char *buffer = m_communication->receive();
-        handleRequest(buffer);
-        //delete [] buffer;
-    }
+        else if (m_new_connection_available.getAtomic()==2)
+        {
+            if(m_communication->waitForMessage())
+            {
+                printf("Error waiting for message.\n");
+                return;
+            }
+            char *buffer = m_communication->receive();
+            handleRequest(buffer);
+        }   // new_connection_available==2
+
+    }   // while
 
 }   // Server
+
+// ----------------------------------------------------------------------------
+/** Static function running with its own thread. It just calls an internal
+ *  non-static function, which makes sure that 'this' is properly defined.
+ */
+void *Server::handleConnectionRequests(void *obj)
+{
+    Server *server = (Server*)obj;
+    server->_handleConnectionRequests();
+}   // handleConnectionRequests
+
+// -----------------------------------------------------------------------------
+/** Internal non-static function, called from handleConnection(), so that
+ *  'this' is defined here.
+ */
+void Server::_handleConnectionRequests()
+{
+
+    // Set up the socket
+    // -----------------
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock_fd < 0) 
+    {
+        perror("Problems opening socket, aborting");
+    }
+    
+    int port = 2705;
+        
+    struct sockaddr_in serv_addr;
+    serv_addr.sin_family      = AF_INET;
+    serv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr.sin_port        = htons(port);
+        
+    if(bind(sock_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
+    {
+        perror("Problems binding");
+    }
+        
+    listen(sock_fd, 5);
+
+
+    // Search for the right IP address for the requested interface
+    // -----------------------------------------------------------
+    struct ifaddrs *interface;
+    getifaddrs(&interface);
+
+    while(interface)
+    {
+        if(interface->ifa_addr && interface->ifa_addr->sa_family == AF_INET &&
+           interface->ifa_name == m_if_name)
+        {
+            break;
+        }
+        interface = interface->ifa_next;
+    }
+
+    if(!interface)
+    {
+        printf("Could not find interface '%s'.\n",  m_if_name.c_str());
+        perror("Aborting");
+    }
+
+    // Now write our ip address and port number into a file, which is read by the
+    // clients to detect how to connect to this server
+    // --------------------------------------------------------------------------
+    struct sockaddr_in *p = (struct sockaddr_in *)interface->ifa_addr;
+    std::ostringstream os;
+    FILE *port_file = ALIO::OS::fopen( (m_config_dir+"server.dat").c_str(), "w");
+    os << inet_ntoa(p->sin_addr) << " " << port;
+    ALIO::OS::fwrite(os.str().c_str(), os.str().size(), 1, port_file);
+    ALIO::OS::fclose(port_file);
+
+
+    // Now wait for incomming connections
+    // ----------------------------------
+    while(1)
+    {
+        printf("HandleConnectionRequests is waiting now.\n");
+
+        struct sockaddr_in client;
+        socklen_t client_len = sizeof(client);
+        int new_connection = accept(sock_fd, 
+                                    (struct sockaddr *) &client, 
+                                    &client_len);
+
+        if(new_connection<0)
+        {
+            perror("Problems accepting.");
+        }
+        printf("Connection established.\n");
+
+        char buffer[256];
+        int n = read(new_connection, buffer, 255);
+        if(n<0) 
+            perror("Reading from socket.");
+        
+        printf("Found new connection.\n");
+        char *port_name = m_communication->getPortName();
+        char *p         = port_name;
+        int bytes_to_write = strlen(port_name);
+        
+        while(bytes_to_write>0)
+        {
+            n = write(new_connection, port_name, bytes_to_write);
+            if(n>=0)
+            {
+                bytes_to_write -= n;
+                p += n;
+            }
+            else
+            {
+                printf("Error writing");
+                perror(NULL);
+            }
+        }
+        m_new_connection_available.setAtomic(1);
+        close(new_connection);
+    }   // while(1)
+
+    close(sock_fd);
+}   // handleConnectionRequests
 
 // ----------------------------------------------------------------------------
 /** Waits in a loop for incomming requests.

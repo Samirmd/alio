@@ -31,12 +31,17 @@ int main(int argc, char **argv)
 {
     ALIO::OS::init();
 
+    ICommunication *communication = NULL;
 #ifdef USE_MPI
-    ICommunication *communication = new MPICommunication(/*is_server*/true,
-                                                         argc, argv);
+    communication = new MPICommunication(/*is_server*/true,
+                                         argc, argv);
+#else
+    // ATM there is no other communication channel :(
 #endif
 
-    Server *server = new Server(communication);
+    std::string if_name = (argc>=2) ? argv[1] : "eth0";
+        
+    Server *server = new Server(if_name, communication);
 
 }   // main
 

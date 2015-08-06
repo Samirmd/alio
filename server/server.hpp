@@ -16,6 +16,8 @@
 //    along with ALIO.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+#include "../tools/synchronised.hpp"
+
 #include <stdio.h>
 #include <string>
 
@@ -31,10 +33,24 @@ private:
 
     std::string m_filename;
 
+    /** The interface name to use. */
+    std::string m_if_name;
+
+    /** Stores the user's config directory ($HOME/.alio). */
+    std::string m_config_dir;
+
+    /** Flag to signal from the receiving thread that a new client 
+     *  tries to connect. */
+    Synchronised<int> m_new_connection_available;
+
     /** The object used for all communication. */
     ICommunication *m_communication;
 
     int handleRequest(char *buffer);
+
+    static void *handleConnectionRequests(void *obj);
+    void _handleConnectionRequests();
+
 public:
-    Server(ICommunication *communication);
+    Server(const std::string &if_name, ICommunication *communication);
 };   // class Server

@@ -19,10 +19,11 @@
 #ifndef HEADER_OS_HPP
 #define HEADER_OS_HPP
 
+#include <fcntl.h>
 #include <stdio.h>
+#include <string>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 
 namespace ALIO {
 namespace OS {
@@ -100,7 +101,8 @@ namespace OS {
     extern t_rename   rename;
     // ---------------------------------------------------------------------
     int init();
-}
+    const std::string getConfigDir();
+}   // namespace OS
 }   // namespace ALIO
 
 
