@@ -77,7 +77,7 @@ Message::~Message()
 void Message::clear()
 {
     if(m_needs_destroy)
-        delete m_data;
+        delete [] m_data;
 
     m_data = NULL;
     m_needs_destroy = false;

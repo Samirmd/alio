@@ -52,7 +52,7 @@ Server::Server(ICommunication *communication)
         }
         char *buffer = m_communication->receive();
         handleRequest(buffer);
-        delete buffer;
+        //delete [] buffer;
     }
 
 }   // Server
@@ -120,14 +120,13 @@ int Server::handleRequest(char *buffer)
             MESSAGE m(buffer, len);                            \
             TYPE result;                                       \
             int send_len = m.getSize(result)+m.getSize(errno); \
-            send_len = 16; \
             printf("send len %d\n", send_len); \
             char *msg    = new char[send_len];                 \
             TYPE *p      = (TYPE*)msg;                         \
             p[0]         = NAME(m_file);                       \
             memcpy(p+1, &errno, sizeof(errno));                \
             m_communication->send(msg, send_len, 9);           \
-            delete msg;
+            delete [] msg;
 
             FTELL(Message_ftell, ftell, long);
             break;
@@ -170,7 +169,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = ferror(m_file);
             p[1]         = errno;
             m_communication->send(msg, send_len, 9);
-            delete msg;
+            delete [] msg;
             break;
         }   // switch
 
@@ -196,16 +195,14 @@ int Server::handleRequest(char *buffer)
             // for the server side to know how many bytes to copy
             result = fread(m_ans.get()+sizeof(result), size, nmemb, m_file);
             m_ans.add(result);
-            printf("Sending fread answer.\n");
             m_ans.send(m_communication);
             // Memory in m_ans will be freed when m_ans is freed automatically
             break;
         }
     case Message::MSG_FCLOSE:
         {
-            printf("Closing file.\n");
-            //Message_fclose m(buffer, len);
-            //fclose(m_file);
+            Message_fclose m(buffer, len);
+            fclose(m_file);
             break;
         }
     case Message::MSG_FEOF:
@@ -244,7 +241,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = FUNC(m_filename.c_str(), (struct stat*)(p+2) );
             p[1]         = errno;
             m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
-            delete msg;
+            delete [] msg;
             return false;
             XSTAT(struct stat, );
 #endif
@@ -255,7 +252,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = stat(m_filename.c_str(), (struct stat*)(p+2) );
             p[1]         = errno;
             m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
-            delete msg;
+            delete [] msg;
             break;
         }
         
@@ -268,7 +265,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = fstat(m_filedes, (struct stat*)(p+2) );
             p[1]         = errno;
             m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
-            delete msg;
+            delete [] msg;
             break;
         }
 
@@ -281,7 +278,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = fstat64(m_filedes, (struct stat64*)(p+2) );
             p[1]         = errno;
             m_communication->send(msg, sizeof(struct stat64)+2*sizeof(int), 9);
-            delete msg;
+            delete [] msg;
             break;
         }
         
@@ -294,7 +291,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = lstat(m_filename.c_str(), (struct stat*)(p+2) );
             p[1]         = errno;
             m_communication->send(msg, sizeof(struct stat)+2*sizeof(int), 9);
-            delete msg;
+            delete [] msg;
             break;
         }
         
@@ -309,7 +306,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = lseek(m_filedes, offset, whence);
             p[1]         = errno;
             m_communication->send(msg, send_len, 9);
-            delete msg;
+            delete [] msg;
             break;
         }   // switch
 
@@ -324,7 +321,7 @@ int Server::handleRequest(char *buffer)
             p[0]         = lseek(m_filedes, offset, whence);
             p[1]         = errno;
             m_communication->send(msg, send_len, 9);
-            delete msg;
+            delete [] msg;
             break;
         }   // switch
 
@@ -351,7 +348,7 @@ int Server::handleRequest(char *buffer)
             // We can't assign to p[1], since then 8 bytes would be written
             memcpy(p+1, &errno, sizeof(errno));
             m_communication->send(msg, send_len, 9);
-            delete msg;
+            delete [] msg;
             break;
         }
     case Message::MSG_CLOSE:

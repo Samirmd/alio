@@ -42,7 +42,7 @@ int MPICommunication::init()
  */
 int MPICommunication::openPort()
 {
-    m_port_name = new char[MPI_MAX_PORT_NAME];
+    m_port_name = new char[MPI_MAX_PORT_NAME+1];
     bzero(m_port_name, MPI_MAX_PORT_NAME);
     MPI_Open_port(MPI_INFO_NULL, m_port_name); 
     printf("Server: open port '%s'.\n", m_port_name);
